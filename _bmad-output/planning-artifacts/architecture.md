@@ -191,7 +191,7 @@ npx oclif generate jy
 - Lint (ESLint + Prettier check)
 - Build (`tsc`)
 - Run tests (unit + integration)
-- Matrix: Node.js 22.x on ubuntu-latest, macos-latest, windows-latest
+- Matrix: Node.js 22.x on ubuntu-latest only (expand to macos-latest and windows-latest after the repository is made public, to avoid runner minute multiplier costs on a private repo)
 
 **Release Workflow (on tag push `v*`):**
 - Run full CI
