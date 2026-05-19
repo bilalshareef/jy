@@ -1,0 +1,7 @@
+{
+  "node-option": ["import=tsx"],
+  "watch-extensions": ["ts"],
+  "recursive": true,
+  "reporter": "spec",
+  "timeout": 60000
+}
