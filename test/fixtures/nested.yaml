@@ -1,0 +1,12 @@
+string: hello
+number: 42
+float: 3.14
+boolean: true
+nullValue: null
+array:
+  - 1
+  - two
+  - false
+nested:
+  deep:
+    key: value
