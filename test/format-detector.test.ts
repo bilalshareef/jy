@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 
 import {EXIT_AMBIGUOUS} from '../src/errors.js'
-import {detectFormatFromExtension, getTargetFormat} from '../src/format-detector.js'
+import {detectFormatFromContent, detectFormatFromExtension, getTargetFormat} from '../src/format-detector.js'
 
 describe('format-detector', () => {
   describe('detectFormatFromExtension', () => {
@@ -53,6 +53,36 @@ describe('format-detector', () => {
 
     it('returns json for yaml input', () => {
       expect(getTargetFormat('yaml')).to.equal('json')
+    })
+  })
+
+  describe('detectFormatFromContent', () => {
+    it('detects content starting with { as json', () => {
+      expect(detectFormatFromContent('{"key": "value"}')).to.equal('json')
+    })
+
+    it('detects content starting with [ as json', () => {
+      expect(detectFormatFromContent('[1, 2, 3]')).to.equal('json')
+    })
+
+    it('detects content starting with { preceded by whitespace as json', () => {
+      expect(detectFormatFromContent('  \n  {"key": "value"}')).to.equal('json')
+    })
+
+    it('detects YAML key-value content as yaml', () => {
+      expect(detectFormatFromContent('key: value')).to.equal('yaml')
+    })
+
+    it('detects YAML list content as yaml', () => {
+      expect(detectFormatFromContent('- item')).to.equal('yaml')
+    })
+
+    it('detects numeric content as yaml', () => {
+      expect(detectFormatFromContent('42')).to.equal('yaml')
+    })
+
+    it('detects quoted string content as yaml', () => {
+      expect(detectFormatFromContent('"hello"')).to.equal('yaml')
     })
   })
 })

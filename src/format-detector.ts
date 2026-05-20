@@ -22,6 +22,15 @@ export function detectFormatFromExtension(filePath: string): Format {
   }
 }
 
+export function detectFormatFromContent(content: string): Format {
+  const trimmed = content.trimStart()
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'json'
+  }
+
+  return 'yaml'
+}
+
 export function getTargetFormat(sourceFormat: Format): Format {
   return sourceFormat === 'json' ? 'yaml' : 'json'
 }

@@ -1,6 +1,7 @@
 import {runCommand} from '@oclif/test'
 import {expect} from 'chai'
 import path from 'node:path'
+import {Readable} from 'node:stream'
 import {fileURLToPath} from 'node:url'
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fixtures')
@@ -51,5 +52,62 @@ describe('jy root command', () => {
     const {error, stderr} = await runCommand([path.join(fixturesDir, 'malformed.yaml')])
     expect(error?.oclif?.exit).to.equal(2)
     expect(stderr).to.contain('malformed.yaml')
+  })
+
+  describe('stdin mode (jy -)', () => {
+    let originalStdin: typeof process.stdin
+
+    beforeEach(() => {
+      originalStdin = process.stdin
+    })
+
+    afterEach(() => {
+      Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+    })
+
+    function mockStdinWith(content: string) {
+      const mockStdin = new Readable({
+        read() {
+          this.push(content)
+          this.push(null)
+        },
+      })
+      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+    }
+
+    it('converts JSON object from stdin to YAML', async () => {
+      mockStdinWith('{"key": "value"}')
+      const {stdout} = await runCommand(['-'])
+      expect(stdout).to.contain('key: value')
+    })
+
+    it('converts JSON array from stdin to YAML', async () => {
+      mockStdinWith('[1, 2, 3]')
+      const {stdout} = await runCommand(['-'])
+      expect(stdout).to.contain('- 1')
+      expect(stdout).to.contain('- 2')
+      expect(stdout).to.contain('- 3')
+    })
+
+    it('converts YAML from stdin to JSON', async () => {
+      mockStdinWith('key: value\n')
+      const {stdout} = await runCommand(['-'])
+      const parsed = JSON.parse(stdout)
+      expect(parsed).to.deep.equal({key: 'value'})
+    })
+
+    it('exits with code 2 for malformed stdin content', async () => {
+      mockStdinWith('not: [valid: content')
+      const {error, stderr} = await runCommand(['-'])
+      expect(error?.oclif?.exit).to.equal(2)
+      expect(stderr).to.contain('stdin')
+    })
+
+    it('exits with non-zero code for empty stdin', async () => {
+      mockStdinWith('')
+      const {error, stderr} = await runCommand(['-'])
+      expect(error?.oclif?.exit).to.be.greaterThan(0)
+      expect(stderr).to.contain('stdin')
+    })
   })
 })
