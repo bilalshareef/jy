@@ -20,3 +20,8 @@
 - EPIPE unhandled on `process.stdout.write` — pipe closure before write completes may crash process with unhandled stream error [src/commands/index.ts]
 - `detectFormatFromExtension` error message shows full path not extension — `'Unsupported file extension: /path/to/data.txt'` is slightly misleading [src/format-detector.ts]
 - `getTargetFormat` over-exported — only needed by `converter.ts`; if converter dependency violation is resolved, export can be removed [src/format-detector.ts]
+
+## Deferred from: story 1.4 scope reduction (2026-05-21)
+
+- `--to json|yaml` output format override flag (FR4) — removed from Story 1.4 scope. With only two supported formats (JSON/YAML), the output format is fully determined by the input format, making `--to` redundant for cross-format conversion. Same-format re-serialization (pretty-printing) can be revisited as a dedicated feature if demand arises. [src/commands/index.ts, src/converter.ts]
+- `--quiet` / `-q` flag (FR22) — deferred to Epic 2. Currently the CLI produces zero informational messages, so the flag has no observable effect. Should be implemented alongside multi-file processing (Epic 2) when informational status messages are introduced. [src/commands/index.ts]
