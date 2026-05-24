@@ -34,3 +34,18 @@ export function detectFormatFromContent(content: string): Format {
 export function getTargetFormat(sourceFormat: Format): Format {
   return sourceFormat === 'json' ? 'yaml' : 'json'
 }
+
+export function detectFormatFromPaths(filePaths: string[]): Format {
+  const formats = filePaths.map((p) => detectFormatFromExtension(p))
+  const first = formats[0]
+  for (const f of formats) {
+    if (f !== first) {
+      throw new JyError(
+        'Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions',
+        EXIT_AMBIGUOUS,
+      )
+    }
+  }
+
+  return first
+}

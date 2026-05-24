@@ -51,7 +51,7 @@ development_status:
 
   # Epic 2: Multi-File Processing, Output Formatting & Validation
   epic-2: in-progress
-  2-1-multi-file-conversion-glob-support: ready-for-dev
+  2-1-multi-file-conversion-glob-support: done
   2-2-output-directory-writing: backlog
   2-3-output-formatting-options: backlog
   2-4-validate-mode: backlog

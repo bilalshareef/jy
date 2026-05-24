@@ -1,4 +1,5 @@
-import {readFile} from 'node:fs/promises'
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
+import {glob, readFile, stat} from 'node:fs/promises'
 
 import {EXIT_IO, EXIT_PARSE, JyError} from './errors.js'
 
@@ -33,4 +34,54 @@ export async function readStdin(): Promise<string> {
     })
     process.stdin.resume()
   })
+}
+
+function isGlobPattern(arg: string): boolean {
+  return arg.includes('*') || arg.includes('?') || arg.includes('[')
+}
+
+async function pathExists(filePath: string): Promise<boolean> {
+  try {
+    await stat(filePath)
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function isFile(filePath: string): Promise<boolean> {
+  try {
+    return (await stat(filePath)).isFile()
+  } catch {
+    return false
+  }
+}
+
+export async function resolveFilePaths(args: string[]): Promise<string[]> {
+  const results: string[] = []
+  for (const arg of args) {
+    // eslint-disable-next-line no-await-in-loop
+    const useGlobExpansion = isGlobPattern(arg) && !(await pathExists(arg))
+
+    if (useGlobExpansion) {
+      const matches: string[] = []
+      // eslint-disable-next-line no-await-in-loop
+      for await (const entry of glob(arg)) {
+        if (await isFile(entry)) {
+          matches.push(entry)
+        }
+      }
+
+      if (matches.length === 0) {
+        throw new JyError(`No files matched: ${arg}`, EXIT_IO)
+      }
+
+      matches.sort()
+      results.push(...matches)
+    } else {
+      results.push(arg)
+    }
+  }
+
+  return results
 }

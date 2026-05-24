@@ -1,10 +1,12 @@
 import {expect} from 'chai'
+import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {Readable} from 'node:stream'
 import {fileURLToPath} from 'node:url'
 
 import {EXIT_IO, EXIT_PARSE} from '../src/errors.js'
-import {readInput, readStdin} from '../src/io.js'
+import {readInput, readStdin, resolveFilePaths} from '../src/io.js'
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures')
 
@@ -81,6 +83,98 @@ describe('io', () => {
       } catch (error: unknown) {
         expect(error).to.have.property('code', EXIT_PARSE)
         expect(error).to.have.property('message', 'No input provided on stdin')
+      }
+    })
+  })
+
+  describe('resolveFilePaths', () => {
+    it('passes literal paths through unchanged', async () => {
+      const input = [path.join(fixturesDir, 'simple.json')]
+      const result = await resolveFilePaths(input)
+      expect(result).to.deep.equal(input)
+    })
+
+    it('passes multiple literal paths through unchanged', async () => {
+      const input = [
+        path.join(fixturesDir, 'simple.json'),
+        path.join(fixturesDir, 'nested.json'),
+      ]
+      const result = await resolveFilePaths(input)
+      expect(result).to.deep.equal(input)
+    })
+
+    it('expands glob patterns matching test fixtures', async () => {
+      const result = await resolveFilePaths([path.join(fixturesDir, '*.json')])
+      expect(result.length).to.be.greaterThan(0)
+      for (const p of result) {
+        expect(p).to.match(/\.json$/)
+      }
+    })
+
+    it('returns glob matches sorted alphabetically', async () => {
+      const result = await resolveFilePaths([path.join(fixturesDir, '*.json')])
+      const sorted = [...result].sort()
+      expect(result).to.deep.equal(sorted)
+    })
+
+    it('throws JyError with EXIT_IO for no-match glob', async () => {
+      try {
+        await resolveFilePaths(['nonexistent-dir-xyz/*.json'])
+        expect.fail('Expected resolveFilePaths to throw')
+      } catch (error: unknown) {
+        expect(error).to.have.property('code', EXIT_IO)
+        expect(error).to.have.property('message').that.includes('No files matched')
+      }
+    })
+
+    it('mixes literal paths and glob expansions preserving order', async () => {
+      const literal = path.join(fixturesDir, 'simple.json')
+      const result = await resolveFilePaths([literal, path.join(fixturesDir, 'nested.*')])
+      expect(result[0]).to.equal(literal)
+      expect(result.length).to.be.greaterThan(1)
+    })
+
+    it('treats existing paths with glob metacharacters as literal files', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-literal-'))
+      const literalPath = path.join(tmpDir, 'file[prod].json')
+      writeFileSync(literalPath, '{"name":"jy"}')
+
+      try {
+        const result = await resolveFilePaths([literalPath])
+        expect(result).to.deep.equal([literalPath])
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('filters directories out of glob expansions', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-glob-files-'))
+      const filePath = path.join(tmpDir, 'a.json')
+      writeFileSync(filePath, '{"key":"value"}')
+      mkdirSync(path.join(tmpDir, 'nested'))
+
+      try {
+        const result = await resolveFilePaths([path.join(tmpDir, '*')])
+        expect(result).to.deep.equal([filePath])
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('expands recursive glob patterns', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-glob-recursive-'))
+      const rootFile = path.join(tmpDir, 'root.json')
+      const nestedDir = path.join(tmpDir, 'nested')
+      const nestedFile = path.join(nestedDir, 'child.json')
+      writeFileSync(rootFile, '{"root":true}')
+      mkdirSync(nestedDir)
+      writeFileSync(nestedFile, '{"child":true}')
+
+      try {
+        const result = await resolveFilePaths([path.join(tmpDir, '**/*.json')])
+        expect(result).to.deep.equal([nestedFile, rootFile].sort())
+      } finally {
+        rmSync(tmpDir, {recursive: true})
       }
     })
   })

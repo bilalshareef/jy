@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 
 import {EXIT_AMBIGUOUS} from '../src/errors.js'
-import {detectFormatFromContent, detectFormatFromExtension, getTargetFormat} from '../src/format-detector.js'
+import {detectFormatFromContent, detectFormatFromExtension, detectFormatFromPaths, getTargetFormat} from '../src/format-detector.js'
 
 describe('format-detector', () => {
   describe('detectFormatFromExtension', () => {
@@ -83,6 +83,37 @@ describe('format-detector', () => {
 
     it('detects quoted string content as yaml', () => {
       expect(detectFormatFromContent('"hello"')).to.equal('yaml')
+    })
+  })
+
+  describe('detectFormatFromPaths', () => {
+    it('returns json for all-JSON paths', () => {
+      expect(detectFormatFromPaths(['a.json', 'b.json'])).to.equal('json')
+    })
+
+    it('returns yaml for all-YAML paths', () => {
+      expect(detectFormatFromPaths(['a.yaml', 'b.yml'])).to.equal('yaml')
+    })
+
+    it('returns json for a single JSON path', () => {
+      expect(detectFormatFromPaths(['config.json'])).to.equal('json')
+    })
+
+    it('throws EXIT_AMBIGUOUS for mixed .json and .yaml paths', () => {
+      expect(() => detectFormatFromPaths(['data.json', 'config.yaml']))
+        .to.throw()
+        .with.property('code', EXIT_AMBIGUOUS)
+    })
+
+    it('throws EXIT_AMBIGUOUS for mixed .json and .yml paths', () => {
+      expect(() => detectFormatFromPaths(['data.json', 'config.yml']))
+        .to.throw()
+        .with.property('code', EXIT_AMBIGUOUS)
+    })
+
+    it('error message mentions mixed formats', () => {
+      expect(() => detectFormatFromPaths(['a.json', 'b.yaml']))
+        .to.throw(/Mixed input formats/)
     })
   })
 })

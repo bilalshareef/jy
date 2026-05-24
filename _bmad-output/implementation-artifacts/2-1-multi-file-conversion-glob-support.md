@@ -1,6 +1,6 @@
 # Story 2.1: Multi-File Conversion & Glob Support
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -26,46 +26,53 @@ so that **I can batch-convert files efficiently without running jy repeatedly**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Update CLI argument to accept variadic file inputs (AC: #1, #2, #3)
-  - [ ] 1.1 Change `args.file` from single `Args.string` to variadic `Args.string` in `src/commands/index.ts`
-  - [ ] 1.2 Oclif variadic args: use `static override args = { files: Args.string({ required: true, multiple: true }) }` — verify oclif v4 supports this, otherwise use `static override strict = false` and `this.argv`
+- [x] Task 1: Update CLI argument to accept variadic file inputs (AC: #1, #2, #3)
+  - [x] 1.1 Change `args.file` from single `Args.string` to variadic `Args.string` in `src/commands/index.ts`
+  - [x] 1.2 Oclif variadic args: use `static override args = { files: Args.string({ required: true, multiple: true }) }` — verify oclif v4 supports this, otherwise use `static override strict = false` and `this.argv`
 
-- [ ] Task 2: Add glob resolution to `src/io.ts` (AC: #3, #5)
-  - [ ] 2.1 Add `resolveFilePaths(args: string[]): Promise<string[]>` function — for each arg, detect if it's a glob pattern (contains `*`, `?`, `[`), expand via `fsPromises.glob()`, or treat as a literal path
-  - [ ] 2.2 Collect results into a flat array preserving order (globs sorted alphabetically within their expansion)
-  - [ ] 2.3 Throw `JyError('No files matched: <pattern>', EXIT_IO)` when a glob pattern matches zero files
-  - [ ] 2.4 Use Node.js 22 built-in `glob` from `node:fs/promises` — do NOT add any external glob dependency
+- [x] Task 2: Add glob resolution to `src/io.ts` (AC: #3, #5)
+  - [x] 2.1 Add `resolveFilePaths(args: string[]): Promise<string[]>` function — for each arg, detect if it's a glob pattern (contains `*`, `?`, `[`), expand via `fsPromises.glob()`, or treat as a literal path
+  - [x] 2.2 Collect results into a flat array preserving order (globs sorted alphabetically within their expansion)
+  - [x] 2.3 Throw `JyError('No files matched: <pattern>', EXIT_IO)` when a glob pattern matches zero files
+  - [x] 2.4 Use Node.js 22 built-in `glob` from `node:fs/promises` — do NOT add any external glob dependency
 
-- [ ] Task 3: Add mixed-format detection to `src/format-detector.ts` (AC: #4)
-  - [ ] 3.1 Add `detectFormatFromPaths(filePaths: string[]): Format` function — calls `detectFormatFromExtension()` on each path, throws `JyError('Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions', EXIT_AMBIGUOUS)` if formats differ
+- [x] Task 3: Add mixed-format detection to `src/format-detector.ts` (AC: #4)
+  - [x] 3.1 Add `detectFormatFromPaths(filePaths: string[]): Format` function — calls `detectFormatFromExtension()` on each path, throws `JyError('Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions', EXIT_AMBIGUOUS)` if formats differ
 
-- [ ] Task 4: Update root command to orchestrate multi-file pipeline (AC: #1, #2, #3, #4, #5, #6)
-  - [ ] 4.1 Resolve args → file paths via `resolveFilePaths()`
-  - [ ] 4.2 Detect format from paths via `detectFormatFromPaths()`
-  - [ ] 4.3 Loop through files: read → convert → collect output
-  - [ ] 4.4 Join outputs with correct separator (`---\n` for YAML output, `\n` for JSON output)
-  - [ ] 4.5 Write joined result to stdout via `process.stdout.write()`
-  - [ ] 4.6 Fail-fast: let JyError propagate on first failure (existing try/catch handles it)
-  - [ ] 4.7 Preserve stdin branch (`-` argument) — must still work for single stdin input
+- [x] Task 4: Update root command to orchestrate multi-file pipeline (AC: #1, #2, #3, #4, #5, #6)
+  - [x] 4.1 Resolve args → file paths via `resolveFilePaths()`
+  - [x] 4.2 Detect format from paths via `detectFormatFromPaths()`
+  - [x] 4.3 Loop through files: read → convert → collect output
+  - [x] 4.4 Join outputs with correct separator (`---\n` for YAML output, `\n` for JSON output)
+  - [x] 4.5 Write joined result to stdout via `process.stdout.write()`
+  - [x] 4.6 Fail-fast: let JyError propagate on first failure (existing try/catch handles it)
+  - [x] 4.7 Preserve stdin branch (`-` argument) — must still work for single stdin input
 
-- [ ] Task 5: Add unit tests for `io.ts` glob resolution (AC: #7)
-  - [ ] 5.1 Test `resolveFilePaths` with literal paths
-  - [ ] 5.2 Test `resolveFilePaths` with glob patterns matching test fixtures
-  - [ ] 5.3 Test `resolveFilePaths` throws EXIT_IO for no-match globs
+- [x] Task 5: Add unit tests for `io.ts` glob resolution (AC: #7)
+  - [x] 5.1 Test `resolveFilePaths` with literal paths
+  - [x] 5.2 Test `resolveFilePaths` with glob patterns matching test fixtures
+  - [x] 5.3 Test `resolveFilePaths` throws EXIT_IO for no-match globs
 
-- [ ] Task 6: Add unit tests for `format-detector.ts` mixed-format detection (AC: #7)
-  - [ ] 6.1 Test `detectFormatFromPaths` with all-JSON paths returns `'json'`
-  - [ ] 6.2 Test `detectFormatFromPaths` with all-YAML paths returns `'yaml'`
-  - [ ] 6.3 Test `detectFormatFromPaths` with mixed paths throws EXIT_AMBIGUOUS
+- [x] Task 6: Add unit tests for `format-detector.ts` mixed-format detection (AC: #7)
+  - [x] 6.1 Test `detectFormatFromPaths` with all-JSON paths returns `'json'`
+  - [x] 6.2 Test `detectFormatFromPaths` with all-YAML paths returns `'yaml'`
+  - [x] 6.3 Test `detectFormatFromPaths` with mixed paths throws EXIT_AMBIGUOUS
 
-- [ ] Task 7: Add CLI integration tests for multi-file conversion (AC: #7)
-  - [ ] 7.1 Test multi-JSON → YAML with `---\n` separator
-  - [ ] 7.2 Test multi-YAML → JSON with `\n` separator
-  - [ ] 7.3 Test mixed-format rejection exits with code 4
-  - [ ] 7.4 Test fail-fast on malformed second file exits with code 2
-  - [ ] 7.5 Test glob pattern expansion (create temp directory with fixtures)
-  - [ ] 7.6 Test glob with no matches exits with code 3
-  - [ ] 7.7 Verify single-file and stdin modes still work (regression)
+- [x] Task 7: Add CLI integration tests for multi-file conversion (AC: #7)
+  - [x] 7.1 Test multi-JSON → YAML with `---\n` separator
+  - [x] 7.2 Test multi-YAML → JSON with `\n` separator
+  - [x] 7.3 Test mixed-format rejection exits with code 4
+  - [x] 7.4 Test fail-fast on malformed second file exits with code 2
+  - [x] 7.5 Test glob pattern expansion (create temp directory with fixtures)
+  - [x] 7.6 Test glob with no matches exits with code 3
+  - [x] 7.7 Verify single-file and stdin modes still work (regression)
+
+### Review Findings
+
+- [x] [Review][Patch] Literal filenames containing glob metacharacters are misclassified as patterns and fail with `No files matched` instead of being read as normal files [src/io.ts:38]
+- [x] [Review][Patch] Broad glob patterns can include directories, which then fail later as `Unsupported file extension` with exit code 4 instead of being filtered out or reported as an IO/glob error [src/io.ts:44]
+- [x] [Review][Patch] Recursive glob behavior from the explicit `src/**/*.json` acceptance path is not covered by tests, so AC3 can regress without detection [test/commands/index.test.ts:94]
+- [x] [Review][Patch] Multi-file separator tests only assert presence, not exact boundary placement, so leading/trailing or duplicated separators would still pass [test/commands/index.test.ts:58]
 
 ## Dev Notes
 
@@ -250,6 +257,15 @@ Claude Opus 4.6 (GitHub Copilot)
 - Verified oclif v4 variadic args approach — `strict = false` + `argv`
 - Previous story (1.3) learnings integrated: stdout/stderr patterns, error handling, test patterns
 - Deferred work items documented to prevent regression
+- Implementation complete: all 7 tasks implemented and tested
+- Used `strict = false` + `argv` for variadic args (oclif v4 doesn't support `multiple: true` on Args)
+- Added `resolveFilePaths()` with `fsPromises.glob` for glob expansion, `isGlobPattern()` heuristic for `*`, `?`, `[`
+- Added `detectFormatFromPaths()` for mixed-format validation across multiple files
+- Multi-file pipeline: resolve → detect format → loop (read → convert) → join with separator → stdout
+- Separator: `---\n` for YAML output, `\n` (blank line) for JSON output
+- Fail-fast: sequential file processing lets JyError propagate on first failure
+- Lint: added targeted ESLint disables for intentional `no-await-in-loop` (sequential fail-fast) and experimental `glob` API
+- 77 tests passing (18 new), 0 regressions, lint clean
 
 ### File List
 
