@@ -1,6 +1,6 @@
 import {runCommand} from '@oclif/test'
 import {expect} from 'chai'
-import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {Readable} from 'node:stream'
@@ -194,6 +194,110 @@ describe('jy root command', () => {
       const {error, stderr} = await runCommand(['-'])
       expect(error?.oclif?.exit).to.be.greaterThan(0)
       expect(stderr).to.contain('stdin')
+    })
+  })
+
+  describe('--out', () => {
+    it('writes single JSON file as YAML to out dir with .yaml extension', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const outDir = path.join(tmpDir, 'output')
+      try {
+        const {stdout} = await runCommand([path.join(fixturesDir, 'simple.json'), '--out', outDir])
+        expect(stdout).to.equal('')
+        const written = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
+        expect(written).to.contain('name: jy')
+        expect(written).to.contain('version: 1')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('writes single YAML file as JSON to out dir with .json extension', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const outDir = path.join(tmpDir, 'output')
+      try {
+        const {stdout} = await runCommand([path.join(fixturesDir, 'simple.yaml'), '--out', outDir])
+        expect(stdout).to.equal('')
+        const written = readFileSync(path.join(outDir, 'simple.json'), 'utf8')
+        const parsed = JSON.parse(written)
+        expect(parsed).to.deep.equal({name: 'jy', version: 1})
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('writes multiple JSON files to out dir', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const outDir = path.join(tmpDir, 'output')
+      try {
+        const {stdout} = await runCommand([
+          path.join(fixturesDir, 'simple.json'),
+          path.join(fixturesDir, 'nested.json'),
+          '--out', outDir,
+        ])
+        expect(stdout).to.equal('')
+        const simple = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
+        expect(simple).to.contain('name: jy')
+        const nested = readFileSync(path.join(outDir, 'nested.yaml'), 'utf8')
+        expect(nested).to.contain('nested')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('creates output dir when it does not exist including nested path', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const outDir = path.join(tmpDir, 'a', 'b', 'c')
+      try {
+        await runCommand([path.join(fixturesDir, 'simple.json'), '--out', outDir])
+        const written = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
+        expect(written).to.contain('name: jy')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('writes nothing to stdout when --out is used', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      try {
+        const {stdout} = await runCommand([path.join(fixturesDir, 'simple.json'), '--out', tmpDir])
+        expect(stdout).to.equal('')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('exits with code 3 when output path cannot be created', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const blockingFile = path.join(tmpDir, 'blocking-file')
+      writeFileSync(blockingFile, 'not a directory')
+      try {
+        const {error, stderr} = await runCommand([path.join(fixturesDir, 'simple.json'), '--out', blockingFile])
+        expect(error?.oclif?.exit).to.equal(3)
+        expect(stderr).to.contain('Cannot write to directory')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('exits with code 3 when stdin is used with --out', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const originalStdin = process.stdin
+      const mockStdin = new Readable({
+        read() {
+          this.push('{"key": "value"}')
+          this.push(null)
+        },
+      })
+      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      try {
+        const {error, stderr} = await runCommand(['-', '--out', tmpDir])
+        expect(error?.oclif?.exit).to.equal(3)
+        expect(stderr).to.contain('Cannot use --out with stdin input')
+      } finally {
+        Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+        rmSync(tmpDir, {recursive: true})
+      }
     })
   })
 })

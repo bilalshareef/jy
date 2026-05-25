@@ -25,3 +25,12 @@
 
 - `--to json|yaml` output format override flag (FR4) — removed from Story 1.4 scope. With only two supported formats (JSON/YAML), the output format is fully determined by the input format, making `--to` redundant for cross-format conversion. Same-format re-serialization (pretty-printing) can be revisited as a dedicated feature if demand arises. [src/commands/index.ts, src/converter.ts]
 - `--quiet` / `-q` flag (FR22) — deferred to Epic 2. Currently the CLI produces zero informational messages, so the flag has no observable effect. Should be implemented alongside multi-file processing (Epic 2) when informational status messages are introduced. [src/commands/index.ts]
+
+## Course correction during story 2.2 code review (2026-05-25)
+
+- `--out-dir` renamed to `--out` — shorter flag name, same directory-only semantics. The user considered expanding `--out` to support both directory and file targets (auto-detecting based on extension), but after analysis this was dropped: shell redirection (`jy foo.json > bar.yaml`) already covers the custom-filename use case, and file-vs-directory disambiguation introduces ambiguity (directories can have dots in names). The flag remains strictly a directory target. [src/commands/index.ts, test/commands/index.test.ts]
+- Custom output filename via `--out` — not implemented. Considered allowing `--out path/file.json` to write to a specific filename, but deferred: (1) shell redirection handles single-file output naming, (2) multi-file + single filename is undefined, (3) detecting file vs directory from the path is inherently ambiguous. If demand arises, could be revisited as a separate `--out-file` flag for single-file mode only.
+
+## Deferred from: code review of 2-2-output-directory-writing (2026-05-26)
+
+- Preserve relative source directories under `--out` to avoid duplicate-basename overwrites — valid edge case but uncommon; preserving input folder structure adds complexity, so revisit if real usage shows it is needed. [src/io.ts:42]

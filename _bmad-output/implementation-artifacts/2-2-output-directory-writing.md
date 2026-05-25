@@ -1,63 +1,68 @@
 # Story 2.2: Output Directory Writing
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
 As a **developer**,
-I want **to write converted files to a specified output directory using `--out-dir`**,
+I want **to write converted files to a specified output directory using `--out`**,
 so that **I can batch-convert files into a target directory without manual file redirection**.
 
 ## Acceptance Criteria
 
-1. **Given** a JSON file `src/config.json` and an output directory `dist/`, **when** the user runs `jy src/config.json --out-dir dist`, **then** the converted YAML is written to `dist/config.yaml` (original filename with swapped extension) and nothing is written to stdout
+1. **Given** a JSON file `src/config.json` and an output directory `dist/`, **when** the user runs `jy src/config.json --out dist`, **then** the converted YAML is written to `dist/config.yaml` (original filename with swapped extension) and nothing is written to stdout
 
-2. **Given** multiple JSON files `a.json` and `b.json`, **when** the user runs `jy a.json b.json --out-dir output`, **then** `output/a.yaml` and `output/b.yaml` are created with the converted content
+2. **Given** multiple JSON files `a.json` and `b.json`, **when** the user runs `jy a.json b.json --out output`, **then** `output/a.yaml` and `output/b.yaml` are created with the converted content
 
-3. **Given** a glob pattern matching YAML files, **when** the user runs `jy 'src/**/*.yaml' --out-dir dist`, **then** each matched file is converted to JSON and written to `dist/` with the `.json` extension, preserving the original filename
+3. **Given** a glob pattern matching YAML files, **when** the user runs `jy 'src/**/*.yaml' --out dist`, **then** each matched file is converted to JSON and written to `dist/` with the `.json` extension, preserving the original filename
 
-4. **Given** the specified `--out-dir` does not exist, **when** the user runs `jy data.json --out-dir nonexistent/path`, **then** the directory is created (including intermediate directories) and the converted file is written successfully
+4. **Given** the specified `--out` does not exist, **when** the user runs `jy data.json --out nonexistent/path`, **then** the directory is created (including intermediate directories) and the converted file is written successfully
 
-5. **Given** the `--out-dir` target has a permission issue, **when** the user runs `jy data.json --out-dir /readonly-dir`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
+5. **Given** the `--out` target has a permission issue, **when** the user runs `jy data.json --out /readonly-dir`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
 
-6. **Given** the project test suite, **when** `npm test` is run, **then** CLI integration tests for `--out-dir` (file creation with swapped extensions, directory creation, multi-file output, IO error handling) pass
+6. **Given** the project test suite, **when** `npm test` is run, **then** CLI integration tests for `--out` (file creation with swapped extensions, directory creation, multi-file output, IO error handling) pass
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `writeOutput` function to `src/io.ts` (AC: #1, #2, #3, #4, #5)
-  - [ ] 1.1 Import `mkdir` and `writeFile` from `node:fs/promises` (already importing from there — extend the import)
-  - [ ] 1.2 Add `writeOutput(outDir: string, originalFilePath: string, content: string, targetFormat: Format): Promise<void>` — computes output filename by swapping extension, creates `outDir` with `{recursive: true}`, writes file
-  - [ ] 1.3 Extension swap logic: `path.basename(originalFilePath, path.extname(originalFilePath))` + target extension (`.json` for json, `.yaml` for yaml)
-  - [ ] 1.4 Wrap `mkdir`/`writeFile` in try/catch — throw `JyError('Cannot write to directory: <outDir>: <reason>', EXIT_IO)` on failure (handles permission errors, EACCES, etc.)
+- [x] Task 1: Add `writeOutput` function to `src/io.ts` (AC: #1, #2, #3, #4, #5)
+  - [x] 1.1 Import `mkdir` and `writeFile` from `node:fs/promises` (already importing from there — extend the import)
+  - [x] 1.2 Add `writeOutput(outDir: string, originalFilePath: string, content: string, targetFormat: Format): Promise<void>` — computes output filename by swapping extension, creates `outDir` with `{recursive: true}`, writes file
+  - [x] 1.3 Extension swap logic: `path.basename(originalFilePath, path.extname(originalFilePath))` + target extension (`.json` for json, `.yaml` for yaml)
+  - [x] 1.4 Wrap `mkdir`/`writeFile` in try/catch — throw `JyError('Cannot write to directory: <outDir>: <reason>', EXIT_IO)` on failure (handles permission errors, EACCES, etc.)
 
-- [ ] Task 2: Add `--out-dir` flag to root command in `src/commands/index.ts` (AC: #1, #2, #3)
-  - [ ] 2.1 Import `Flags` from `@oclif/core` (alongside existing `Args, Command` import)
-  - [ ] 2.2 Add `static override flags` with `'out-dir': Flags.string({description: 'Write converted files to this directory'})` — no shorthand flag
-  - [ ] 2.3 Parse the flag from `this.parse(Index)` — destructure `flags` alongside `argv`
+- [x] Task 2: Add `--out` flag to root command in `src/commands/index.ts` (AC: #1, #2, #3)
+  - [x] 2.1 Import `Flags` from `@oclif/core` (alongside existing `Args, Command` import)
+  - [x] 2.2 Add `static override flags` with `out: Flags.string({description: 'Write converted files to this directory'})` — no shorthand flag
+  - [x] 2.3 Parse the flag from `this.parse(Index)` — destructure `flags` alongside `argv`
 
-- [ ] Task 3: Update root command pipeline to route output to `--out-dir` when specified (AC: #1, #2, #3, #4, #5)
-  - [ ] 3.1 When `flags['out-dir']` is present: instead of collecting outputs and writing to stdout, loop through files and call `writeOutput()` for each file's converted content
-  - [ ] 3.2 When `flags['out-dir']` is absent: preserve existing behavior (stdout with separators)
-  - [ ] 3.3 Import `writeOutput` from `../io.js` (add to existing import statement)
-  - [ ] 3.4 Import `Format` type from `../format-detector.js` (needed by `writeOutput`)
-  - [ ] 3.5 Fail-fast: let JyError propagate on first write failure (existing try/catch handles it)
-  - [ ] 3.6 Stdin mode: `--out-dir` with stdin (`jy - --out-dir dist`) is not covered by ACs — either ignore the flag silently or write to `dist/stdin.yaml`/`dist/stdin.json`. Simplest: treat stdin + `--out-dir` as an error since there's no meaningful filename to derive. Throw `JyError('Cannot use --out-dir with stdin input', EXIT_IO)` — this is the safest behavior.
+- [x] Task 3: Update root command pipeline to route output to `--out` when specified (AC: #1, #2, #3, #4, #5)
+  - [x] 3.1 When `flags.out` is present: instead of collecting outputs and writing to stdout, loop through files and call `writeOutput()` for each file's converted content
+  - [x] 3.2 When `flags.out` is absent: preserve existing behavior (stdout with separators)
+  - [x] 3.3 Import `writeOutput` from `../io.js` (add to existing import statement)
+  - [x] 3.4 Import `Format` type from `../format-detector.js` (needed by `writeOutput`)
+  - [x] 3.5 Fail-fast: let JyError propagate on first write failure (existing try/catch handles it)
+  - [x] 3.6 Stdin mode: `--out` with stdin (`jy - --out dist`) is not covered by ACs — either ignore the flag silently or write to `dist/stdin.yaml`/`dist/stdin.json`. Simplest: treat stdin + `--out` as an error since there's no meaningful filename to derive. Throw `JyError('Cannot use --out with stdin input', EXIT_IO)` — this is the safest behavior.
 
-- [ ] Task 4: Add unit tests for `writeOutput` in `test/io.test.ts` (AC: #6)
-  - [ ] 4.1 Test `writeOutput` creates file with correct swapped filename in existing directory
-  - [ ] 4.2 Test `writeOutput` creates directory (including intermediates) if it doesn't exist
-  - [ ] 4.3 Test `writeOutput` throws `JyError` with `EXIT_IO` for permission-denied write
-  - [ ] 4.4 Test extension swap: `.json` → `.yaml`, `.yaml` → `.json`, `.yml` → `.json`
+- [x] Task 4: Add unit tests for `writeOutput` in `test/io.test.ts` (AC: #6)
+  - [x] 4.1 Test `writeOutput` creates file with correct swapped filename in existing directory
+  - [x] 4.2 Test `writeOutput` creates directory (including intermediates) if it doesn't exist
+  - [x] 4.3 Test `writeOutput` throws `JyError` with `EXIT_IO` for permission-denied write
+  - [x] 4.4 Test extension swap: `.json` → `.yaml`, `.yaml` → `.json`, `.yml` → `.json`
 
-- [ ] Task 5: Add CLI integration tests for `--out-dir` in `test/commands/index.test.ts` (AC: #6)
-  - [ ] 5.1 Test single JSON file → YAML written to out-dir with `.yaml` extension
-  - [ ] 5.2 Test single YAML file → JSON written to out-dir with `.json` extension
-  - [ ] 5.3 Test multiple JSON files → each written to out-dir
-  - [ ] 5.4 Test out-dir is created when it doesn't exist (including nested path)
-  - [ ] 5.5 Test nothing is written to stdout when `--out-dir` is used
-  - [ ] 5.6 Test exits with code 3 when out-dir has permission issues
-  - [ ] 5.7 Test stdin + `--out-dir` produces an error
-  - [ ] 5.8 Verify existing single-file, multi-file, and stdin modes still work (regression)
+- [x] Task 5: Add CLI integration tests for `--out` in `test/commands/index.test.ts` (AC: #6)
+  - [x] 5.1 Test single JSON file → YAML written to output dir with `.yaml` extension
+  - [x] 5.2 Test single YAML file → JSON written to output dir with `.json` extension
+  - [x] 5.3 Test multiple JSON files → each written to output dir
+  - [x] 5.4 Test output dir is created when it doesn't exist (including nested path)
+  - [x] 5.5 Test nothing is written to stdout when `--out` is used
+  - [x] 5.6 Test exits with code 3 when output dir has permission issues
+  - [x] 5.7 Test stdin + `--out` produces an error
+  - [x] 5.8 Verify existing single-file, multi-file, and stdin modes still work (regression)
+
+### Review Findings
+
+- [x] [Review][Defer] Preserve relative source directories under `--out` to avoid duplicate-basename overwrites [src/io.ts:42] — deferred: valid edge case but uncommon; preserving input folder structure adds complexity, so revisit if real usage shows it is needed
+- [x] [Review][Patch] Replace POSIX-only permission test setup with portable failure injection [test/io.test.ts:206]
 
 ## Dev Notes
 
@@ -74,9 +79,9 @@ so that **I can batch-convert files into a target directory without manual file 
 
 | File | Changes |
 |------|---------|
-| `src/commands/index.ts` | Add `--out-dir` flag via oclif `Flags.string`; route output to file writes or stdout based on flag presence |
+| `src/commands/index.ts` | Add `--out` flag via oclif `Flags.string`; route output to file writes or stdout based on flag presence |
 | `src/io.ts` | Add `writeOutput()` function — mkdir + writeFile with extension swapping |
-| `test/commands/index.test.ts` | Add `--out-dir` CLI integration tests |
+| `test/commands/index.test.ts` | Add `--out` CLI integration tests |
 | `test/io.test.ts` | Add `writeOutput` unit tests |
 
 ### No New Files
@@ -138,7 +143,7 @@ export default class Index extends Command {
 }
 ```
 
-**Key change:** When `--out-dir` is specified, instead of collecting outputs into an array and joining with separators, loop through files and write each output to a file in the out-dir. Nothing goes to stdout.
+**Key change:** When `--out` is specified, instead of collecting outputs into an array and joining with separators, loop through files and write each output to a file in the output dir. Nothing goes to stdout.
 
 **`src/io.ts`** — Currently exports `readInput(filePath)`, `readStdin()`, `resolveFilePaths(args)`. Currently imports `glob`, `readFile`, `stat` from `node:fs/promises`. Need to add `mkdir` and `writeFile` to that import.
 
@@ -150,7 +155,7 @@ export default class Index extends Command {
 
 ### Extension Swap Logic
 
-When writing to `--out-dir`, the output filename is the original filename with the extension swapped to the target format:
+When writing to `--out`, the output filename is the original filename with the extension swapped to the target format:
 
 | Original Extension | Target Format | Output Extension |
 |-------------------|---------------|-----------------|
@@ -174,7 +179,7 @@ const outputPath = path.join(outDir, baseName + targetExt)
 The root command's file branch needs a conditional fork:
 
 ```
-if --out-dir:
+if --out:
   for each file:
     read → convert → writeOutput(outDir, filePath, output, targetFormat)
   (nothing to stdout)
@@ -194,13 +199,13 @@ Call `mkdir` before every `writeFile` (or once before the loop). Calling it per-
 
 **Recommended approach:** Call `mkdir` once in `writeOutput` using a guard or call it in the command before the loop. The simplest approach is to call it inside `writeOutput` — it runs `mkdir({recursive: true})` which is a no-op after the first call.
 
-### Stdin + `--out-dir` Edge Case
+### Stdin + `--out` Edge Case
 
-There is no acceptance criterion for `jy - --out-dir dist`. Without a source filename, there's no meaningful output filename. Throw a clear error:
+There is no acceptance criterion for `jy - --out dist`. Without a source filename, there's no meaningful output filename. Throw a clear error:
 ```typescript
 if (fileArgs.length === 1 && fileArgs[0] === '-') {
-  if (flags['out-dir']) {
-    throw new JyError('Cannot use --out-dir with stdin input', EXIT_IO)
+  if (flags.out) {
+    throw new JyError('Cannot use --out with stdin input', EXIT_IO)
   }
   // existing stdin logic...
 }
@@ -232,17 +237,17 @@ import {Args, Command, Flags} from '@oclif/core'
 export default class Index extends Command {
   static override args = { ... }
   static override flags = {
-    'out-dir': Flags.string({description: 'Write converted files to this directory'}),
+    out: Flags.string({description: 'Write converted files to this directory'}),
   }
   // ...
   async run(): Promise<void> {
     const {argv, flags} = await this.parse(Index)
-    // access: flags['out-dir']
+    // access: flags.out
   }
 }
 ```
 
-**Note:** Use the string key `'out-dir'` (with hyphen) to match the CLI flag `--out-dir`. Oclif handles the mapping.
+**Note:** Use the key `out` to match the CLI flag `--out`. Oclif handles the mapping.
 
 ### Deferred Work Awareness
 
@@ -259,11 +264,11 @@ From previous code reviews (do NOT fix these, just don't make them worse):
 - **Unit tests:** Test `writeOutput` as a function in `test/io.test.ts`
 - **Integration tests:** Use temp directories for isolation. Pattern from 2.1: `mkdtempSync` + `try/finally` + `rmSync`
 - **Verify file content:** After `runCommand`, use `readFileSync` to verify file was written with correct content
-- **Verify nothing on stdout:** Assert `stdout === ''` when `--out-dir` is used
+- **Verify nothing on stdout:** Assert `stdout === ''` when `--out` is used
 - **Permission test:** Create a read-only directory (`chmodSync(dir, 0o444)`) and attempt to write. On macOS, root bypasses permissions — use `chmodSync` on the output directory and verify the error
 - **Test patterns:** Follow existing `describe`/`it` style, chai `expect` assertions
 - **Error assertions:** `.to.have.property('code', EXIT_IO)` pattern for JyError checks
-- **CLI tests:** `runCommand(['file1', '--out-dir', tmpDir])` for out-dir tests
+- **CLI tests:** `runCommand(['file1', '--out', tmpDir])` for output dir tests
 
 ### Import Changes Required
 
@@ -314,8 +319,29 @@ import type {Format} from './format-detector.js'
 
 ### Agent Model Used
 
+Claude Opus 4.6 (GitHub Copilot)
+
 ### Debug Log References
 
 ### Completion Notes List
 
+- Added `writeOutput()` function to `src/io.ts` — computes output filename via extension swap, creates output directory with `mkdir({recursive: true})`, writes file with `writeFile`, wraps errors in `JyError` with `EXIT_IO`
+- Added `--out` flag to root command via oclif `Flags.string` — no shorthand
+- Updated command pipeline: when `--out` present, loops files and writes each to output dir (nothing to stdout); when absent, preserves existing stdout behavior with separators
+- Stdin + `--out` throws `JyError('Cannot use --out with stdin input', EXIT_IO)` — safe, explicit edge case handling
+- Added 6 unit tests for `writeOutput` in `test/io.test.ts` — file creation, directory creation, permission error, extension swap for `.json`→`.yaml`, `.yaml`→`.json`, `.yml`→`.json`
+- Added 7 CLI integration tests for `--out` in `test/commands/index.test.ts` — single JSON→YAML, single YAML→JSON, multi-file, nested dir creation, no stdout, permission error, stdin+out error
+- All 94 tests pass (0 failures), lint clean
+- All existing tests pass (no regressions) — single-file, multi-file, stdin modes unchanged
+
 ### File List
+
+- `src/io.ts` (modified) — added `writeOutput()`, extended imports (`mkdir`, `writeFile`, `path`, `Format` type)
+- `src/commands/index.ts` (modified) — added `Flags` import, `--out` flag, `writeOutput` import, `EXIT_IO` import, output routing logic
+- `test/io.test.ts` (modified) — added `writeOutput` describe block with 6 tests
+- `test/commands/index.test.ts` (modified) — added `--out` describe block with 7 tests
+
+## Change Log
+
+- 2026-05-25: Implemented Story 2.2 — Output Directory Writing. Added `writeOutput()` function, `--out` CLI flag, output routing in command pipeline, 13 new tests (6 unit + 7 integration). All 94 tests pass, lint clean.
+- 2026-05-25: Course correction — renamed `--out-dir` to `--out` (shorter flag, same directory-only semantics). Custom output filename feature deferred (shell redirection covers single-file naming). Updated story spec, source, and tests.

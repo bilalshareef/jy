@@ -1,12 +1,12 @@
 import {expect} from 'chai'
-import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs'
+import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {Readable} from 'node:stream'
 import {fileURLToPath} from 'node:url'
 
 import {EXIT_IO, EXIT_PARSE} from '../src/errors.js'
-import {readInput, readStdin, resolveFilePaths} from '../src/io.js'
+import {readInput, readStdin, resolveFilePaths, writeOutput} from '../src/io.js'
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures')
 
@@ -173,6 +173,76 @@ describe('io', () => {
       try {
         const result = await resolveFilePaths([path.join(tmpDir, '**/*.json')])
         expect(result).to.deep.equal([nestedFile, rootFile].sort())
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+  })
+
+  describe('writeOutput', () => {
+    it('creates file with correct swapped filename in existing directory', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      try {
+        await writeOutput(tmpDir, 'config.json', 'name: jy\n', 'yaml')
+        const written = readFileSync(path.join(tmpDir, 'config.yaml'), 'utf8')
+        expect(written).to.equal('name: jy\n')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('creates directory including intermediates if it does not exist', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const nestedOut = path.join(tmpDir, 'a', 'b', 'c')
+      try {
+        await writeOutput(nestedOut, 'data.yaml', '{"key":"value"}\n', 'json')
+        const written = readFileSync(path.join(nestedOut, 'data.json'), 'utf8')
+        expect(written).to.equal('{"key":"value"}\n')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('throws JyError with EXIT_IO when output path cannot be created', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const blockingFile = path.join(tmpDir, 'blocking-file')
+      writeFileSync(blockingFile, 'not a directory')
+      try {
+        await writeOutput(blockingFile, 'data.json', 'name: jy\n', 'yaml')
+        expect.fail('Expected writeOutput to throw')
+      } catch (error: unknown) {
+        expect(error).to.have.property('code', EXIT_IO)
+        expect(error).to.have.property('message').that.includes('Cannot write to directory')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('swaps .json to .yaml', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      try {
+        await writeOutput(tmpDir, 'file.json', 'content\n', 'yaml')
+        expect(readFileSync(path.join(tmpDir, 'file.yaml'), 'utf8')).to.equal('content\n')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('swaps .yaml to .json', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      try {
+        await writeOutput(tmpDir, 'file.yaml', 'content\n', 'json')
+        expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('swaps .yml to .json', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      try {
+        await writeOutput(tmpDir, 'file.yml', 'content\n', 'json')
+        expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')
       } finally {
         rmSync(tmpDir, {recursive: true})
       }
