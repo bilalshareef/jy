@@ -5,9 +5,14 @@ import type {Format} from './format-detector.js'
 import {EXIT_PARSE, JyError} from './errors.js'
 import {getTargetFormat} from './format-detector.js'
 
-export function convert(content: string, sourceFormat: Format, filePath: string): string {
+export interface SerializeOptions {
+  jsonIndent?: number | string
+  yamlIndent?: number
+}
+
+export function convert(content: string, sourceFormat: Format, filePath: string, options: SerializeOptions = {}): string {
   const data = parseContent(content, sourceFormat, filePath)
-  return serialize(data, getTargetFormat(sourceFormat))
+  return serialize(data, getTargetFormat(sourceFormat), options)
 }
 
 function parseContent(content: string, format: Format, filePath: string): unknown {
@@ -29,10 +34,13 @@ function parseContent(content: string, format: Format, filePath: string): unknow
   }
 }
 
-function serialize(data: unknown, format: Format): string {
+function serialize(data: unknown, format: Format, options: SerializeOptions): string {
   if (format === 'json') {
-    return JSON.stringify(data, null, 2) + '\n'
+    return JSON.stringify(data, null, options.jsonIndent ?? 2) + '\n'
   }
 
-  return stringifyYaml(data, {lineWidth: 0})
+  return stringifyYaml(data, {
+    indent: options.yamlIndent ?? 2,
+    lineWidth: 0,
+  })
 }

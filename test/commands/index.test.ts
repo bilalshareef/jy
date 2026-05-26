@@ -300,4 +300,117 @@ describe('jy root command', () => {
       }
     })
   })
+
+  describe('formatting flags', () => {
+    it(String.raw`--eol crlf produces output with \r\n line endings (JSON→YAML)`, async () => {
+      const {stdout} = await runCommand([path.join(fixturesDir, 'simple.json'), '--eol', 'crlf'])
+      expect(stdout).to.contain('\r\n')
+      expect(stdout).to.contain('name: jy')
+    })
+
+    it(String.raw`--eol lf produces output with \n line endings for YAML→JSON`, async () => {
+      const {stdout} = await runCommand([path.join(fixturesDir, 'simple.yaml'), '--eol', 'lf'])
+      expect(stdout).to.contain('"name": "jy"')
+      expect(stdout).not.to.contain('\r\n')
+    })
+
+    it('--indent-size 4 produces 4-space indented output (JSON→YAML)', async () => {
+      const {stdout} = await runCommand([path.join(fixturesDir, 'nested.json'), '--indent-size', '4'])
+      expect(stdout).to.contain('    deep:')
+      expect(stdout).to.contain('        key: value')
+    })
+
+    it('--indent-style tabs produces tab-indented output (YAML→JSON)', async () => {
+      const {stdout} = await runCommand([path.join(fixturesDir, 'nested.yaml'), '--indent-style', 'tabs'])
+      expect(stdout).to.contain('\t"string"')
+      expect(stdout).to.contain('\t\t"key"')
+    })
+
+    it('--indent-style tabs --indent-size 4 ignores indentSize and uses tabs', async () => {
+      const {stdout} = await runCommand([
+        path.join(fixturesDir, 'nested.yaml'),
+        '--indent-style', 'tabs',
+        '--indent-size', '4',
+      ])
+      expect(stdout).to.contain('\t"string"')
+      expect(stdout).to.contain('\t\t"key"')
+      expect(stdout).not.to.match(/^ {4}"/m)
+    })
+
+    it('--indent-style tabs is ignored for JSON→YAML while indent-size still applies', async () => {
+      const {stdout} = await runCommand([
+        path.join(fixturesDir, 'nested.json'),
+        '--indent-style', 'tabs',
+        '--indent-size', '4',
+      ])
+      expect(stdout).to.contain('    deep:')
+      expect(stdout).not.to.contain('\t')
+    })
+
+    it('formatting flags with --out write formatted file', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-fmt-out-'))
+      const outDir = path.join(tmpDir, 'output')
+      try {
+        await runCommand([
+          path.join(fixturesDir, 'nested.json'),
+          '--out', outDir,
+          '--eol', 'crlf',
+          '--indent-size', '4',
+        ])
+        const written = readFileSync(path.join(outDir, 'nested.yaml'), 'utf8')
+        expect(written).to.contain('\r\n')
+        expect(written).to.contain('    deep:')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    it('formatting flags with multi-file conversion apply consistently', async () => {
+      const {stdout} = await runCommand([
+        path.join(fixturesDir, 'simple.json'),
+        path.join(fixturesDir, 'nested.json'),
+        '--indent-size', '4',
+      ])
+      expect(stdout).to.contain('    deep:')
+      expect(stdout).to.contain('        key: value')
+    })
+
+    it('formatting flags with multi-file conversion apply crlf to separators', async () => {
+      const {stdout} = await runCommand([
+        path.join(fixturesDir, 'simple.json'),
+        path.join(fixturesDir, 'nested.json'),
+        '--eol', 'crlf',
+      ])
+      expect(stdout).to.contain('---\r\n')
+      expect(stdout).not.to.contain('---\n')
+    })
+
+    describe('formatting flags with stdin', () => {
+      let originalStdin: typeof process.stdin
+
+      beforeEach(() => {
+        originalStdin = process.stdin
+      })
+
+      afterEach(() => {
+        Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+      })
+
+      function mockStdinWith(content: string) {
+        const mockStdin = new Readable({
+          read() {
+            this.push(content)
+            this.push(null)
+          },
+        })
+        Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      }
+
+      it('stdin with --indent-size 4 produces 4-space indented output', async () => {
+        mockStdinWith('{"a":{"b":1}}')
+        const {stdout} = await runCommand(['-', '--indent-size', '4'])
+        expect(stdout).to.contain('    b: 1')
+      })
+    })
+  })
 })

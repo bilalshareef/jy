@@ -12,6 +12,19 @@ describe('converter', () => {
       expect(result).to.contain('version: 1')
     })
 
+    it('uses serializer indent size for YAML output', () => {
+      const json = '{"outer":{"inner":1}}'
+      const result = convert(json, 'json', 'test.json', {yamlIndent: 4})
+      expect(result).to.contain('    inner: 1')
+    })
+
+    it('preserves multiline scalar content when YAML indent size changes', () => {
+      const original = {text: 'line1\n  line2\nline3'}
+      const yaml = convert(JSON.stringify(original), 'json', 'test.json', {yamlIndent: 4})
+      const backToJson = convert(yaml, 'yaml', 'test.yaml')
+      expect(JSON.parse(backToJson)).to.deep.equal(original)
+    })
+
     it('output ends with newline', () => {
       const json = '{"key": "value"}'
       const result = convert(json, 'json', 'test.json')
@@ -25,6 +38,18 @@ describe('converter', () => {
       const result = convert(yaml, 'yaml', 'test.yaml')
       const parsed = JSON.parse(result)
       expect(parsed).to.deep.equal({name: 'jy', version: 1})
+    })
+
+    it('uses serializer indent size for JSON output', () => {
+      const yaml = 'outer:\n  inner: 1\n'
+      const result = convert(yaml, 'yaml', 'test.yaml', {jsonIndent: 4})
+      expect(result).to.contain('    "inner": 1')
+    })
+
+    it('uses serializer tab indentation for JSON output', () => {
+      const yaml = 'outer:\n  inner: 1\n'
+      const result = convert(yaml, 'yaml', 'test.yaml', {jsonIndent: '\t'})
+      expect(result).to.contain('\t"inner": 1')
     })
 
     it('output ends with newline', () => {

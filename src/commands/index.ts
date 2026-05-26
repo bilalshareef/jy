@@ -1,9 +1,13 @@
 import {Args, Command, Flags} from '@oclif/core'
 
+import type {FormatOptions} from '../output-formatter.js'
+
 import {convert} from '../converter.js'
 import {EXIT_IO, JyError} from '../errors.js'
 import {detectFormatFromContent, detectFormatFromPaths, getTargetFormat} from '../format-detector.js'
 import {readInput, readStdin, resolveFilePaths, writeOutput} from '../io.js'
+import {formatOutput} from '../output-formatter.js'
+import {getSerializeOptions} from '../serialize-options.js'
 
 export default class Index extends Command {
   static override args = {
@@ -11,6 +15,9 @@ export default class Index extends Command {
   }
   static override description = 'Convert between JSON and YAML formats'
   static override flags = {
+    eol: Flags.string({description: 'Line ending style (lf or crlf)', options: ['lf', 'crlf']}),
+    'indent-size': Flags.integer({description: 'Number of spaces for indentation (default: 2). Ignored when --indent-style=tabs for JSON output.', min: 1}),
+    'indent-style': Flags.string({description: 'Indentation style (spaces or tabs). Ignored for YAML output.', options: ['spaces', 'tabs']}),
     out: Flags.string({description: 'Write converted files to this directory'}),
   }
   static override strict = false
@@ -20,6 +27,11 @@ export default class Index extends Command {
       const {argv, flags} = await this.parse(Index)
       const fileArgs = argv as string[]
       const outDir = flags.out
+      const formatOptions: FormatOptions = {
+        eol: flags.eol as FormatOptions['eol'],
+      }
+      const indentSize = flags['indent-size']
+      const indentStyle = flags['indent-style'] as 'spaces' | 'tabs' | undefined
 
       if (fileArgs.length === 1 && fileArgs[0] === '-') {
         if (outDir) {
@@ -28,8 +40,9 @@ export default class Index extends Command {
 
         const content = await readStdin()
         const sourceFormat = detectFormatFromContent(content)
-        const output = convert(content, sourceFormat, 'stdin')
-        process.stdout.write(output)
+        const targetFormat = getTargetFormat(sourceFormat)
+        const output = convert(content, sourceFormat, 'stdin', getSerializeOptions(targetFormat, indentSize, indentStyle))
+        process.stdout.write(formatOutput(output, formatOptions))
         return
       }
 
@@ -41,9 +54,9 @@ export default class Index extends Command {
         for (const filePath of filePaths) {
           // eslint-disable-next-line no-await-in-loop
           const content = await readInput(filePath)
-          const converted = convert(content, sourceFormat, filePath)
+          const converted = convert(content, sourceFormat, filePath, getSerializeOptions(targetFormat, indentSize, indentStyle))
           // eslint-disable-next-line no-await-in-loop
-          await writeOutput(outDir, filePath, converted, targetFormat)
+          await writeOutput(outDir, filePath, formatOutput(converted, formatOptions), targetFormat)
         }
 
         return
@@ -54,10 +67,10 @@ export default class Index extends Command {
       for (const filePath of filePaths) {
         // eslint-disable-next-line no-await-in-loop
         const content = await readInput(filePath)
-        outputs.push(convert(content, sourceFormat, filePath))
+        outputs.push(convert(content, sourceFormat, filePath, getSerializeOptions(targetFormat, indentSize, indentStyle)))
       }
 
-      process.stdout.write(outputs.join(separator))
+      process.stdout.write(formatOutput(outputs.join(separator), formatOptions))
     } catch (error) {
       if (error instanceof JyError) {
         this.logToStderr(error.message)
