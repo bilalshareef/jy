@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-15
-last_updated: 2026-05-26T00:00:00
+last_updated: 2026-05-26
 project: jy
 project_key: NOKEY
 tracking_system: file-system
@@ -54,7 +54,7 @@ development_status:
   2-1-multi-file-conversion-glob-support: done
   2-2-output-directory-writing: done
   2-3-output-formatting-options: done
-  2-4-validate-mode: backlog
+  2-4-validate-mode: ready-for-dev
   epic-2-retrospective: optional
 
   # Epic 3: CI/CD & Distribution
