@@ -1,6 +1,6 @@
 # Story 2.4: Validate Mode
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -28,37 +28,37 @@ so that **I can catch malformed files in CI pipelines or pre-commit checks witho
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `validate` function to `src/converter.ts` (AC: #1, #2, #3)
-  - [ ] 1.1 Export `validate(content: string, sourceFormat: Format, filePath: string): void` — parses the content, returns silently on success
-  - [ ] 1.2 On parse failure, throw `JyError` with `EXIT_VALIDATION` (code 1), NOT `EXIT_PARSE` (code 2) — validation mode uses its own exit code
-  - [ ] 1.3 Reuse the existing `parseContent` internal function — catch any `JyError` it throws and re-throw with `EXIT_VALIDATION` code and preserve the original message
+- [x] Task 1: Add `validate` function to `src/converter.ts` (AC: #1, #2, #3)
+  - [x] 1.1 Export `validate(content: string, sourceFormat: Format, filePath: string): void` — parses the content, returns silently on success
+  - [x] 1.2 On parse failure, throw `JyError` with `EXIT_VALIDATION` (code 1), NOT `EXIT_PARSE` (code 2) — validation mode uses its own exit code
+  - [x] 1.3 Reuse the existing `parseContent` internal function — catch any `JyError` it throws and re-throw with `EXIT_VALIDATION` code and preserve the original message
 
-- [ ] Task 2: Add `--validate` flag and validate-mode branch to `src/commands/index.ts` (AC: #1, #2, #3, #4, #5, #6, #7)
-  - [ ] 2.1 Add `validate: Flags.boolean({description: 'Validate input files without producing output'})` to `static override flags`
-  - [ ] 2.2 Add validate-mode branch at the TOP of the `try` block (after flag parsing, before any existing branches)
-  - [ ] 2.3 Stdin validate path: if `fileArgs[0] === '-'` and `flags.validate` → read stdin, detect format, call `validate()`, return (no output)
-  - [ ] 2.4 File validate path: if `flags.validate` → resolve file paths, detect format from paths, loop through files with fail-fast: read each → `validate()` → continue. Return silently on success (no output, exit 0)
-  - [ ] 2.5 The `--out` flag is simply ignored in validate mode — no special error; validate just produces no output regardless
+- [x] Task 2: Add `--validate` flag and validate-mode branch to `src/commands/index.ts` (AC: #1, #2, #3, #4, #5, #6, #7)
+  - [x] 2.1 Add `validate: Flags.boolean({description: 'Validate input files without producing output'})` to `static override flags`
+  - [x] 2.2 Add validate-mode branch at the TOP of the `try` block (after flag parsing, before any existing branches)
+  - [x] 2.3 Stdin validate path: if `fileArgs[0] === '-'` and `flags.validate` → read stdin, detect format, call `validate()`, return (no output)
+  - [x] 2.4 File validate path: if `flags.validate` → resolve file paths, detect format from paths, loop through files with fail-fast: read each → `validate()` → continue. Return silently on success (no output, exit 0)
+  - [x] 2.5 The `--out` flag is simply ignored in validate mode — no special error; validate just produces no output regardless
 
-- [ ] Task 3: Add unit tests for `validate` function in `test/converter.test.ts` (AC: #3, #8)
-  - [ ] 3.1 Test `validate` with valid JSON content returns without throwing
-  - [ ] 3.2 Test `validate` with valid YAML content returns without throwing
-  - [ ] 3.3 Test `validate` with malformed JSON throws `JyError` with `EXIT_VALIDATION` (code 1)
-  - [ ] 3.4 Test `validate` with malformed YAML throws `JyError` with `EXIT_VALIDATION` (code 1)
-  - [ ] 3.5 Test `validate` with empty YAML document throws `JyError` with `EXIT_VALIDATION` (code 1)
+- [x] Task 3: Add unit tests for `validate` function in `test/converter.test.ts` (AC: #3, #8)
+  - [x] 3.1 Test `validate` with valid JSON content returns without throwing
+  - [x] 3.2 Test `validate` with valid YAML content returns without throwing
+  - [x] 3.3 Test `validate` with malformed JSON throws `JyError` with `EXIT_VALIDATION` (code 1)
+  - [x] 3.4 Test `validate` with malformed YAML throws `JyError` with `EXIT_VALIDATION` (code 1)
+  - [x] 3.5 Test `validate` with empty YAML document throws `JyError` with `EXIT_VALIDATION` (code 1)
 
-- [ ] Task 4: Add CLI integration tests for `--validate` in `test/commands/index.test.ts` (AC: #1–#8)
-  - [ ] 4.1 Test valid JSON file with `--validate` → stdout is empty, no exit error
-  - [ ] 4.2 Test valid YAML file with `--validate` → stdout is empty, no exit error
-  - [ ] 4.3 Test malformed JSON with `--validate` → exit code 1, stderr contains file path
-  - [ ] 4.4 Test malformed YAML with `--validate` → exit code 1, stderr contains file path
-  - [ ] 4.5 Test multi-file valid JSON with `--validate` → exit code 0, stdout empty
-  - [ ] 4.6 Test multi-file with one malformed (fail-fast) + `--validate` → exit code 1, stderr contains malformed file path
-  - [ ] 4.7 Test glob pattern with `--validate` → all valid files, exit code 0
-  - [ ] 4.8 Test stdin valid JSON with `--validate` → stdout empty, no error
-  - [ ] 4.9 Test stdin malformed content with `--validate` → exit code 1
-  - [ ] 4.10 Test `--validate` combined with `--out` → no files written to output directory
-  - [ ] 4.11 Regression: verify existing tests still pass (single-file, multi-file, stdin, --out, formatting modes)
+- [x] Task 4: Add CLI integration tests for `--validate` in `test/commands/index.test.ts` (AC: #1–#8)
+  - [x] 4.1 Test valid JSON file with `--validate` → stdout is empty, no exit error
+  - [x] 4.2 Test valid YAML file with `--validate` → stdout is empty, no exit error
+  - [x] 4.3 Test malformed JSON with `--validate` → exit code 1, stderr contains file path
+  - [x] 4.4 Test malformed YAML with `--validate` → exit code 1, stderr contains file path
+  - [x] 4.5 Test multi-file valid JSON with `--validate` → exit code 0, stdout empty
+  - [x] 4.6 Test multi-file with one malformed (fail-fast) + `--validate` → exit code 1, stderr contains malformed file path
+  - [x] 4.7 Test glob pattern with `--validate` → all valid files, exit code 0
+  - [x] 4.8 Test stdin valid JSON with `--validate` → stdout empty, no error
+  - [x] 4.9 Test stdin malformed content with `--validate` → exit code 1
+  - [x] 4.10 Test `--validate` combined with `--out` → no files written to output directory
+  - [x] 4.11 Regression: verify existing tests still pass (single-file, multi-file, stdin, --out, formatting modes)
 
 ## Dev Notes
 
@@ -258,6 +258,11 @@ src/
 
 test/
 ├── commands/
+
+### Review Findings
+
+- [x] [Review][Patch] Empty stdin in validate mode exits with `EXIT_PARSE` instead of `EXIT_VALIDATION` [src/commands/index.ts:39]
+- [x] [Review][Patch] Validation errors omit the parse failure description required by AC3 [src/converter.ts:45]
 │   └── index.test.ts          # CLI integration tests (UPDATED with --validate tests)
 ├── converter.test.ts          # UPDATED with validate() unit tests
 ├── errors.test.ts             # (UNCHANGED)
@@ -280,9 +285,24 @@ test/
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (GitHub Copilot)
 
 ### Debug Log References
 
 ### Completion Notes List
+- Added `validate()` function to `src/converter.ts` that reuses `parseContent`, catches `EXIT_PARSE` errors and re-throws with `EXIT_VALIDATION` (code 1)
+- Added `--validate` boolean flag to `src/commands/index.ts` with validate-mode branch before all existing branches
+- Validate mode handles stdin (`jy - --validate`), file paths, globs, and silently ignores `--out`
+- Fail-fast behavior: first invalid file stops processing and exits with code 1
+- 5 unit tests for `validate()` in `test/converter.test.ts`
+- 11 CLI integration tests for `--validate` in `test/commands/index.test.ts` (valid files, malformed files, multi-file, glob, stdin, --out interaction)
+- All 130 tests pass, zero regressions, ESLint passes
+
+### Change Log
+- 2026-05-26: Implemented validate mode — `validate()` function, `--validate` CLI flag, 16 new tests (5 unit + 11 integration)
 
 ### File List
+- `src/converter.ts` (modified) — added `validate()` export, added `EXIT_VALIDATION` import
+- `src/commands/index.ts` (modified) — added `--validate` flag, added validate-mode branch, added `validate` import
+- `test/converter.test.ts` (modified) — added `describe('validate', ...)` with 5 unit tests
+- `test/commands/index.test.ts` (modified) — added `describe('--validate', ...)` with 11 integration tests

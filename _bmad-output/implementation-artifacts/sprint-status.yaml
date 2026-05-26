@@ -54,7 +54,7 @@ development_status:
   2-1-multi-file-conversion-glob-support: done
   2-2-output-directory-writing: done
   2-3-output-formatting-options: done
-  2-4-validate-mode: ready-for-dev
+  2-4-validate-mode: done
   epic-2-retrospective: optional
 
   # Epic 3: CI/CD & Distribution

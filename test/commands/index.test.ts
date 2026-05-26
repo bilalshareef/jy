@@ -413,4 +413,125 @@ describe('jy root command', () => {
       })
     })
   })
+
+  describe('--validate', () => {
+    it('valid JSON file exits without error and produces no stdout', async () => {
+      const {error, stdout} = await runCommand([path.join(fixturesDir, 'simple.json'), '--validate'])
+      expect(error).to.be.undefined
+      expect(stdout).to.equal('')
+    })
+
+    it('valid YAML file exits without error and produces no stdout', async () => {
+      const {error, stdout} = await runCommand([path.join(fixturesDir, 'simple.yaml'), '--validate'])
+      expect(error).to.be.undefined
+      expect(stdout).to.equal('')
+    })
+
+    it('malformed JSON file exits with code 1 and stderr contains file path', async () => {
+      const {error, stderr} = await runCommand([path.join(fixturesDir, 'malformed.json'), '--validate'])
+      expect(error?.oclif?.exit).to.equal(1)
+      expect(stderr).to.contain('malformed.json')
+      expect(stderr).to.match(/not valid JSON: .+/)
+    })
+
+    it('malformed YAML file exits with code 1 and stderr contains file path', async () => {
+      const {error, stderr} = await runCommand([path.join(fixturesDir, 'malformed.yaml'), '--validate'])
+      expect(error?.oclif?.exit).to.equal(1)
+      expect(stderr).to.contain('malformed.yaml')
+    })
+
+    it('multiple valid JSON files exit with code 0 and empty stdout', async () => {
+      const {error, stdout} = await runCommand([
+        path.join(fixturesDir, 'simple.json'),
+        path.join(fixturesDir, 'nested.json'),
+        '--validate',
+      ])
+      expect(error).to.be.undefined
+      expect(stdout).to.equal('')
+    })
+
+    it('multi-file with one malformed exits with code 1 (fail-fast)', async () => {
+      const {error, stderr} = await runCommand([
+        path.join(fixturesDir, 'simple.json'),
+        path.join(fixturesDir, 'malformed.json'),
+        '--validate',
+      ])
+      expect(error?.oclif?.exit).to.equal(1)
+      expect(stderr).to.contain('malformed.json')
+    })
+
+    it('glob pattern with all valid files exits with code 0', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-validate-glob-'))
+      writeFileSync(path.join(tmpDir, 'a.json'), '{"key": "alpha"}')
+      writeFileSync(path.join(tmpDir, 'b.json'), '{"key": "beta"}')
+      try {
+        const {error, stdout} = await runCommand([path.join(tmpDir, '*.json'), '--validate'])
+        expect(error).to.be.undefined
+        expect(stdout).to.equal('')
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+
+    describe('stdin with --validate', () => {
+      let originalStdin: typeof process.stdin
+
+      beforeEach(() => {
+        originalStdin = process.stdin
+      })
+
+      afterEach(() => {
+        Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+      })
+
+      function mockStdinWith(content: string) {
+        const mockStdin = new Readable({
+          read() {
+            this.push(content)
+            this.push(null)
+          },
+        })
+        Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      }
+
+      it('valid JSON from stdin exits without error and produces no stdout', async () => {
+        mockStdinWith('{"a": 1}')
+        const {error, stdout} = await runCommand(['-', '--validate'])
+        expect(error).to.be.undefined
+        expect(stdout).to.equal('')
+      })
+
+      it('malformed content from stdin exits with code 1', async () => {
+        mockStdinWith('not: [valid: content')
+        const {error, stderr} = await runCommand(['-', '--validate'])
+        expect(error?.oclif?.exit).to.equal(1)
+        expect(stderr).to.contain('stdin')
+      })
+
+      it('empty stdin exits with code 1', async () => {
+        mockStdinWith('')
+        const {error, stderr} = await runCommand(['-', '--validate'])
+        expect(error?.oclif?.exit).to.equal(1)
+        expect(stderr).to.contain('No input provided on stdin')
+      })
+    })
+
+    it('--validate combined with --out writes no files to output directory', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-validate-out-'))
+      const outDir = path.join(tmpDir, 'output')
+      try {
+        const {error, stdout} = await runCommand([
+          path.join(fixturesDir, 'simple.json'),
+          '--validate',
+          '--out', outDir,
+        ])
+        expect(error).to.be.undefined
+        expect(stdout).to.equal('')
+        // outDir should not be created at all since validate produces no output
+        expect(() => readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')).to.throw()
+      } finally {
+        rmSync(tmpDir, {recursive: true})
+      }
+    })
+  })
 })
