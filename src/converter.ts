@@ -1,16 +1,21 @@
-import {parse as parseYaml, stringify as stringifyYaml} from 'yaml'
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
-import type {Format} from './format-detector.js'
+import type { Format } from './format-detector.js'
 
-import {EXIT_PARSE, EXIT_VALIDATION, JyError} from './errors.js'
-import {getTargetFormat} from './format-detector.js'
+import { EXIT_PARSE, EXIT_VALIDATION, JyError } from './errors.js'
+import { getTargetFormat } from './format-detector.js'
 
 export interface SerializeOptions {
   jsonIndent?: number | string
   yamlIndent?: number
 }
 
-export function convert(content: string, sourceFormat: Format, filePath: string, options: SerializeOptions = {}): string {
+export function convert(
+  content: string,
+  sourceFormat: Format,
+  filePath: string,
+  options: SerializeOptions = {},
+): string {
   const data = parseContent(content, sourceFormat, filePath)
   return serialize(data, getTargetFormat(sourceFormat), options)
 }

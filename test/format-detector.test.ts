@@ -1,7 +1,12 @@
-import {expect} from 'chai'
+import { expect } from 'chai'
 
-import {EXIT_AMBIGUOUS} from '../src/errors.js'
-import {detectFormatFromContent, detectFormatFromExtension, detectFormatFromPaths, getTargetFormat} from '../src/format-detector.js'
+import { EXIT_AMBIGUOUS } from '../src/errors.js'
+import {
+  detectFormatFromContent,
+  detectFormatFromExtension,
+  detectFormatFromPaths,
+  getTargetFormat,
+} from '../src/format-detector.js'
 
 describe('format-detector', () => {
   describe('detectFormatFromExtension', () => {
@@ -30,15 +35,21 @@ describe('format-detector', () => {
     })
 
     it('throws JyError with EXIT_AMBIGUOUS for .txt', () => {
-      expect(() => detectFormatFromExtension('data.txt')).to.throw().with.property('code', EXIT_AMBIGUOUS)
+      expect(() => detectFormatFromExtension('data.txt'))
+        .to.throw()
+        .with.property('code', EXIT_AMBIGUOUS)
     })
 
     it('throws JyError with EXIT_AMBIGUOUS for .xml', () => {
-      expect(() => detectFormatFromExtension('data.xml')).to.throw().with.property('code', EXIT_AMBIGUOUS)
+      expect(() => detectFormatFromExtension('data.xml'))
+        .to.throw()
+        .with.property('code', EXIT_AMBIGUOUS)
     })
 
     it('throws JyError with EXIT_AMBIGUOUS for no extension', () => {
-      expect(() => detectFormatFromExtension('Makefile')).to.throw().with.property('code', EXIT_AMBIGUOUS)
+      expect(() => detectFormatFromExtension('Makefile'))
+        .to.throw()
+        .with.property('code', EXIT_AMBIGUOUS)
     })
 
     it('includes file path in error message', () => {
@@ -112,8 +123,7 @@ describe('format-detector', () => {
     })
 
     it('error message mentions mixed formats', () => {
-      expect(() => detectFormatFromPaths(['a.json', 'b.yaml']))
-        .to.throw(/Mixed input formats/)
+      expect(() => detectFormatFromPaths(['a.json', 'b.yaml'])).to.throw(/Mixed input formats/)
     })
   })
 })

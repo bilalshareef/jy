@@ -1,5 +1,5 @@
-import {EXIT_PARSE, EXIT_VALIDATION, JyError} from '../errors.js'
-import {readStdin} from '../io.js'
+import { EXIT_PARSE, EXIT_VALIDATION, JyError } from '../errors.js'
+import { readStdin } from '../io.js'
 
 export async function readValidateStdin(): Promise<string> {
   try {

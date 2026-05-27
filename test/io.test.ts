@@ -1,12 +1,12 @@
-import {expect} from 'chai'
-import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
-import {tmpdir} from 'node:os'
+import { expect } from 'chai'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
-import {Readable} from 'node:stream'
-import {fileURLToPath} from 'node:url'
+import { Readable } from 'node:stream'
+import { fileURLToPath } from 'node:url'
 
-import {EXIT_IO, EXIT_PARSE} from '../src/errors.js'
-import {readInput, readStdin, resolveFilePaths, writeOutput} from '../src/io.js'
+import { EXIT_IO, EXIT_PARSE } from '../src/errors.js'
+import { readInput, readStdin, resolveFilePaths, writeOutput } from '../src/io.js'
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures')
 
@@ -52,7 +52,7 @@ describe('io', () => {
     })
 
     afterEach(() => {
-      Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: originalStdin, writable: true })
     })
 
     it('reads valid content from stdin', async () => {
@@ -62,7 +62,7 @@ describe('io', () => {
           this.push(null)
         },
       })
-      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: mockStdin, writable: true })
 
       const content = await readStdin()
       expect(content).to.equal('{"key": "value"}')
@@ -75,7 +75,7 @@ describe('io', () => {
           this.push(null)
         },
       })
-      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: mockStdin, writable: true })
 
       try {
         await readStdin()
@@ -95,10 +95,7 @@ describe('io', () => {
     })
 
     it('passes multiple literal paths through unchanged', async () => {
-      const input = [
-        path.join(fixturesDir, 'simple.json'),
-        path.join(fixturesDir, 'nested.json'),
-      ]
+      const input = [path.join(fixturesDir, 'simple.json'), path.join(fixturesDir, 'nested.json')]
       const result = await resolveFilePaths(input)
       expect(result).to.deep.equal(input)
     })
@@ -143,7 +140,7 @@ describe('io', () => {
         const result = await resolveFilePaths([literalPath])
         expect(result).to.deep.equal([literalPath])
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -157,7 +154,7 @@ describe('io', () => {
         const result = await resolveFilePaths([path.join(tmpDir, '*')])
         expect(result).to.deep.equal([filePath])
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -174,7 +171,7 @@ describe('io', () => {
         const result = await resolveFilePaths([path.join(tmpDir, '**/*.json')])
         expect(result).to.deep.equal([nestedFile, rootFile].sort())
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
   })
@@ -187,7 +184,7 @@ describe('io', () => {
         const written = readFileSync(path.join(tmpDir, 'config.yaml'), 'utf8')
         expect(written).to.equal('name: jy\n')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -199,7 +196,7 @@ describe('io', () => {
         const written = readFileSync(path.join(nestedOut, 'data.json'), 'utf8')
         expect(written).to.equal('{"key":"value"}\n')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -214,7 +211,7 @@ describe('io', () => {
         expect(error).to.have.property('code', EXIT_IO)
         expect(error).to.have.property('message').that.includes('Cannot write to directory')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -224,7 +221,7 @@ describe('io', () => {
         await writeOutput(tmpDir, 'file.json', 'content\n', 'yaml')
         expect(readFileSync(path.join(tmpDir, 'file.yaml'), 'utf8')).to.equal('content\n')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -234,7 +231,7 @@ describe('io', () => {
         await writeOutput(tmpDir, 'file.yaml', 'content\n', 'json')
         expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
 
@@ -244,7 +241,7 @@ describe('io', () => {
         await writeOutput(tmpDir, 'file.yml', 'content\n', 'json')
         expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')
       } finally {
-        rmSync(tmpDir, {recursive: true})
+        rmSync(tmpDir, { recursive: true })
       }
     })
   })

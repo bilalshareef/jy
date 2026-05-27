@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import {EXIT_AMBIGUOUS, JyError} from './errors.js'
+import { EXIT_AMBIGUOUS, JyError } from './errors.js'
 
 export type Format = 'json' | 'yaml'
 

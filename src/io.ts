@@ -1,10 +1,10 @@
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
-import {glob, mkdir, readFile, stat, writeFile} from 'node:fs/promises'
+import { glob, mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import type {Format} from './format-detector.js'
+import type { Format } from './format-detector.js'
 
-import {EXIT_IO, EXIT_PARSE, JyError} from './errors.js'
+import { EXIT_IO, EXIT_PARSE, JyError } from './errors.js'
 
 export async function readInput(filePath: string): Promise<string> {
   try {
@@ -39,13 +39,18 @@ export async function readStdin(): Promise<string> {
   })
 }
 
-export async function writeOutput(outDir: string, originalFilePath: string, content: string, targetFormat: Format): Promise<void> {
+export async function writeOutput(
+  outDir: string,
+  originalFilePath: string,
+  content: string,
+  targetFormat: Format,
+): Promise<void> {
   const baseName = path.basename(originalFilePath, path.extname(originalFilePath))
   const targetExt = targetFormat === 'json' ? '.json' : '.yaml'
   const outputPath = path.join(outDir, baseName + targetExt)
 
   try {
-    await mkdir(outDir, {recursive: true})
+    await mkdir(outDir, { recursive: true })
     await writeFile(outputPath, content, 'utf8')
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : String(error)

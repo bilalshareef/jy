@@ -1,6 +1,13 @@
-import {expect} from 'chai'
+import { expect } from 'chai'
 
-import {EXIT_AMBIGUOUS, EXIT_IO, EXIT_PARSE, EXIT_SUCCESS, EXIT_VALIDATION, JyError} from '../src/errors.js'
+import {
+  EXIT_AMBIGUOUS,
+  EXIT_IO,
+  EXIT_PARSE,
+  EXIT_SUCCESS,
+  EXIT_VALIDATION,
+  JyError,
+} from '../src/errors.js'
 
 describe('errors module', () => {
   describe('exit code constants', () => {

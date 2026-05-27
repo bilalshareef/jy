@@ -1,8 +1,8 @@
-import {expect} from 'chai'
-import {Readable} from 'node:stream'
+import { expect } from 'chai'
+import { Readable } from 'node:stream'
 
-import {readValidateStdin} from '../../src/commands/helpers.js'
-import {EXIT_IO, EXIT_VALIDATION} from '../../src/errors.js'
+import { readValidateStdin } from '../../src/commands/helpers.js'
+import { EXIT_IO, EXIT_VALIDATION } from '../../src/errors.js'
 
 describe('commands helpers', () => {
   describe('readValidateStdin', () => {
@@ -13,7 +13,7 @@ describe('commands helpers', () => {
     })
 
     afterEach(() => {
-      Object.defineProperty(process, 'stdin', {value: originalStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: originalStdin, writable: true })
     })
 
     function mockStdinWith(content: string) {
@@ -24,7 +24,7 @@ describe('commands helpers', () => {
         },
       })
 
-      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: mockStdin, writable: true })
     }
 
     it('returns stdin content when input is present', async () => {
@@ -53,7 +53,7 @@ describe('commands helpers', () => {
           this.destroy(new Error('broken pipe'))
         },
       })
-      Object.defineProperty(process, 'stdin', {value: mockStdin, writable: true})
+      Object.defineProperty(process, 'stdin', { value: mockStdin, writable: true })
 
       try {
         await readValidateStdin()

@@ -1,5 +1,5 @@
-import type {SerializeOptions} from './converter.js'
-import type {Format} from './format-detector.js'
+import type { SerializeOptions } from './converter.js'
+import type { Format } from './format-detector.js'
 
 export function getSerializeOptions(
   targetFormat: Format,
