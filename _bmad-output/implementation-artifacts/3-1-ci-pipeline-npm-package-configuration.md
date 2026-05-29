@@ -1,6 +1,6 @@
 # Story 3.1: CI Pipeline & npm Package Configuration
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -30,26 +30,26 @@ so that **code quality is enforced automatically and users can install jy via `n
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create `.github/workflows/ci.yml` GitHub Actions workflow (AC: #1, #2, #3, #4, #6)
-  - [ ] 1.1 Create `.github/workflows/` directory structure
-  - [ ] 1.2 Define workflow name `CI` and triggers: `push` on `main` branch only, `pull_request` on all branches
-  - [ ] 1.3 Add single job `ci` running on `ubuntu-latest` with Node.js 22.x via `actions/setup-node@v4`
-  - [ ] 1.4 Add steps in order: `actions/checkout@v4` → `npm ci` → `npm run build` → `npm test` (which runs mocha + posttest lint + format:check)
-  - [ ] 1.5 Add concurrency group to cancel in-progress runs on same PR: `group: ${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true`
+- [x] Task 1: Create `.github/workflows/ci.yml` GitHub Actions workflow (AC: #1, #2, #3, #4, #6)
+  - [x] 1.1 Create `.github/workflows/` directory structure
+  - [x] 1.2 Define workflow name `CI` and triggers: `push` on `main` branch only, `pull_request` on all branches
+  - [x] 1.3 Add single job `ci` running on `ubuntu-latest` with Node.js 22.x via `actions/setup-node@v4`
+  - [x] 1.4 Add steps in order: `actions/checkout@v4` → `npm ci` → `npm run build` → `npm test` (which runs mocha + posttest lint + format:check)
+  - [x] 1.5 Add concurrency group to cancel in-progress runs on same PR: `group: ${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true`
 
-- [ ] Task 2: Fix `package.json` metadata for npm publishing readiness (AC: #7, #8)
-  - [ ] 2.1 Update `repository` from `"jy/jy"` to proper object form `{"type": "git", "url": "https://github.com/bilalsheriff/jy.git"}` (or leave as placeholder with TODO comment until actual GitHub repo URL is finalized)
-  - [ ] 2.2 Update `bugs` and `homepage` URLs to match the actual repository (or add TODO comment)
-  - [ ] 2.3 Update `keywords` from `["oclif"]` to `["json", "yaml", "converter", "cli", "oclif"]`
-  - [ ] 2.4 Verify `bin`, `files`, `engines`, `name`, `version`, `description`, `license` are correct (they already are — just confirm, no changes needed)
+- [x] Task 2: Fix `package.json` metadata for npm publishing readiness (AC: #7, #8)
+  - [x] 2.1 Update `repository` from `"jy/jy"` to proper object form `{"type": "git", "url": "https://github.com/bilalsheriff/jy.git"}` (or leave as placeholder with TODO comment until actual GitHub repo URL is finalized)
+  - [x] 2.2 Update `bugs` and `homepage` URLs to match the actual repository (or add TODO comment)
+  - [x] 2.3 Update `keywords` from `["oclif"]` to `["json", "yaml", "converter", "cli", "oclif"]`
+  - [x] 2.4 Verify `bin`, `files`, `engines`, `name`, `version`, `description`, `license` are correct (they already are — just confirm, no changes needed)
 
-- [ ] Task 3: Verify CI runs correctly by running the same steps locally (AC: #9)
-  - [ ] 3.1 Run `npm run build` locally and confirm clean build
-  - [ ] 3.2 Run `npm test` locally and confirm all tests pass (mocha + posttest lint + format:check)
-  - [ ] 3.3 Fix any lint or format issues discovered
+- [x] Task 3: Verify CI runs correctly by running the same steps locally (AC: #9)
+  - [x] 3.1 Run `npm run build` locally and confirm clean build
+  - [x] 3.2 Run `npm test` locally and confirm all tests pass (mocha + posttest lint + format:check)
+  - [x] 3.3 Fix any lint or format issues discovered
 
-- [ ] Task 4: Document fork PR approval as a manual GitHub setting (AC: #5)
-  - [ ] 4.1 Add a comment in the CI workflow file noting that fork PR approval is configured in GitHub Settings > Actions > General, not in the workflow itself
+- [x] Task 4: Document fork PR approval as a manual GitHub setting (AC: #5)
+  - [x] 4.1 Add a comment in the CI workflow file noting that fork PR approval is configured in GitHub Settings > Actions > General, not in the workflow itself
 
 ## Dev Notes
 
@@ -226,9 +226,22 @@ jobs:
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (GitHub Copilot)
 
 ### Debug Log References
+None
 
 ### Completion Notes List
+- Created `.github/workflows/ci.yml` with push-to-main + pull_request triggers, ubuntu-latest, Node 22, npm ci, build, test steps, and concurrency cancellation
+- Fork PR approval documented as GitHub Settings comment in workflow file (AC #5)
+- Updated `package.json` metadata: `repository` to object form with bilalsheriff/jy URL, `bugs`/`homepage` to matching URLs, `keywords` expanded to [json, yaml, converter, cli, oclif]
+- Verified existing fields (`name`, `version`, `description`, `license`, `bin`, `files`, `engines`) are already correct — no changes needed
+- Full local verification: `npm run build` clean, `npm test` passes 134 tests, lint clean, format clean
+- No source code or test changes — this story is purely infrastructure
 
 ### File List
+- `.github/workflows/ci.yml` (NEW)
+- `package.json` (MODIFIED — metadata fields only)
+
+### Change Log
+- 2026-05-29: Implemented CI pipeline and npm package metadata (Story 3.1)

@@ -59,7 +59,7 @@ development_status:
 
   # Epic 3: CI/CD & Distribution
   epic-3: in-progress
-  3-1-ci-pipeline-npm-package-configuration: ready-for-dev
+  3-1-ci-pipeline-npm-package-configuration: done
   3-2-binary-packaging-release-pipeline: backlog
   3-3-curl-installer-script: backlog
   epic-3-retrospective: optional

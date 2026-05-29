@@ -6,7 +6,7 @@
   "bin": {
     "jy": "./bin/run.js"
   },
-  "bugs": "https://github.com/jy/jy/issues",
+  "bugs": "https://github.com/bilalshareef/jy/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
@@ -39,8 +39,12 @@
     "./dist",
     "./oclif.manifest.json"
   ],
-  "homepage": "https://github.com/jy/jy",
+  "homepage": "https://github.com/bilalshareef/jy",
   "keywords": [
+    "json",
+    "yaml",
+    "converter",
+    "cli",
     "oclif"
   ],
   "license": "MIT",
@@ -59,7 +63,10 @@
     ],
     "topicSeparator": " "
   },
-  "repository": "jy/jy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bilalshareef/jy.git"
+  },
   "scripts": {
     "build": "tsc -b",
     "build:clean": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
