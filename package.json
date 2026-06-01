@@ -4,13 +4,12 @@
   "version": "0.0.0",
   "author": "Mohammed Bilal Shareef",
   "bin": {
-    "jy": "./bin/run.js"
+    "jy": "bin/run.js"
   },
   "bugs": "https://github.com/bilalshareef/jy/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
@@ -36,7 +35,7 @@
   },
   "files": [
     "./bin",
-    "./dist",
+    "./lib",
     "./oclif.manifest.json"
   ],
   "homepage": "https://github.com/bilalshareef/jy",
@@ -48,20 +47,31 @@
     "oclif"
   ],
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "type": "module",
   "oclif": {
     "bin": "jy",
     "dirname": "jy",
     "commands": {
       "strategy": "single",
-      "target": "./dist/commands/index.js"
+      "target": "./lib/commands/index.js"
     },
     "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-help"
     ],
-    "topicSeparator": " "
+    "topicSeparator": " ",
+    "update": {
+      "node": {
+        "version": "22.16.0",
+        "targets": [
+          "linux-x64",
+          "linux-arm64",
+          "darwin-x64",
+          "darwin-arm64",
+          "win32-x64"
+        ]
+      }
+    }
   },
   "repository": {
     "type": "git",
@@ -69,10 +79,11 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "build:clean": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
+    "build:clean": "shx rm -rf lib tsconfig.tsbuildinfo && tsc -b",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint",
+    "pack:tarballs": "shx rm -rf dist && npm run build:clean && npx oclif pack tarballs",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint && npm run format:check",
     "prepare": "husky",
@@ -80,5 +91,5 @@
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md"
   },
-  "types": "dist/index.d.ts"
+  "types": "lib/index.d.ts"
 }

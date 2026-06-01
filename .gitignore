@@ -3,6 +3,7 @@
 .DS_Store
 /.nyc_output
 /dist
+/lib
 /tmp
 node_modules
 oclif.manifest.json
