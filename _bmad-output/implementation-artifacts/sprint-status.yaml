@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-15
-last_updated: 2026-06-01
+last_updated: 2026-06-02
 project: jy
 project_key: NOKEY
 tracking_system: file-system
@@ -61,5 +61,5 @@ development_status:
   epic-3: in-progress
   3-1-ci-pipeline-npm-package-configuration: done
   3-2-binary-packaging-release-pipeline: done
-  3-3-curl-installer-script: backlog
+  3-3-curl-installer-script: ready-for-dev
   epic-3-retrospective: optional
