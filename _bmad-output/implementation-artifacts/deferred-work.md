@@ -34,3 +34,7 @@
 ## Deferred from: code review of 2-2-output-directory-writing (2026-05-26)
 
 - Preserve relative source directories under `--out` to avoid duplicate-basename overwrites — valid edge case but uncommon; preserving input folder structure adds complexity, so revisit if real usage shows it is needed. [src/io.ts:42]
+
+## Deferred from: code review of 3-3-curl-installer-script.md (2026-06-02)
+
+- Standalone release entrypoints currently require `bash` on minimal Linux images, so the installer can succeed while the packaged `jy` command still fails on Alpine-style environments. This is a pre-existing packaging constraint from the release artifact, not a defect introduced by `install.sh`. [tmp/linux-x64/jy/bin/jy:1]

@@ -61,5 +61,5 @@ development_status:
   epic-3: in-progress
   3-1-ci-pipeline-npm-package-configuration: done
   3-2-binary-packaging-release-pipeline: done
-  3-3-curl-installer-script: ready-for-dev
+  3-3-curl-installer-script: done
   epic-3-retrospective: optional
