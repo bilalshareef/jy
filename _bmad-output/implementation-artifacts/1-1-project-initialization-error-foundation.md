@@ -4,27 +4,27 @@ Status: done
 
 ## Story
 
-As a **developer contributing to jy**,
+As a **developer contributing to cjy**,
 I want **the project scaffolded with oclif and a consistent error handling foundation**,
 so that **all future modules build on a working CLI skeleton with standardized error types and exit codes**.
 
 ## Acceptance Criteria
 
 1. **Given** no existing project structure
-   **When** the project is initialized with `npx oclif generate jy` (ESM, package name `jy`, bin name `jy`)
+   **When** the project is initialized with `npx oclif generate cjy` (ESM, package name `cjy`, bin name `cjy`)
    **Then** the project compiles, `./bin/dev.js --help` runs successfully, and the default hello-world command is replaced with an empty root command at `src/commands/index.ts`
 
 2. **Given** the initialized project
    **When** `src/errors.ts` is created
-   **Then** it exports exit code constants (`EXIT_SUCCESS = 0`, `EXIT_VALIDATION = 1`, `EXIT_PARSE = 2`, `EXIT_IO = 3`, `EXIT_AMBIGUOUS = 4`) and a `JyError` class extending `Error` with a `code: ExitCode` property
+   **Then** it exports exit code constants (`EXIT_SUCCESS = 0`, `EXIT_VALIDATION = 1`, `EXIT_PARSE = 2`, `EXIT_IO = 3`, `EXIT_AMBIGUOUS = 4`) and a `CjyError` class extending `Error` with a `code: ExitCode` property
 
 3. **Given** the root command exists at `src/commands/index.ts`
-   **When** any unhandled `JyError` is thrown during execution
+   **When** any unhandled `CjyError` is thrown during execution
    **Then** the root command catches it, writes `error.message` to stderr, and exits with `error.code`
 
 4. **Given** the project is scaffolded
    **When** `npm test` is run
-   **Then** unit tests for `JyError` and exit code constants pass, confirming correct error class behavior and code values
+   **Then** unit tests for `CjyError` and exit code constants pass, confirming correct error class behavior and code values
 
 5. **Given** the project structure
    **When** reviewing file naming and conventions
@@ -33,7 +33,7 @@ so that **all future modules build on a working CLI skeleton with standardized e
 ## Tasks / Subtasks
 
 - [x] Task 1: Scaffold project with oclif (AC: #1)
-  - [x] 1.1: Run `npx oclif generate jy` with ESM module type, package name `jy`, bin name `jy`
+  - [x] 1.1: Run `npx oclif generate cjy` with ESM module type, package name `cjy`, bin name `cjy`
   - [x] 1.2: Verify the generated project compiles (`npm run build`) and `./bin/dev.js --help` works
   - [x] 1.3: Delete generated example commands (`src/commands/hello/index.ts`, `src/commands/hello/world.ts`) and their tests
   - [x] 1.4: Set Node.js engine requirement to `>=22` in `package.json`
@@ -41,19 +41,19 @@ so that **all future modules build on a working CLI skeleton with standardized e
 
 - [x] Task 2: Create root command skeleton (AC: #1, #3)
   - [x] 2.1: Create `src/commands/index.ts` as the root command (single entry point)
-  - [x] 2.2: Define the command description and usage summary for `jy`
+  - [x] 2.2: Define the command description and usage summary for `cjy`
   - [x] 2.3: Accept variadic `args` (file paths) and define flag stubs for future stories (`--to`, `--quiet`, etc. can be omitted for now — only wire what's needed for error handling)
-  - [x] 2.4: Implement try/catch in the `run()` method to catch `JyError`, write `error.message` to stderr via `this.error()` or `process.stderr.write()`, and exit with `error.code` via `this.exit()`
+  - [x] 2.4: Implement try/catch in the `run()` method to catch `CjyError`, write `error.message` to stderr via `this.error()` or `process.stderr.write()`, and exit with `error.code` via `this.exit()`
   - [x] 2.5: Verify `./bin/dev.js --help` displays the root command help
 
 - [x] Task 3: Create error foundation module (AC: #2)
   - [x] 3.1: Create `src/errors.ts` with exit code constants: `EXIT_SUCCESS = 0`, `EXIT_VALIDATION = 1`, `EXIT_PARSE = 2`, `EXIT_IO = 3`, `EXIT_AMBIGUOUS = 4`
   - [x] 3.2: Define `ExitCode` type as union of non-success exit code values
-  - [x] 3.3: Implement `JyError` class extending `Error` with `readonly code: ExitCode` property and `name = 'JyError'`
+  - [x] 3.3: Implement `CjyError` class extending `Error` with `readonly code: ExitCode` property and `name = 'CjyError'`
   - [x] 3.4: Ensure `.js` extension on all imports (ESM requirement)
 
 - [x] Task 4: Write unit tests (AC: #4)
-  - [x] 4.1: Create `test/errors.test.ts` — test all exit code constant values, `JyError` construction, `JyError.name`, `JyError.code`, `JyError.message`, `instanceof Error`
+  - [x] 4.1: Create `test/errors.test.ts` — test all exit code constant values, `CjyError` construction, `CjyError.name`, `CjyError.code`, `CjyError.message`, `instanceof Error`
   - [x] 4.2: Create `test/commands/index.test.ts` — CLI integration test that verifies: (a) `--help` works, (b) running with no args doesn't crash (returns exit 0 or expected behavior for empty input)
   - [x] 4.3: Ensure `npm test` passes with all tests green
 
@@ -67,20 +67,20 @@ so that **all future modules build on a working CLI skeleton with standardized e
 
 ### Architecture Compliance
 
-This is the foundational story for the entire `jy` project. It establishes:
+This is the foundational story for the entire `cjy` project. It establishes:
 
 1. **Project skeleton** via `oclif generate` — this is non-negotiable, do NOT manually set up the project
-2. **Error contract** — the `JyError` class and exit codes that ALL future stories depend on
+2. **Error contract** — the `CjyError` class and exit codes that ALL future stories depend on
 3. **Root command pattern** — the single try/catch location for error handling
 
 **CRITICAL PATTERN — Error Handling Boundary:**
 ```
 Root Command (src/commands/index.ts)
-  └── try/catch JyError → stderr + this.exit(error.code)
+  └── try/catch CjyError → stderr + this.exit(error.code)
 ```
-- ONLY the root command catches `JyError` and calls `this.exit()`
+- ONLY the root command catches `CjyError` and calls `this.exit()`
 - NO other module should call `process.exit()` directly
-- ALL modules throw `JyError` with the appropriate exit code — errors propagate up to the root command
+- ALL modules throw `CjyError` with the appropriate exit code — errors propagate up to the root command
 
 ### Technical Stack & Versions
 
@@ -98,13 +98,13 @@ Root Command (src/commands/index.ts)
 
 **Initialization command:**
 ```bash
-npx oclif generate jy
+npx oclif generate cjy
 ```
 
 **Interactive prompts — select these values:**
 - Module type: **ESM**
-- Package name: **jy**
-- Command bin name: **jy**
+- Package name: **cjy**
+- Command bin name: **cjy**
 
 **Post-generation cleanup required:**
 - Delete `src/commands/hello/index.ts` and `src/commands/hello/world.ts` (example commands)
@@ -128,28 +128,28 @@ export const EXIT_AMBIGUOUS = 4
 
 export type ExitCode = typeof EXIT_VALIDATION | typeof EXIT_PARSE | typeof EXIT_IO | typeof EXIT_AMBIGUOUS
 
-export class JyError extends Error {
+export class CjyError extends Error {
   constructor(message: string, public readonly code: ExitCode) {
     super(message)
-    this.name = 'JyError'
+    this.name = 'CjyError'
   }
 }
 ```
 
 **Key decisions baked into this pattern:**
-- `EXIT_SUCCESS` is defined but NOT part of `ExitCode` type — you never construct a `JyError` for success
+- `EXIT_SUCCESS` is defined but NOT part of `ExitCode` type — you never construct a `CjyError` for success
 - `code` is `readonly` — immutable after construction
-- `name` is set to `'JyError'` — useful for error identification in logs
+- `name` is set to `'CjyError'` — useful for error identification in logs
 - No additional error subclasses — this is the ONLY error class in the project
 
 ### Root Command — Error Catch Pattern
 
-The root command at `src/commands/index.ts` must implement the JyError catch pattern. Key oclif considerations:
+The root command at `src/commands/index.ts` must implement the CjyError catch pattern. Key oclif considerations:
 
 ```typescript
 import {Command} from '@oclif/core'
 
-import {JyError} from '../errors.js'
+import {CjyError} from '../errors.js'
 
 export default class Index extends Command {
   static override description = 'Convert between JSON and YAML formats'
@@ -159,7 +159,7 @@ export default class Index extends Command {
       // Future stories will add pipeline logic here
       // For now, the command does nothing (no args = no-op or help)
     } catch (error) {
-      if (error instanceof JyError) {
+      if (error instanceof CjyError) {
         this.logToStderr(error.message)
         this.exit(error.code)
       }
@@ -171,10 +171,10 @@ export default class Index extends Command {
 ```
 
 **IMPORTANT oclif behaviors to be aware of:**
-- `this.error(message)` in oclif throws an error internally and exits — do NOT use it for JyError handling. Use `this.logToStderr()` + `this.exit()` separately to control the exit code.
+- `this.error(message)` in oclif throws an error internally and exits — do NOT use it for CjyError handling. Use `this.logToStderr()` + `this.exit()` separately to control the exit code.
 - `this.exit(code)` throws an `ExitError` — it does NOT return. Code after `this.exit()` is unreachable.
 - `this.log()` writes to stdout, `this.logToStderr()` writes to stderr — respect this boundary.
-- Non-JyError exceptions should be re-thrown to let oclif's default error handler deal with them.
+- Non-CjyError exceptions should be re-thrown to let oclif's default error handler deal with them.
 
 ### Import Ordering Convention
 
@@ -189,7 +189,7 @@ import path from 'node:path'
 import {Command} from '@oclif/core'
 
 // 3. Internal modules
-import {JyError, EXIT_PARSE} from './errors.js'
+import {CjyError, EXIT_PARSE} from './errors.js'
 ```
 
 - Blank line between each group
@@ -200,7 +200,7 @@ import {JyError, EXIT_PARSE} from './errors.js'
 
 - **Files:** kebab-case (`errors.ts`, `format-detector.ts`)
 - **Functions/Variables:** camelCase (`detectFormat`, `inputFormat`)
-- **Types/Interfaces:** PascalCase (`ExitCode`, `JyError`)
+- **Types/Interfaces:** PascalCase (`ExitCode`, `CjyError`)
 - **Constants:** UPPER_SNAKE_CASE (`EXIT_SUCCESS`, `EXIT_PARSE`)
 
 ### Test Structure
@@ -209,7 +209,7 @@ import {JyError, EXIT_PARSE} from './errors.js'
 test/
   commands/
     index.test.ts      # CLI integration tests for root command
-  errors.test.ts        # Unit tests for JyError and exit codes
+  errors.test.ts        # Unit tests for CjyError and exit codes
 ```
 
 - Test file names mirror source: `src/errors.ts` → `test/errors.test.ts`
@@ -223,14 +223,14 @@ test/
 - **DO NOT** add flags (`--to`, `--quiet`, `--eol`, etc.) to the root command yet — those come in later stories
 - **DO NOT** create `format-detector.ts`, `converter.ts`, `output-formatter.ts`, or `io.ts` — those are for later stories
 - **DO NOT** use `process.exit()` directly anywhere — only `this.exit()` in the root command
-- **DO NOT** create additional error classes or subclasses — only `JyError`
+- **DO NOT** create additional error classes or subclasses — only `CjyError`
 - **DO NOT** add variadic file args to the command yet — the root command should accept no args in this story (args come in Story 1.2)
 - **DO NOT** change the oclif command discovery strategy to `"single"` — keep the default file-based routing
 
 ### Project Structure After This Story
 
 ```
-jy/
+cjy/
 ├── README.md                          # (existing, update if needed)
 ├── LICENSE                            # (existing)
 ├── package.json                       # oclif config, scripts, dependencies
@@ -247,18 +247,18 @@ jy/
 ├── src/
 │   ├── commands/
 │   │   └── index.ts                   # Root command — error catch boundary
-│   └── errors.ts                      # JyError class, exit code constants
+│   └── errors.ts                      # CjyError class, exit code constants
 ├── test/
 │   ├── commands/
 │   │   └── index.test.ts              # CLI integration tests
-│   └── errors.test.ts                 # Exit code and JyError unit tests
+│   └── errors.test.ts                 # Exit code and CjyError unit tests
 └── dist/                              # Compiled JS output (gitignored)
 ```
 
 ### References
 
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Conversion Pipeline Architecture" section for module structure]
-- [Source: _bmad-output/planning-artifacts/architecture.md — "Error Handling Pattern" section for JyError exact implementation]
+- [Source: _bmad-output/planning-artifacts/architecture.md — "Error Handling Pattern" section for CjyError exact implementation]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Implementation Patterns & Consistency Rules" section for naming/import conventions]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Complete Project Directory Structure" for file layout]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Starter Template Evaluation" for oclif generate command]
@@ -281,14 +281,14 @@ Claude Opus 4.6 (GitHub Copilot)
 
 ### Completion Notes List
 
-- Scaffolded project via `npx oclif generate jy` (ESM, npm, bin name `jy`)
-- Moved generated files from `jy/jy/` subdirectory to project root; recreated dotfiles (`.gitignore`, `.prettierrc.json`, `.mocharc.json`) that were lost due to zsh dotglob behavior
+- Scaffolded project via `npx oclif generate cjy` (ESM, npm, bin name `cjy`)
+- Moved generated files from `cjy/cjy/` subdirectory to project root; recreated dotfiles (`.gitignore`, `.prettierrc.json`, `.mocharc.json`) that were lost due to zsh dotglob behavior
 - Deleted example hello commands and tests
 - Set Node.js engine to `>=22.0.0` in package.json
 - Removed hello topic from oclif config in package.json
-- Created `src/errors.ts` with exit code constants (`EXIT_SUCCESS=0`, `EXIT_VALIDATION=1`, `EXIT_PARSE=2`, `EXIT_IO=3`, `EXIT_AMBIGUOUS=4`), `ExitCode` type, and `JyError` class
-- Created `src/commands/index.ts` root command with try/catch JyError pattern using `this.logToStderr()` + `this.exit()`
-- Created `test/errors.test.ts` (12 tests: exit code values, JyError construction/name/message/code/instanceof)
+- Created `src/errors.ts` with exit code constants (`EXIT_SUCCESS=0`, `EXIT_VALIDATION=1`, `EXIT_PARSE=2`, `EXIT_IO=3`, `EXIT_AMBIGUOUS=4`), `ExitCode` type, and `CjyError` class
+- Created `src/commands/index.ts` root command with try/catch CjyError pattern using `this.logToStderr()` + `this.exit()`
+- Created `test/errors.test.ts` (12 tests: exit code values, CjyError construction/name/message/code/instanceof)
 - Created `test/commands/index.test.ts` (2 tests: --help displays description, no-args runs without error)
 - Installed `tsx` as devDependency for test execution compatibility with Node v24
 - All 12 tests pass, lint clean, build succeeds, conventions verified
@@ -316,20 +316,20 @@ New files:
 
 ### Change Log
 
-- 2026-05-15: Story 1.1 implemented — project scaffolded with oclif (ESM), error foundation module created, root command with JyError catch boundary, unit and integration tests added (12 passing), all conventions verified
+- 2026-05-15: Story 1.1 implemented — project scaffolded with oclif (ESM), error foundation module created, root command with CjyError catch boundary, unit and integration tests added (12 passing), all conventions verified
 
 ### Review Findings
 
 - [x] [Review][Patch] oclif `"strategy": "single"` in commands config violates critical spec constraint — spec explicitly forbids this; use file-based routing [package.json] — NOTE: reverted; `strategy: "single"` is required for this project; `strategy: "pattern"` causes `SINGLE_COMMAND_CLI_SYMBOL` resolution warnings (documented in docs/known-issues.md). Spec constraint is incorrect for oclif v4 with index.ts root command.
-- [x] [Review][Patch] `await this.parse(Index)` in `run()` deviates from spec pattern and causes unrecognized flags to surface as raw oclif errors instead of JyErrors [src/commands/index.ts:9]
+- [x] [Review][Patch] `await this.parse(Index)` in `run()` deviates from spec pattern and causes unrecognized flags to surface as raw oclif errors instead of CjyErrors [src/commands/index.ts:9]
 - [x] [Review][Patch] `@types/node ^18` mismatches `engines: node >=22` — Node 22 APIs will lack TypeScript type definitions [package.json]
-- [x] [Review][Patch] JyError catch path in root command has no test coverage — no test exercises the error branch [test/commands/index.test.ts]
+- [x] [Review][Patch] CjyError catch path in root command has no test coverage — no test exercises the error branch [test/commands/index.test.ts]
 - [x] [Review][Patch] `ts-node` devDependency is unused dead weight — replaced by `tsx` but still present in package.json [package.json]
 - [x] [Review][Patch] `watch-extensions` in `.mocharc.json` must be an array, not a string — mocha silently misbehaves during watch mode [.mocharc.json:3]
-- [x] [Review][Patch] Empty string `message` in `JyError` constructor is not guarded — `logToStderr` emits a blank line with no diagnostic context [src/errors.ts:10]
+- [x] [Review][Patch] Empty string `message` in `CjyError` constructor is not guarded — `logToStderr` emits a blank line with no diagnostic context [src/errors.ts:10]
 - [x] [Review][Patch] `ExitCode` union member order deviates from exact spec pattern [src/errors.ts:7] — NOTE: reverted; `perfectionist/sort-union-types` ESLint rule enforces alphabetical order, original code was correct
 - [x] [Review][Defer] `@oclif/plugin-plugins` included in dependencies — unnecessary for a format-conversion CLI, adds plugin-installation attack surface [package.json] — deferred, pre-existing scaffold default
-- [x] [Review][Defer] `bugs`, `homepage`, and `repository` fields contain oclif scaffold placeholder values (`jy/jy`) [package.json] — deferred, pre-existing
-- [x] [Review][Defer] `repository` field uses shorthand string `"jy/jy"` instead of npm object form `{"type":"git","url":"..."}` [package.json] — deferred, pre-existing
+- [x] [Review][Defer] `bugs`, `homepage`, and `repository` fields contain oclif scaffold placeholder values (`cjy/cjy`) [package.json] — deferred, pre-existing
+- [x] [Review][Defer] `repository` field uses shorthand string `"cjy/cjy"` instead of npm object form `{"type":"git","url":"..."}` [package.json] — deferred, pre-existing
 - [x] [Review][Defer] No `sourceMap` or `declarationMap` in `tsconfig.json` — runtime stack traces point to compiled JS in `dist/` [tsconfig.json] — deferred, pre-existing scaffold default
 - [x] [Review][Defer] `"runs with no args without crashing"` test asserts only `error` is undefined — near-tautology, provides minimal signal [test/commands/index.test.ts:10] — deferred, pre-existing

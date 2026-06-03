@@ -5,29 +5,29 @@ Status: done
 ## Story
 
 As a **developer**,
-I want **to pipe content through stdin using `jy -`**,
+I want **to pipe content through stdin using `cjy -`**,
 so that **I can convert data from other commands or scripts without saving to a file first**.
 
 ## Acceptance Criteria
 
 1. **Given** valid JSON content piped to stdin
-   **When** the user runs `echo '{"key": "value"}' | jy -`
+   **When** the user runs `echo '{"key": "value"}' | cjy -`
    **Then** the content is detected as JSON (leading `{`), converted to YAML, and written to stdout
 
 2. **Given** valid JSON array content piped to stdin
-   **When** the user runs `echo '[1, 2, 3]' | jy -`
+   **When** the user runs `echo '[1, 2, 3]' | cjy -`
    **Then** the content is detected as JSON (leading `[`), converted to YAML, and written to stdout
 
 3. **Given** valid YAML content piped to stdin
-   **When** the user runs `echo 'key: value' | jy -`
+   **When** the user runs `echo 'key: value' | cjy -`
    **Then** the content is detected as YAML (no leading `{` or `[`), converted to JSON, and written to stdout
 
 4. **Given** malformed content piped to stdin
-   **When** the user runs `echo 'not: [valid: content' | jy -`
+   **When** the user runs `echo 'not: [valid: content' | cjy -`
    **Then** an error message is written to stderr and the process exits with code 2 (parse error)
 
 5. **Given** empty stdin input
-   **When** the user runs `echo '' | jy -`
+   **When** the user runs `echo '' | cjy -`
    **Then** an appropriate error message is written to stderr and the process exits with a non-zero exit code
 
 6. **Given** the project test suite
@@ -45,8 +45,8 @@ so that **I can convert data from other commands or scripts without saving to a 
   - [x] 2.1: Implement `readStdin(): Promise<string>` — reads all data from `process.stdin` using a stream consumer pattern
   - [x] 2.2: Use `node:stream` or manual chunk collection: listen to `'data'` events, concatenate chunks, resolve on `'end'`
   - [x] 2.3: Decode as UTF-8 (set `process.stdin.setEncoding('utf8')`)
-  - [x] 2.4: Handle empty stdin: if the collected content (after trimming) is empty, throw `JyError('No input provided on stdin', EXIT_PARSE)` — use `EXIT_PARSE` (code 2) because empty input cannot be parsed
-  - [x] 2.5: Wrap any unexpected stream errors in `JyError` with `EXIT_IO`
+  - [x] 2.4: Handle empty stdin: if the collected content (after trimming) is empty, throw `CjyError('No input provided on stdin', EXIT_PARSE)` — use `EXIT_PARSE` (code 2) because empty input cannot be parsed
+  - [x] 2.5: Wrap any unexpected stream errors in `CjyError` with `EXIT_IO`
 
 - [x] Task 3: Update `src/commands/index.ts` — add stdin pipeline branch (AC: #1, #2, #3, #4, #5)
   - [x] 3.1: Detect stdin mode: when `args.file === '-'`, use stdin branch instead of file branch
@@ -68,7 +68,7 @@ so that **I can convert data from other commands or scripts without saving to a 
 - [x] Task 5: Write unit tests for `readStdin` (AC: #5, #6)
   - [x] 5.1: Add `readStdin` tests in `test/io.test.ts` — mock `process.stdin` to provide content
   - [x] 5.2: Test: reading valid content from stdin returns the content string
-  - [x] 5.3: Test: empty stdin throws `JyError` with `EXIT_PARSE`
+  - [x] 5.3: Test: empty stdin throws `CjyError` with `EXIT_PARSE`
 
 - [x] Task 6: Write CLI integration tests for stdin (AC: #1, #2, #3, #4, #5, #6)
   - [x] 6.1: Add stdin tests in `test/commands/index.test.ts`
@@ -155,13 +155,13 @@ export async function readStdin(): Promise<string> {
     process.stdin.on('end', () => {
       const content = chunks.join('')
       if (content.trim().length === 0) {
-        reject(new JyError('No input provided on stdin', EXIT_PARSE))
+        reject(new CjyError('No input provided on stdin', EXIT_PARSE))
         return
       }
       resolve(content)
     })
     process.stdin.on('error', (err: Error) => {
-      reject(new JyError(`Cannot read from stdin: ${err.message}`, EXIT_IO))
+      reject(new CjyError(`Cannot read from stdin: ${err.message}`, EXIT_IO))
     })
     process.stdin.resume()
   })
@@ -193,7 +193,7 @@ async run(): Promise<void> {
     const output = convert(content, sourceFormat, args.file === '-' ? 'stdin' : args.file)
     process.stdout.write(output)
   } catch (error) {
-    if (error instanceof JyError) {
+    if (error instanceof CjyError) {
       this.logToStderr(error.message)
       this.exit(error.code)
     }
@@ -207,7 +207,7 @@ async run(): Promise<void> {
 - `this.logToStderr()` writes to stderr — NOT `this.error()` which throws internally
 - `this.exit(code)` throws `ExitError` — code after it is unreachable
 - `process.stdout.write(output)` — avoids `this.log()` double-newline issue (discovered in Story 1.2)
-- Non-JyError exceptions re-throw for oclif's default handler
+- Non-CjyError exceptions re-throw for oclif's default handler
 
 ### Testing Strategy — Stdin Mocking
 
@@ -257,8 +257,8 @@ Note: Pass `'stdin'` as the `filePath` argument to `convert()` — the existing 
 **From Story 1.2 implementation:**
 - `process.stdout.write(output)` is used instead of `this.log()` to avoid double-newline — **continue this pattern**
 - `convert()` already accepts a `filePath` string parameter used only for error messages — pass `'stdin'` for stdin mode
-- The `parseContent()` internal function in `converter.ts` already handles empty YAML (returns `null` → throws `JyError`) — this covers the case where stdin provides content that parses to null in YAML
-- The existing try/catch pattern in the root command handles both `JyError` (stderr + exit code) and non-JyError (re-throw) — **do not change this pattern**
+- The `parseContent()` internal function in `converter.ts` already handles empty YAML (returns `null` → throws `CjyError`) — this covers the case where stdin provides content that parses to null in YAML
+- The existing try/catch pattern in the root command handles both `CjyError` (stderr + exit code) and non-CjyError (re-throw) — **do not change this pattern**
 
 **From Story 1.2 deferred work (relevant items):**
 - "No stdin support — `readInput` hard-coded to file paths; Story 1.3 covers this" — this is what we're implementing
@@ -321,7 +321,7 @@ None
 - test/commands/index.test.ts (modified — added stdin mode integration tests)
 
 ### Review Findings
-- [ ] [Review][Decision] isTTY check missing — Process hangs indefinitely waiting for input when run directly without piped input. Do we show an error `JyError('No input provided on stdin', EXIT_PARSE)`, wait, or show usage help?
+- [ ] [Review][Decision] isTTY check missing — Process hangs indefinitely waiting for input when run directly without piped input. Do we show an error `CjyError('No input provided on stdin', EXIT_PARSE)`, wait, or show usage help?
 - [ ] [Review][Patch] Missing TypeScript annotation — `let sourceFormat` lacks explicit `Format` type [src/commands/index.ts:18]
 - [ ] [Review][Patch] BOM character vulnerability — `trimStart()` fails to strip UTF-8 BOM, causing a BOM-prefixed JSON to be identified as YAML [src/format-detector.ts]
 - [x] [Review][Defer] Memory leak in `readStdin()` — Event listeners not removed upon resolution/rejection [src/io.ts] — deferred, pre-existing

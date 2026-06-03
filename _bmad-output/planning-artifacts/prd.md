@@ -16,20 +16,20 @@ classification:
 workflowType: 'prd'
 ---
 
-# Product Requirements Document - jy
+# Product Requirements Document - cjy
 
 **Author:** Bilal Shareef
 **Date:** 2026-05-11
 
 ## Executive Summary
 
-`jy` is a cross-platform CLI tool that converts between JSON and YAML formats with zero configuration and zero dependencies. It targets developers who regularly work with structured data files — Kubernetes manifests, CI/CD pipelines, API payloads, application configs — and need fast, reliable format conversion without reaching for heavyweight tools or browser-based converters.
+`cjy` is a cross-platform CLI tool that converts between JSON and YAML formats with zero configuration and zero dependencies. It targets developers who regularly work with structured data files — Kubernetes manifests, CI/CD pipelines, API payloads, application configs — and need fast, reliable format conversion without reaching for heavyweight tools or browser-based converters.
 
-The tool provides a single-command interface (`jy [input...] [flags]`), automatic format detection, multi-file/glob support, and configurable output formatting. It ships as standalone binaries for Linux (x64/arm64), macOS (Intel/Apple Silicon), and Windows (x64), installable via a single curl command or as an npm global package.
+The tool provides a single-command interface (`cjy [input...] [flags]`), automatic format detection, multi-file/glob support, and configurable output formatting. It ships as standalone binaries for Linux (x64/arm64), macOS (Intel/Apple Silicon), and Windows (x64), installable via a single curl command or as an npm global package.
 
 ### What Makes This Special
 
-Radical simplicity. Existing tools like `yq` and `jq` are powerful but overbuilt for the most common use case: "convert this file to the other format." `jy` applies the Unix philosophy — do one thing well — to format conversion. No query language, no transformation pipelines, no schema validation. Just `jy file.json` → YAML out. The value is in what it doesn't do.
+Radical simplicity. Existing tools like `yq` and `jq` are powerful but overbuilt for the most common use case: "convert this file to the other format." `cjy` applies the Unix philosophy — do one thing well — to format conversion. No query language, no transformation pipelines, no schema validation. Just `cjy file.json` → YAML out. The value is in what it doesn't do.
 
 Zero-friction distribution reinforces this: a single binary, no runtime dependencies, no package manager lock-in. Install once, use everywhere.
 
@@ -45,13 +45,13 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 ### User Success
 
 - **Zero-friction first use:** Developer installs and converts their first file in under 60 seconds
-- **Script integration:** `jy` slots into existing shell scripts and CI pipelines without special handling
+- **Script integration:** `cjy` slots into existing shell scripts and CI pipelines without special handling
 - **Batch confidence:** Multi-file and glob operations produce correct results every time
 - **Predictable behavior:** No surprises — output matches what the user expects from the input
 
 ### Business Success
 
-- **Community adoption:** Others use `jy` in production workflows
+- **Community adoption:** Others use `cjy` in production workflows
 - **GitHub traction:** Meaningful star count indicating real-world utility and visibility
 - **Word of mouth:** Developers recommend it as the go-to JSON/YAML converter
 
@@ -76,11 +76,11 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 **Opening Scene:** Ravi has a JSON config exported from a tool, but his Helm chart expects YAML. He's mid-flow, doesn't want to context-switch to a browser converter or remember `yq` syntax.
 
-**Rising Action:** He types `jy deployment.json`. Instantly, clean YAML appears in his terminal. He pipes it: `jy deployment.json > deployment.yaml`.
+**Rising Action:** He types `cjy deployment.json`. Instantly, clean YAML appears in his terminal. He pipes it: `cjy deployment.json > deployment.yaml`.
 
 **Climax:** It just works. No flags to remember, no format to specify. The output is readable, correctly indented, and he pastes it directly into his chart.
 
-**Resolution:** Ravi finishes his deployment config without breaking flow. `jy` becomes muscle memory — the thing he reaches for every time he needs the other format.
+**Resolution:** Ravi finishes his deployment config without breaking flow. `cjy` becomes muscle memory — the thing he reaches for every time he needs the other format.
 
 ### Journey 2: Batch Pipeline (Developer — Scripting/CI)
 
@@ -88,35 +88,35 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 **Opening Scene:** Amara's pipeline produces 40+ JSON spec files per build. She needs them all converted to YAML in a `dist/` directory.
 
-**Rising Action:** She adds one line to her CI script: `jy src/**/*.json --out-dir dist`. The glob resolves, all files convert, and the exit code is 0.
+**Rising Action:** She adds one line to her CI script: `cjy src/**/*.json --out-dir dist`. The glob resolves, all files convert, and the exit code is 0.
 
-**Climax:** A new spec file is malformed. `jy` exits with code 2 and a clear error message pointing to the file and line. The CI build fails visibly — no silent corruption.
+**Climax:** A new spec file is malformed. `cjy` exits with code 2 and a clear error message pointing to the file and line. The CI build fails visibly — no silent corruption.
 
-**Resolution:** Amara trusts `jy` in her pipeline. It's predictable, scriptable, and fails loudly when it should. She never has to babysit it.
+**Resolution:** Amara trusts `cjy` in her pipeline. It's predictable, scriptable, and fails loudly when it should. She never has to babysit it.
 
 ### Journey 3: Error Recovery (Developer — Edge Cases)
 
 **Persona:** Sam, a junior developer who accidentally renames a YAML file with a `.json` extension.
 
-**Opening Scene:** Sam runs `jy config.json` expecting YAML output, but the file is actually YAML content with a `.json` extension.
+**Opening Scene:** Sam runs `cjy config.json` expecting YAML output, but the file is actually YAML content with a `.json` extension.
 
-**Rising Action:** `jy` attempts to parse as JSON (based on extension), fails, and exits with code 2: `Parse error: config.json is not valid JSON`.
+**Rising Action:** `cjy` attempts to parse as JSON (based on extension), fails, and exits with code 2: `Parse error: config.json is not valid JSON`.
 
 **Climax:** Sam uses `--to yaml` to force the output format and re-examines the file. He realizes the extension mismatch. The error message was clear enough to diagnose immediately — no stack trace, no cryptic output.
 
-**Resolution:** Sam corrects the filename. He learns that `jy` trusts extensions but gives clear feedback when things don't match. No data is lost, no file is corrupted.
+**Resolution:** Sam corrects the filename. He learns that `cjy` trusts extensions but gives clear feedback when things don't match. No data is lost, no file is corrupted.
 
 ### Journey 4: First-Time Install & Evaluation
 
 **Persona:** Kenji, a platform engineer evaluating lightweight tools for his team's developer toolkit.
 
-**Opening Scene:** Kenji sees `jy` mentioned in a GitHub discussion. He clicks through to the README.
+**Opening Scene:** Kenji sees `cjy` mentioned in a GitHub discussion. He clicks through to the README.
 
-**Rising Action:** He runs `curl -fsSL https://example.com/install | sh`. Within seconds, the binary is in his PATH. He tests: `echo '{"a":1}' | jy -` — clean YAML out. He tries a round-trip and confirms fidelity.
+**Rising Action:** He runs `curl -fsSL https://example.com/install | sh`. Within seconds, the binary is in his PATH. He tests: `echo '{"a":1}' | cjy -` — clean YAML out. He tries a round-trip and confirms fidelity.
 
 **Climax:** No Node.js required, no package manager, works on his Linux CI boxes and his Mac. He's convinced in under 2 minutes.
 
-**Resolution:** Kenji adds `jy` to his team's base Docker image and recommends it in their internal tooling guide.
+**Resolution:** Kenji adds `cjy` to his team's base Docker image and recommends it in their internal tooling guide.
 
 ### Journey Requirements Summary
 
@@ -131,9 +131,9 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 ### Command Structure
 
-- Single command interface: `jy [input...] [flags]`
+- Single command interface: `cjy [input...] [flags]`
 - No subcommands, no interactive prompts, no TUI
-- All behavior controlled exclusively via flags — no config files, no environment variables, no `.jyrc`
+- All behavior controlled exclusively via flags — no config files, no environment variables, no `.cjyrc`
 - Flags use GNU-style long options with `--` prefix
 
 ### Input Handling
@@ -211,7 +211,7 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - First-Time Install & Evaluation
 
 **Must-Have Capabilities:**
-- Single-command interface: `jy [input...] [flags]`
+- Single-command interface: `cjy [input...] [flags]`
 - Automatic format detection via file extension and stdin content inspection
 - JSON → YAML and YAML → JSON conversion
 - Multi-file and glob pattern support
@@ -226,7 +226,7 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - `--quiet` — suppress informational logs
 - Exit codes 0–4 with clear error messages to stderr
 - Stop on first error (fail-fast)
-- npm global package installation (`npm install -g jy`)
+- npm global package installation (`npm install -g cjy`)
 - Standalone binary distribution via curl installer
 - Platform support: Linux x64/arm64, macOS Intel/Apple Silicon, Windows x64
 
@@ -303,8 +303,8 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 ### Distribution & Installation
 
-- **FR24:** User can install `jy` as an npm global package
-- **FR25:** User can install `jy` as a standalone binary via a curl-based installer script
+- **FR24:** User can install `cjy` as an npm global package
+- **FR25:** User can install `cjy` as a standalone binary via a curl-based installer script
 - **FR26:** Installer script can detect the user's operating system and architecture and download the correct binary
 - **FR27:** System can run as a standalone binary without requiring Node.js on the target machine
 - **FR28:** System can support Linux x64, Linux arm64, macOS Intel, macOS Apple Silicon, and Windows x64
@@ -339,6 +339,6 @@ The following are explicitly out of scope for all phases:
 - Querying or filtering data (no jq/yq-style expressions)
 - Schema validation (only parse-ability validation)
 - Comment preservation in YAML
-- Configuration files (`.jyrc`, env vars)
+- Configuration files (`.cjyrc`, env vars)
 - Transformation pipelines
 - Data manipulation beyond format conversion

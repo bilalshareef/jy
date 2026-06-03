@@ -6,9 +6,9 @@ import { EXIT_PARSE, EXIT_VALIDATION } from '../src/errors.js'
 describe('converter', () => {
   describe('JSON to YAML', () => {
     it('converts simple JSON to valid YAML', () => {
-      const json = '{"name": "jy", "version": 1}'
+      const json = '{"name": "cjy", "version": 1}'
       const result = convert(json, 'json', 'test.json')
-      expect(result).to.contain('name: jy')
+      expect(result).to.contain('name: cjy')
       expect(result).to.contain('version: 1')
     })
 
@@ -34,10 +34,10 @@ describe('converter', () => {
 
   describe('YAML to JSON', () => {
     it('converts simple YAML to valid JSON', () => {
-      const yaml = 'name: jy\nversion: 1\n'
+      const yaml = 'name: cjy\nversion: 1\n'
       const result = convert(yaml, 'yaml', 'test.yaml')
       const parsed = JSON.parse(result)
-      expect(parsed).to.deep.equal({ name: 'jy', version: 1 })
+      expect(parsed).to.deep.equal({ name: 'cjy', version: 1 })
     })
 
     it('uses serializer indent size for JSON output', () => {
@@ -95,13 +95,13 @@ describe('converter', () => {
   })
 
   describe('error handling', () => {
-    it('throws JyError with EXIT_PARSE for malformed JSON', () => {
+    it('throws CjyError with EXIT_PARSE for malformed JSON', () => {
       expect(() => convert('{invalid', 'json', 'bad.json'))
         .to.throw()
         .with.property('code', EXIT_PARSE)
     })
 
-    it('throws JyError with EXIT_PARSE for malformed YAML', () => {
+    it('throws CjyError with EXIT_PARSE for malformed YAML', () => {
       expect(() => convert('key: [broken: yaml', 'yaml', 'bad.yaml'))
         .to.throw()
         .with.property('code', EXIT_PARSE)
@@ -115,7 +115,7 @@ describe('converter', () => {
       expect(() => convert('key: [broken: yaml', 'yaml', 'config.yaml')).to.throw(/config\.yaml/)
     })
 
-    it('throws JyError with EXIT_PARSE including file path for empty YAML document', () => {
+    it('throws CjyError with EXIT_PARSE including file path for empty YAML document', () => {
       expect(() => convert('', 'yaml', 'empty.yaml'))
         .to.throw(/empty\.yaml/)
         .with.property('code', EXIT_PARSE)
@@ -124,26 +124,26 @@ describe('converter', () => {
 
   describe('validate', () => {
     it('returns without throwing for valid JSON content', () => {
-      expect(() => validate('{"name": "jy", "version": 1}', 'json', 'test.json')).to.not.throw()
+      expect(() => validate('{"name": "cjy", "version": 1}', 'json', 'test.json')).to.not.throw()
     })
 
     it('returns without throwing for valid YAML content', () => {
-      expect(() => validate('name: jy\nversion: 1\n', 'yaml', 'test.yaml')).to.not.throw()
+      expect(() => validate('name: cjy\nversion: 1\n', 'yaml', 'test.yaml')).to.not.throw()
     })
 
-    it('throws JyError with EXIT_VALIDATION for malformed JSON', () => {
+    it('throws CjyError with EXIT_VALIDATION for malformed JSON', () => {
       expect(() => validate('{invalid', 'json', 'bad.json'))
         .to.throw()
         .with.property('code', EXIT_VALIDATION)
     })
 
-    it('throws JyError with EXIT_VALIDATION for malformed YAML', () => {
+    it('throws CjyError with EXIT_VALIDATION for malformed YAML', () => {
       expect(() => validate('key: [broken: yaml', 'yaml', 'bad.yaml'))
         .to.throw()
         .with.property('code', EXIT_VALIDATION)
     })
 
-    it('throws JyError with EXIT_VALIDATION for empty YAML document', () => {
+    it('throws CjyError with EXIT_VALIDATION for empty YAML document', () => {
       expect(() => validate('', 'yaml', 'empty.yaml'))
         .to.throw()
         .with.property('code', EXIT_VALIDATION)

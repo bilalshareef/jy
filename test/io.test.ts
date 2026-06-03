@@ -21,10 +21,10 @@ describe('io', () => {
     it('returns string content', async () => {
       const content = await readInput(path.join(fixturesDir, 'simple.yaml'))
       expect(content).to.be.a('string')
-      expect(content).to.contain('name: jy')
+      expect(content).to.contain('name: cjy')
     })
 
-    it('throws JyError with EXIT_IO for file not found', async () => {
+    it('throws CjyError with EXIT_IO for file not found', async () => {
       try {
         await readInput(path.join(fixturesDir, 'nonexistent.json'))
         expect.fail('Expected readInput to throw')
@@ -68,7 +68,7 @@ describe('io', () => {
       expect(content).to.equal('{"key": "value"}')
     })
 
-    it('throws JyError with EXIT_PARSE for empty stdin', async () => {
+    it('throws CjyError with EXIT_PARSE for empty stdin', async () => {
       const mockStdin = new Readable({
         read() {
           this.push('')
@@ -114,7 +114,7 @@ describe('io', () => {
       expect(result).to.deep.equal(sorted)
     })
 
-    it('throws JyError with EXIT_IO for no-match glob', async () => {
+    it('throws CjyError with EXIT_IO for no-match glob', async () => {
       try {
         await resolveFilePaths(['nonexistent-dir-xyz/*.json'])
         expect.fail('Expected resolveFilePaths to throw')
@@ -132,9 +132,9 @@ describe('io', () => {
     })
 
     it('treats existing paths with glob metacharacters as literal files', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-literal-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-literal-'))
       const literalPath = path.join(tmpDir, 'file[prod].json')
-      writeFileSync(literalPath, '{"name":"jy"}')
+      writeFileSync(literalPath, '{"name":"cjy"}')
 
       try {
         const result = await resolveFilePaths([literalPath])
@@ -145,7 +145,7 @@ describe('io', () => {
     })
 
     it('filters directories out of glob expansions', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-glob-files-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-glob-files-'))
       const filePath = path.join(tmpDir, 'a.json')
       writeFileSync(filePath, '{"key":"value"}')
       mkdirSync(path.join(tmpDir, 'nested'))
@@ -159,7 +159,7 @@ describe('io', () => {
     })
 
     it('expands recursive glob patterns', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-glob-recursive-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-glob-recursive-'))
       const rootFile = path.join(tmpDir, 'root.json')
       const nestedDir = path.join(tmpDir, 'nested')
       const nestedFile = path.join(nestedDir, 'child.json')
@@ -178,18 +178,18 @@ describe('io', () => {
 
   describe('writeOutput', () => {
     it('creates file with correct swapped filename in existing directory', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       try {
-        await writeOutput(tmpDir, 'config.json', 'name: jy\n', 'yaml')
+        await writeOutput(tmpDir, 'config.json', 'name: cjy\n', 'yaml')
         const written = readFileSync(path.join(tmpDir, 'config.yaml'), 'utf8')
-        expect(written).to.equal('name: jy\n')
+        expect(written).to.equal('name: cjy\n')
       } finally {
         rmSync(tmpDir, { recursive: true })
       }
     })
 
     it('creates directory including intermediates if it does not exist', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       const nestedOut = path.join(tmpDir, 'a', 'b', 'c')
       try {
         await writeOutput(nestedOut, 'data.yaml', '{"key":"value"}\n', 'json')
@@ -200,12 +200,12 @@ describe('io', () => {
       }
     })
 
-    it('throws JyError with EXIT_IO when output path cannot be created', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+    it('throws CjyError with EXIT_IO when output path cannot be created', async () => {
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       const blockingFile = path.join(tmpDir, 'blocking-file')
       writeFileSync(blockingFile, 'not a directory')
       try {
-        await writeOutput(blockingFile, 'data.json', 'name: jy\n', 'yaml')
+        await writeOutput(blockingFile, 'data.json', 'name: cjy\n', 'yaml')
         expect.fail('Expected writeOutput to throw')
       } catch (error: unknown) {
         expect(error).to.have.property('code', EXIT_IO)
@@ -216,7 +216,7 @@ describe('io', () => {
     })
 
     it('swaps .json to .yaml', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       try {
         await writeOutput(tmpDir, 'file.json', 'content\n', 'yaml')
         expect(readFileSync(path.join(tmpDir, 'file.yaml'), 'utf8')).to.equal('content\n')
@@ -226,7 +226,7 @@ describe('io', () => {
     })
 
     it('swaps .yaml to .json', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       try {
         await writeOutput(tmpDir, 'file.yaml', 'content\n', 'json')
         expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')
@@ -236,7 +236,7 @@ describe('io', () => {
     })
 
     it('swaps .yml to .json', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-writeout-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-writeout-'))
       try {
         await writeOutput(tmpDir, 'file.yml', 'content\n', 'json')
         expect(readFileSync(path.join(tmpDir, 'file.json'), 'utf8')).to.equal('content\n')

@@ -3,7 +3,7 @@ import { Args, Command, Flags } from '@oclif/core'
 import type { FormatOptions } from '../output-formatter.js'
 
 import { convert, validate } from '../converter.js'
-import { EXIT_IO, JyError } from '../errors.js'
+import { CjyError, EXIT_IO } from '../errors.js'
 import {
   detectFormatFromContent,
   detectFormatFromPaths,
@@ -66,7 +66,7 @@ export default class Index extends Command {
 
       await this.handleFiles(parsed)
     } catch (error) {
-      if (error instanceof JyError) {
+      if (error instanceof CjyError) {
         this.logToStderr(error.message)
         this.exit(error.code)
       }
@@ -117,7 +117,7 @@ export default class Index extends Command {
     outDir,
   }: ParsedFlags): Promise<void> {
     if (outDir) {
-      throw new JyError('Cannot use --out with stdin input', EXIT_IO)
+      throw new CjyError('Cannot use --out with stdin input', EXIT_IO)
     }
 
     const content = await readStdin()

@@ -17,4 +17,4 @@ Current `@oclif/core` version: 4.11.2 (latest v4). Will resolve when oclif updat
 
 **Root cause:** The oclif `commands` config used the `pattern` strategy (`"commands": "./dist/commands"`). With `commands/index.ts` at the root, oclif's glob-based discovery mapped it to `SINGLE_COMMAND_CLI_SYMBOL` (empty command ID) and then failed to resolve the symbol string as a file path.
 
-**Fix:** Switched to `strategy: "single"` with `target: "./dist/commands/index.js"` in the oclif package.json config. This is the correct pattern for `jy` since it's fundamentally a single-command converter CLI. The help and plugins plugins still work independently.
+**Fix:** Switched to `strategy: "single"` with `target: "./dist/commands/index.js"` in the oclif package.json config. This is the correct pattern for `cjy` since it's fundamentally a single-command converter CLI. The help and plugins plugins still work independently.

@@ -2,7 +2,7 @@
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 inputDocuments: [prd.md, product-brief.md]
 workflowType: 'architecture'
-project_name: 'jy'
+project_name: 'cjy'
 user_name: 'Bilal Shareef'
 date: '2026-05-14'
 lastStep: 8
@@ -37,7 +37,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 - **Runtime:** TypeScript on Node.js, oclif CLI framework
 - **Serialization:** Native `JSON.parse()`/`JSON.stringify()` for JSON; `yaml` npm package for YAML
 - **Packaging:** oclif pack for standalone binaries (bundles Node.js runtime); npm publish for global package
-- **No configuration surface:** No `.jyrc`, no env vars, no config files. All behavior via flags only.
+- **No configuration surface:** No `.cjyrc`, no env vars, no config files. All behavior via flags only.
 - **Phased delivery:** MVP (Phase 1) excludes `--in-place`, `--continue-on-error`, shell completions, and structural validation
 
 ### Cross-Cutting Concerns Identified
@@ -69,11 +69,11 @@ The official oclif generator is the only sensible choice. It provides the TypeSc
 **Initialization Command:**
 
 ```bash
-npx oclif generate jy
+npx oclif generate cjy
 # Prompts:
 #   Module type: ESM
-#   Package name: jy
-#   Command bin name: jy
+#   Package name: cjy
+#   Command bin name: cjy
 ```
 
 **Architectural Decisions Provided by Starter:**
@@ -210,9 +210,9 @@ npx oclif generate jy
 4. Extract to `/usr/local/bin` (or user-specified location)
 5. Verify binary execution
 
-**Windows:** Not covered by curl installer — users install via npm (`npm install -g jy`) or download binary directly from GitHub Releases.
+**Windows:** Not covered by curl installer — users install via npm (`npm install -g cjy`) or download binary directly from GitHub Releases.
 
-**Install command:** `curl -fsSL https://raw.githubusercontent.com/<owner>/jy/main/install.sh | sh`
+**Install command:** `curl -fsSL https://raw.githubusercontent.com/<owner>/cjy/main/install.sh | sh`
 
 ### Decision Impact Analysis
 
@@ -241,7 +241,7 @@ npx oclif generate jy
 ### Naming Patterns
 
 **File Naming:** `kebab-case.ts`
-- `format-detector.ts`, `jy-error.ts`, `output-formatter.ts`
+- `format-detector.ts`, `cjy-error.ts`, `output-formatter.ts`
 - Directories also kebab-case: `src/commands/`
 
 **Functions & Variables:** `camelCase`
@@ -267,7 +267,7 @@ import {DetectFormat} from './format-detector.js'  // PascalCase function
 
 ### Error Handling Pattern
 
-**Decision:** Single `JyError` class with a `code` property from an exit code enum.
+**Decision:** Single `CjyError` class with a `code` property from an exit code enum.
 
 **Structure:**
 ```typescript
@@ -280,17 +280,17 @@ export const EXIT_AMBIGUOUS = 4
 
 export type ExitCode = typeof EXIT_VALIDATION | typeof EXIT_PARSE | typeof EXIT_IO | typeof EXIT_AMBIGUOUS
 
-export class JyError extends Error {
+export class CjyError extends Error {
   constructor(message: string, public readonly code: ExitCode) {
     super(message)
-    this.name = 'JyError'
+    this.name = 'CjyError'
   }
 }
 ```
 
 **Usage rules:**
-- All error conditions throw `JyError` with the appropriate code
-- The root command (`src/commands/index.ts`) catches `JyError` in a single try/catch, writes `error.message` to stderr, and calls `this.exit(error.code)`
+- All error conditions throw `CjyError` with the appropriate code
+- The root command (`src/commands/index.ts`) catches `CjyError` in a single try/catch, writes `error.message` to stderr, and calls `this.exit(error.code)`
 - No module calls `process.exit()` directly — only the root command does
 - Error messages always include the file path when relevant: `Parse error: config.json is not valid JSON`
 
@@ -308,7 +308,7 @@ import path from 'node:path'
 
 import {parse as parseYaml, stringify as stringifyYaml} from 'yaml'
 
-import {JyError, EXIT_PARSE} from './errors.js'
+import {CjyError, EXIT_PARSE} from './errors.js'
 import {detectFormat} from './format-detector.js'
 ```
 
@@ -368,14 +368,14 @@ key: value2
 
 **All AI Agents MUST:**
 - Use kebab-case for all new file names
-- Throw `JyError` with the correct exit code — never call `process.exit()` outside the root command
+- Throw `CjyError` with the correct exit code — never call `process.exit()` outside the root command
 - Follow the import group ordering with blank lines between groups
 - Use `.js` extensions in all ESM import paths
 - Place tests in `test/` mirroring `src/` structure
 - Use `describe`/`it` naming convention in tests
 
 **Anti-Patterns:**
-- Creating additional error classes beyond `JyError`
+- Creating additional error classes beyond `CjyError`
 - Catching errors in intermediate modules (let them propagate to root command)
 - Mixing import groups or omitting blank line separators
 - Using `require()` anywhere (ESM only)
@@ -385,7 +385,7 @@ key: value2
 ### Complete Project Directory Structure
 
 ```
-jy/
+cjy/
 ├── README.md
 ├── LICENSE
 ├── install.sh                          # Curl installer script
@@ -407,7 +407,7 @@ jy/
 ├── src/
 │   ├── commands/
 │   │   └── index.ts                    # Root command — single entry point, wires pipeline
-│   ├── errors.ts                       # JyError class, exit code constants
+│   ├── errors.ts                       # CjyError class, exit code constants
 │   ├── format-detector.ts              # Format detection (extension + content inspection)
 │   ├── converter.ts                    # Parse + serialize orchestration
 │   ├── output-formatter.ts             # EOL and indentation post-processing
@@ -415,7 +415,7 @@ jy/
 ├── test/
 │   ├── commands/
 │   │   └── index.test.ts              # CLI integration tests (full command execution)
-│   ├── errors.test.ts                  # Exit code and JyError tests
+│   ├── errors.test.ts                  # Exit code and CjyError tests
 │   ├── format-detector.test.ts         # Format detection unit tests
 │   ├── converter.test.ts               # Round-trip fidelity, parse/serialize tests
 │   ├── output-formatter.test.ts        # EOL/indentation formatting tests
@@ -435,7 +435,7 @@ jy/
 ### Architectural Boundaries
 
 **Pipeline Boundary:**
-The root command (`src/commands/index.ts`) is the sole orchestrator. It calls modules in sequence and is the only place that handles `JyError` catch + exit code routing. No module knows about oclif — they are pure functions/utilities.
+The root command (`src/commands/index.ts`) is the sole orchestrator. It calls modules in sequence and is the only place that handles `CjyError` catch + exit code routing. No module knows about oclif — they are pure functions/utilities.
 
 ```
 Root Command (index.ts)
@@ -515,7 +515,7 @@ Project structure directly maps to the pipeline architecture. Each module has a 
 
 **Functional Requirements:** All 28 FRs across 7 categories have explicit architectural support mapped to specific source files.
 
-**Non-Functional Requirements:** Performance targets achievable with the lightweight pipeline design. Data integrity ensured by direct parse→serialize flow. Platform portability handled by oclif pack. Reliability enforced by JyError + fail-fast pattern.
+**Non-Functional Requirements:** Performance targets achievable with the lightweight pipeline design. Data integrity ensured by direct parse→serialize flow. Platform portability handled by oclif pack. Reliability enforced by CjyError + fail-fast pattern.
 
 ### Implementation Readiness Validation ✅
 
@@ -585,6 +585,6 @@ Project structure directly maps to the pipeline architecture. Each module has a 
 
 **First Implementation Priority:**
 ```bash
-npx oclif generate jy
-# Module type: ESM | Package name: jy | Command bin name: jy
+npx oclif generate cjy
+# Module type: ESM | Package name: cjy | Command bin name: cjy
 ```

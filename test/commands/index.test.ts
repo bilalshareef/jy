@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fixtures')
 
-describe('jy root command', () => {
+describe('cjy root command', () => {
   it('displays help with --help flag', async () => {
     const { stdout } = await runCommand(['--help'])
     expect(stdout).to.contain('Convert between JSON and YAML formats')
@@ -16,20 +16,20 @@ describe('jy root command', () => {
 
   it('converts JSON file to YAML on stdout', async () => {
     const { stdout } = await runCommand([path.join(fixturesDir, 'simple.json')])
-    expect(stdout).to.contain('name: jy')
+    expect(stdout).to.contain('name: cjy')
     expect(stdout).to.contain('version: 1')
   })
 
   it('converts YAML file to JSON on stdout', async () => {
     const { stdout } = await runCommand([path.join(fixturesDir, 'simple.yaml')])
     const parsed = JSON.parse(stdout)
-    expect(parsed).to.deep.equal({ name: 'jy', version: 1 })
+    expect(parsed).to.deep.equal({ name: 'cjy', version: 1 })
   })
 
   it('converts .yml file to JSON on stdout', async () => {
     const { stdout } = await runCommand([path.join(fixturesDir, 'simple.yml')])
     const parsed = JSON.parse(stdout)
-    expect(parsed).to.deep.equal({ name: 'jy', version: 1 })
+    expect(parsed).to.deep.equal({ name: 'cjy', version: 1 })
   })
 
   it('exits with code 3 for nonexistent file', async () => {
@@ -67,7 +67,7 @@ describe('jy root command', () => {
       expect(stdout.startsWith('---\n')).to.equal(false)
       expect(stdout.endsWith('---\n')).to.equal(false)
       expect(stdout.match(/---\n/g)).to.have.length(1)
-      expect(stdout).to.contain('name: jy')
+      expect(stdout).to.contain('name: cjy')
     })
 
     it('converts multiple YAML files to JSON with exactly one blank line between outputs', async () => {
@@ -81,8 +81,8 @@ describe('jy root command', () => {
       expect(parts).to.have.length(2)
       const first = JSON.parse(parts[0])
       const second = JSON.parse(parts[1])
-      expect(first).to.deep.equal({ name: 'jy', version: 1 })
-      expect(second).to.deep.equal({ name: 'jy', version: 1 })
+      expect(first).to.deep.equal({ name: 'cjy', version: 1 })
+      expect(second).to.deep.equal({ name: 'cjy', version: 1 })
     })
 
     it('exits with code 4 for mixed-format file args', async () => {
@@ -104,7 +104,7 @@ describe('jy root command', () => {
     })
 
     it('expands glob pattern for JSON files', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-glob-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-glob-'))
       writeFileSync(path.join(tmpDir, 'a.json'), '{"key": "alpha"}')
       writeFileSync(path.join(tmpDir, 'b.json'), '{"key": "beta"}')
       try {
@@ -118,7 +118,7 @@ describe('jy root command', () => {
     })
 
     it('expands recursive glob patterns for JSON files', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-recursive-glob-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-recursive-glob-'))
       const nestedDir = path.join(tmpDir, 'nested')
       writeFileSync(path.join(tmpDir, 'a.json'), '{"key": "alpha"}')
       writeFileSync(path.join(tmpDir, 'ignore.yaml'), 'key: ignored\n')
@@ -201,7 +201,7 @@ describe('jy root command', () => {
 
   describe('--out', () => {
     it('writes single JSON file as YAML to out dir with .yaml extension', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const outDir = path.join(tmpDir, 'output')
       try {
         const { stdout } = await runCommand([
@@ -211,7 +211,7 @@ describe('jy root command', () => {
         ])
         expect(stdout).to.equal('')
         const written = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
-        expect(written).to.contain('name: jy')
+        expect(written).to.contain('name: cjy')
         expect(written).to.contain('version: 1')
       } finally {
         rmSync(tmpDir, { recursive: true })
@@ -219,7 +219,7 @@ describe('jy root command', () => {
     })
 
     it('writes single YAML file as JSON to out dir with .json extension', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const outDir = path.join(tmpDir, 'output')
       try {
         const { stdout } = await runCommand([
@@ -230,14 +230,14 @@ describe('jy root command', () => {
         expect(stdout).to.equal('')
         const written = readFileSync(path.join(outDir, 'simple.json'), 'utf8')
         const parsed = JSON.parse(written)
-        expect(parsed).to.deep.equal({ name: 'jy', version: 1 })
+        expect(parsed).to.deep.equal({ name: 'cjy', version: 1 })
       } finally {
         rmSync(tmpDir, { recursive: true })
       }
     })
 
     it('writes multiple JSON files to out dir', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const outDir = path.join(tmpDir, 'output')
       try {
         const { stdout } = await runCommand([
@@ -248,7 +248,7 @@ describe('jy root command', () => {
         ])
         expect(stdout).to.equal('')
         const simple = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
-        expect(simple).to.contain('name: jy')
+        expect(simple).to.contain('name: cjy')
         const nested = readFileSync(path.join(outDir, 'nested.yaml'), 'utf8')
         expect(nested).to.contain('nested')
       } finally {
@@ -257,19 +257,19 @@ describe('jy root command', () => {
     })
 
     it('creates output dir when it does not exist including nested path', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const outDir = path.join(tmpDir, 'a', 'b', 'c')
       try {
         await runCommand([path.join(fixturesDir, 'simple.json'), '--out', outDir])
         const written = readFileSync(path.join(outDir, 'simple.yaml'), 'utf8')
-        expect(written).to.contain('name: jy')
+        expect(written).to.contain('name: cjy')
       } finally {
         rmSync(tmpDir, { recursive: true })
       }
     })
 
     it('writes nothing to stdout when --out is used', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       try {
         const { stdout } = await runCommand([
           path.join(fixturesDir, 'simple.json'),
@@ -283,7 +283,7 @@ describe('jy root command', () => {
     })
 
     it('exits with code 3 when output path cannot be created', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const blockingFile = path.join(tmpDir, 'blocking-file')
       writeFileSync(blockingFile, 'not a directory')
       try {
@@ -300,7 +300,7 @@ describe('jy root command', () => {
     })
 
     it('exits with code 3 when stdin is used with --out', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-outdir-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-outdir-'))
       const originalStdin = process.stdin
       const mockStdin = new Readable({
         read() {
@@ -324,12 +324,12 @@ describe('jy root command', () => {
     it(String.raw`--eol crlf produces output with \r\n line endings (JSON→YAML)`, async () => {
       const { stdout } = await runCommand([path.join(fixturesDir, 'simple.json'), '--eol', 'crlf'])
       expect(stdout).to.contain('\r\n')
-      expect(stdout).to.contain('name: jy')
+      expect(stdout).to.contain('name: cjy')
     })
 
     it(String.raw`--eol lf produces output with \n line endings for YAML→JSON`, async () => {
       const { stdout } = await runCommand([path.join(fixturesDir, 'simple.yaml'), '--eol', 'lf'])
-      expect(stdout).to.contain('"name": "jy"')
+      expect(stdout).to.contain('"name": "cjy"')
       expect(stdout).not.to.contain('\r\n')
     })
 
@@ -379,7 +379,7 @@ describe('jy root command', () => {
     })
 
     it('formatting flags with --out write formatted file', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-fmt-out-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-fmt-out-'))
       const outDir = path.join(tmpDir, 'output')
       try {
         await runCommand([
@@ -509,7 +509,7 @@ describe('jy root command', () => {
     })
 
     it('glob pattern with all valid files exits with code 0', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-validate-glob-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-validate-glob-'))
       writeFileSync(path.join(tmpDir, 'a.json'), '{"key": "alpha"}')
       writeFileSync(path.join(tmpDir, 'b.json'), '{"key": "beta"}')
       try {
@@ -565,7 +565,7 @@ describe('jy root command', () => {
     })
 
     it('--validate combined with --out writes no files to output directory', async () => {
-      const tmpDir = mkdtempSync(path.join(tmpdir(), 'jy-validate-out-'))
+      const tmpDir = mkdtempSync(path.join(tmpdir(), 'cjy-validate-out-'))
       const outDir = path.join(tmpDir, 'output')
       try {
         const { error, stdout } = await runCommand([

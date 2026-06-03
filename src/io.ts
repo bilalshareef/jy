@@ -4,17 +4,17 @@ import path from 'node:path'
 
 import type { Format } from './format-detector.js'
 
-import { EXIT_IO, EXIT_PARSE, JyError } from './errors.js'
+import { CjyError, EXIT_IO, EXIT_PARSE } from './errors.js'
 
 export async function readInput(filePath: string): Promise<string> {
   try {
     return await readFile(filePath, 'utf8')
   } catch (error: unknown) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-      throw new JyError(`File not found: ${filePath}`, EXIT_IO)
+      throw new CjyError(`File not found: ${filePath}`, EXIT_IO)
     }
 
-    throw new JyError(`Cannot read file: ${filePath}`, EXIT_IO)
+    throw new CjyError(`Cannot read file: ${filePath}`, EXIT_IO)
   }
 }
 
@@ -26,14 +26,14 @@ export async function readStdin(): Promise<string> {
     process.stdin.on('end', () => {
       const content = chunks.join('')
       if (content.trim().length === 0) {
-        reject(new JyError('No input provided on stdin', EXIT_PARSE))
+        reject(new CjyError('No input provided on stdin', EXIT_PARSE))
         return
       }
 
       resolve(content)
     })
     process.stdin.on('error', (err: Error) => {
-      reject(new JyError(`Cannot read from stdin: ${err.message}`, EXIT_IO))
+      reject(new CjyError(`Cannot read from stdin: ${err.message}`, EXIT_IO))
     })
     process.stdin.resume()
   })
@@ -54,7 +54,7 @@ export async function writeOutput(
     await writeFile(outputPath, content, 'utf8')
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : String(error)
-    throw new JyError(`Cannot write to directory: ${outDir}: ${reason}`, EXIT_IO)
+    throw new CjyError(`Cannot write to directory: ${outDir}: ${reason}`, EXIT_IO)
   }
 }
 
@@ -95,7 +95,7 @@ export async function resolveFilePaths(args: string[]): Promise<string[]> {
       }
 
       if (matches.length === 0) {
-        throw new JyError(`No files matched: ${arg}`, EXIT_IO)
+        throw new CjyError(`No files matched: ${arg}`, EXIT_IO)
       }
 
       matches.sort()

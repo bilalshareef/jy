@@ -10,15 +10,15 @@ so that **I can batch-convert files into a target directory without manual file 
 
 ## Acceptance Criteria
 
-1. **Given** a JSON file `src/config.json` and an output directory `dist/`, **when** the user runs `jy src/config.json --out dist`, **then** the converted YAML is written to `dist/config.yaml` (original filename with swapped extension) and nothing is written to stdout
+1. **Given** a JSON file `src/config.json` and an output directory `dist/`, **when** the user runs `cjy src/config.json --out dist`, **then** the converted YAML is written to `dist/config.yaml` (original filename with swapped extension) and nothing is written to stdout
 
-2. **Given** multiple JSON files `a.json` and `b.json`, **when** the user runs `jy a.json b.json --out output`, **then** `output/a.yaml` and `output/b.yaml` are created with the converted content
+2. **Given** multiple JSON files `a.json` and `b.json`, **when** the user runs `cjy a.json b.json --out output`, **then** `output/a.yaml` and `output/b.yaml` are created with the converted content
 
-3. **Given** a glob pattern matching YAML files, **when** the user runs `jy 'src/**/*.yaml' --out dist`, **then** each matched file is converted to JSON and written to `dist/` with the `.json` extension, preserving the original filename
+3. **Given** a glob pattern matching YAML files, **when** the user runs `cjy 'src/**/*.yaml' --out dist`, **then** each matched file is converted to JSON and written to `dist/` with the `.json` extension, preserving the original filename
 
-4. **Given** the specified `--out` does not exist, **when** the user runs `jy data.json --out nonexistent/path`, **then** the directory is created (including intermediate directories) and the converted file is written successfully
+4. **Given** the specified `--out` does not exist, **when** the user runs `cjy data.json --out nonexistent/path`, **then** the directory is created (including intermediate directories) and the converted file is written successfully
 
-5. **Given** the `--out` target has a permission issue, **when** the user runs `jy data.json --out /readonly-dir`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
+5. **Given** the `--out` target has a permission issue, **when** the user runs `cjy data.json --out /readonly-dir`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
 
 6. **Given** the project test suite, **when** `npm test` is run, **then** CLI integration tests for `--out` (file creation with swapped extensions, directory creation, multi-file output, IO error handling) pass
 
@@ -28,7 +28,7 @@ so that **I can batch-convert files into a target directory without manual file 
   - [x] 1.1 Import `mkdir` and `writeFile` from `node:fs/promises` (already importing from there — extend the import)
   - [x] 1.2 Add `writeOutput(outDir: string, originalFilePath: string, content: string, targetFormat: Format): Promise<void>` — computes output filename by swapping extension, creates `outDir` with `{recursive: true}`, writes file
   - [x] 1.3 Extension swap logic: `path.basename(originalFilePath, path.extname(originalFilePath))` + target extension (`.json` for json, `.yaml` for yaml)
-  - [x] 1.4 Wrap `mkdir`/`writeFile` in try/catch — throw `JyError('Cannot write to directory: <outDir>: <reason>', EXIT_IO)` on failure (handles permission errors, EACCES, etc.)
+  - [x] 1.4 Wrap `mkdir`/`writeFile` in try/catch — throw `CjyError('Cannot write to directory: <outDir>: <reason>', EXIT_IO)` on failure (handles permission errors, EACCES, etc.)
 
 - [x] Task 2: Add `--out` flag to root command in `src/commands/index.ts` (AC: #1, #2, #3)
   - [x] 2.1 Import `Flags` from `@oclif/core` (alongside existing `Args, Command` import)
@@ -40,13 +40,13 @@ so that **I can batch-convert files into a target directory without manual file 
   - [x] 3.2 When `flags.out` is absent: preserve existing behavior (stdout with separators)
   - [x] 3.3 Import `writeOutput` from `../io.js` (add to existing import statement)
   - [x] 3.4 Import `Format` type from `../format-detector.js` (needed by `writeOutput`)
-  - [x] 3.5 Fail-fast: let JyError propagate on first write failure (existing try/catch handles it)
-  - [x] 3.6 Stdin mode: `--out` with stdin (`jy - --out dist`) is not covered by ACs — either ignore the flag silently or write to `dist/stdin.yaml`/`dist/stdin.json`. Simplest: treat stdin + `--out` as an error since there's no meaningful filename to derive. Throw `JyError('Cannot use --out with stdin input', EXIT_IO)` — this is the safest behavior.
+  - [x] 3.5 Fail-fast: let CjyError propagate on first write failure (existing try/catch handles it)
+  - [x] 3.6 Stdin mode: `--out` with stdin (`cjy - --out dist`) is not covered by ACs — either ignore the flag silently or write to `dist/stdin.yaml`/`dist/stdin.json`. Simplest: treat stdin + `--out` as an error since there's no meaningful filename to derive. Throw `CjyError('Cannot use --out with stdin input', EXIT_IO)` — this is the safest behavior.
 
 - [x] Task 4: Add unit tests for `writeOutput` in `test/io.test.ts` (AC: #6)
   - [x] 4.1 Test `writeOutput` creates file with correct swapped filename in existing directory
   - [x] 4.2 Test `writeOutput` creates directory (including intermediates) if it doesn't exist
-  - [x] 4.3 Test `writeOutput` throws `JyError` with `EXIT_IO` for permission-denied write
+  - [x] 4.3 Test `writeOutput` throws `CjyError` with `EXIT_IO` for permission-denied write
   - [x] 4.4 Test extension swap: `.json` → `.yaml`, `.yaml` → `.json`, `.yml` → `.json`
 
 - [x] Task 5: Add CLI integration tests for `--out` in `test/commands/index.test.ts` (AC: #6)
@@ -69,7 +69,7 @@ so that **I can batch-convert files into a target directory without manual file 
 ### Critical Architecture Patterns
 
 - **Pipeline flow (unchanged):** input resolution → format detection → parsing → serialization → output writing
-- **Error handling:** All errors throw `JyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
+- **Error handling:** All errors throw `CjyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
 - **stdout output:** Use `process.stdout.write()` — NOT `this.log()` (double-newline issue)
 - **stderr output:** Use `this.logToStderr()` — NOT `this.error()` (oclif intercepts it)
 - **Import ordering:** Node built-ins → external packages → internal modules (blank lines between groups, `.js` extensions)
@@ -94,7 +94,7 @@ All changes extend existing modules. Do NOT create new source files.
 ```typescript
 import {Args, Command} from '@oclif/core'
 import {convert} from '../converter.js'
-import {JyError} from '../errors.js'
+import {CjyError} from '../errors.js'
 import {detectFormatFromContent, detectFormatFromPaths, getTargetFormat} from '../format-detector.js'
 import {readInput, readStdin, resolveFilePaths} from '../io.js'
 
@@ -133,7 +133,7 @@ export default class Index extends Command {
 
       process.stdout.write(outputs.join(separator))
     } catch (error) {
-      if (error instanceof JyError) {
+      if (error instanceof CjyError) {
         this.logToStderr(error.message)
         this.exit(error.code)
       }
@@ -151,7 +151,7 @@ export default class Index extends Command {
 
 **`src/converter.ts`** — Exports `convert(content, sourceFormat, filePath)`. Returns serialized string with trailing `\n`. No changes needed.
 
-**`src/errors.ts`** — Exports exit codes and `JyError` class. No changes needed.
+**`src/errors.ts`** — Exports exit codes and `CjyError` class. No changes needed.
 
 ### Extension Swap Logic
 
@@ -189,7 +189,7 @@ else:
   join with separator → stdout
 ```
 
-Both branches share the same fail-fast behavior — a `JyError` on any file stops processing.
+Both branches share the same fail-fast behavior — a `CjyError` on any file stops processing.
 
 ### Directory Creation Behavior
 
@@ -201,11 +201,11 @@ Call `mkdir` before every `writeFile` (or once before the loop). Calling it per-
 
 ### Stdin + `--out` Edge Case
 
-There is no acceptance criterion for `jy - --out dist`. Without a source filename, there's no meaningful output filename. Throw a clear error:
+There is no acceptance criterion for `cjy - --out dist`. Without a source filename, there's no meaningful output filename. Throw a clear error:
 ```typescript
 if (fileArgs.length === 1 && fileArgs[0] === '-') {
   if (flags.out) {
-    throw new JyError('Cannot use --out with stdin input', EXIT_IO)
+    throw new CjyError('Cannot use --out with stdin input', EXIT_IO)
   }
   // existing stdin logic...
 }
@@ -267,7 +267,7 @@ From previous code reviews (do NOT fix these, just don't make them worse):
 - **Verify nothing on stdout:** Assert `stdout === ''` when `--out` is used
 - **Permission test:** Create a read-only directory (`chmodSync(dir, 0o444)`) and attempt to write. On macOS, root bypasses permissions — use `chmodSync` on the output directory and verify the error
 - **Test patterns:** Follow existing `describe`/`it` style, chai `expect` assertions
-- **Error assertions:** `.to.have.property('code', EXIT_IO)` pattern for JyError checks
+- **Error assertions:** `.to.have.property('code', EXIT_IO)` pattern for CjyError checks
 - **CLI tests:** `runCommand(['file1', '--out', tmpDir])` for output dir tests
 
 ### Import Changes Required
@@ -308,7 +308,7 @@ import type {Format} from './format-detector.js'
 
 - [Source: _bmad-output/planning-artifacts/architecture.md#Project Structure & Boundaries — io.ts handles output writing]
 - [Source: _bmad-output/planning-artifacts/architecture.md#Conversion Pipeline Architecture — Stage 6: Output Writing]
-- [Source: _bmad-output/planning-artifacts/architecture.md#Error Handling Pattern — JyError + EXIT_IO for I/O failures]
+- [Source: _bmad-output/planning-artifacts/architecture.md#Error Handling Pattern — CjyError + EXIT_IO for I/O failures]
 - [Source: _bmad-output/planning-artifacts/epics.md#Story 2.2 — Acceptance criteria]
 - [Source: _bmad-output/implementation-artifacts/2-1-multi-file-conversion-glob-support.md — Previous story learnings]
 - [Source: _bmad-output/implementation-artifacts/deferred-work.md — Deferred items awareness]
@@ -325,10 +325,10 @@ Claude Opus 4.6 (GitHub Copilot)
 
 ### Completion Notes List
 
-- Added `writeOutput()` function to `src/io.ts` — computes output filename via extension swap, creates output directory with `mkdir({recursive: true})`, writes file with `writeFile`, wraps errors in `JyError` with `EXIT_IO`
+- Added `writeOutput()` function to `src/io.ts` — computes output filename via extension swap, creates output directory with `mkdir({recursive: true})`, writes file with `writeFile`, wraps errors in `CjyError` with `EXIT_IO`
 - Added `--out` flag to root command via oclif `Flags.string` — no shorthand
 - Updated command pipeline: when `--out` present, loops files and writes each to output dir (nothing to stdout); when absent, preserves existing stdout behavior with separators
-- Stdin + `--out` throws `JyError('Cannot use --out with stdin input', EXIT_IO)` — safe, explicit edge case handling
+- Stdin + `--out` throws `CjyError('Cannot use --out with stdin input', EXIT_IO)` — safe, explicit edge case handling
 - Added 6 unit tests for `writeOutput` in `test/io.test.ts` — file creation, directory creation, permission error, extension swap for `.json`→`.yaml`, `.yaml`→`.json`, `.yml`→`.json`
 - Added 7 CLI integration tests for `--out` in `test/commands/index.test.ts` — single JSON→YAML, single YAML→JSON, multi-file, nested dir creation, no stdout, permission error, stdin+out error
 - All 94 tests pass (0 failures), lint clean

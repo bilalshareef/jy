@@ -1,19 +1,19 @@
 #!/bin/sh
 set -eu
 
-# jy installer — downloads and installs pre-built jy binaries from GitHub Releases.
-# Usage: curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh
+# cjy installer — downloads and installs pre-built cjy binaries from GitHub Releases.
+# Usage: curl -fsSL https://raw.githubusercontent.com/bilalshareef/cjy/main/install.sh | sh
 #
 # Environment variables:
-#   JY_VERSION      — install a specific version (e.g. "v1.0.0"); defaults to latest
-#   JY_INSTALL_DIR  — override install root (default: /usr/local); sets both lib and bin dirs
+#   CJY_VERSION      — install a specific version (e.g. "v1.0.0"); defaults to latest
+#   CJY_INSTALL_DIR  — override install root (default: /usr/local); sets both lib and bin dirs
 
-REPO="bilalshareef/jy"
+REPO="bilalshareef/cjy"
 GITHUB_API="https://api.github.com/repos/${REPO}"
 
-# Defaults (overridable via JY_INSTALL_DIR)
-INSTALL_DIR="${JY_INSTALL_DIR:-/usr/local}"
-LIB_DIR="${INSTALL_DIR}/lib/jy"
+# Defaults (overridable via CJY_INSTALL_DIR)
+INSTALL_DIR="${CJY_INSTALL_DIR:-/usr/local}"
+LIB_DIR="${INSTALL_DIR}/lib/cjy"
 BIN_DIR="${INSTALL_DIR}/bin"
 
 # Temp directory for downloads — cleaned up on exit
@@ -55,11 +55,11 @@ ensure_writable_dir() {
     return 0
   fi
 
-  if [ -z "${JY_INSTALL_DIR:-}" ] && [ "$INSTALL_DIR" = "/usr/local" ]; then
-    err "Cannot write to ${target_dir}. Re-run with sudo or set JY_INSTALL_DIR=\$HOME/.local"
+  if [ -z "${CJY_INSTALL_DIR:-}" ] && [ "$INSTALL_DIR" = "/usr/local" ]; then
+    err "Cannot write to ${target_dir}. Re-run with sudo or set CJY_INSTALL_DIR=\$HOME/.local"
   fi
 
-  err "Cannot write to ${target_dir}. Check permissions or set JY_INSTALL_DIR to a writable location"
+  err "Cannot write to ${target_dir}. Check permissions or set CJY_INSTALL_DIR to a writable location"
 }
 
 cleanup() {
@@ -110,7 +110,7 @@ fetch() {
   elif command -v wget > /dev/null 2>&1; then
     wget -qO- "$1"
   else
-    err "curl or wget is required to download jy"
+    err "curl or wget is required to download cjy"
   fi
 }
 
@@ -121,7 +121,7 @@ download() {
   elif command -v wget > /dev/null 2>&1; then
     wget -q -O "$2" "$1"
   else
-    err "curl or wget is required to download jy"
+    err "curl or wget is required to download cjy"
   fi
 }
 
@@ -136,8 +136,8 @@ detect_platform() {
     Darwin) os="darwin" ;;
     MINGW*|MSYS*|CYGWIN*)
       echo "Error: The curl installer does not support Windows." >&2
-      echo "Install jy using one of these methods:" >&2
-      echo "  npm install -g jy" >&2
+      echo "Install cjy using one of these methods:" >&2
+      echo "  npm install -g cjy" >&2
       echo "  Or download from: https://github.com/${REPO}/releases" >&2
       exit 1
       ;;
@@ -158,8 +158,8 @@ detect_platform() {
 # ── Version resolution ───────────────────────────────────────────────────────
 
 resolve_version() {
-  if [ -n "${JY_VERSION:-}" ]; then
-    version="$JY_VERSION"
+  if [ -n "${CJY_VERSION:-}" ]; then
+    version="$CJY_VERSION"
     # Ensure version starts with 'v'
     case "$version" in
       v*) ;;
@@ -184,12 +184,12 @@ resolve_version() {
 resolve_download_url() {
   platform="${os}-${arch}"
 
-  if [ -n "${JY_VERSION:-}" ]; then
+  if [ -n "${CJY_VERSION:-}" ]; then
     # Fetch specific release
     release_json=$(fetch "${GITHUB_API}/releases/tags/${version}") \
       || err "Failed to fetch release ${version} from GitHub API"
   fi
-  # If JY_VERSION was not set, release_json is already populated from resolve_version
+  # If CJY_VERSION was not set, release_json is already populated from resolve_version
 
   download_url=$(echo "$release_json" | grep -o '"browser_download_url": *"[^"]*'"${platform}"'[^"]*\.tar\.gz"' | head -1 | sed 's/.*"browser_download_url": *"//;s/"//')
 
@@ -202,8 +202,8 @@ Supported platforms: linux-x64, linux-arm64, darwin-x64, darwin-arm64"
 # ── Install ──────────────────────────────────────────────────────────────────
 
 install() {
-  tmpdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'jy-install')
-  tarball="${tmpdir}/jy.tar.gz"
+  tmpdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'cjy-install')
+  tarball="${tmpdir}/cjy.tar.gz"
   install_parent=$(dirname "$LIB_DIR")
 
   ensure_writable_dir "$install_parent"
@@ -213,13 +213,13 @@ install() {
     err "Install path ${LIB_DIR} exists and is not a directory"
   fi
 
-  if [ -e "${BIN_DIR}/jy" ] && [ ! -L "${BIN_DIR}/jy" ] && [ ! -f "${BIN_DIR}/jy" ]; then
-    err "Cannot create symlink at ${BIN_DIR}/jy because a non-file entry already exists there"
+  if [ -e "${BIN_DIR}/cjy" ] && [ ! -L "${BIN_DIR}/cjy" ] && [ ! -f "${BIN_DIR}/cjy" ]; then
+    err "Cannot create symlink at ${BIN_DIR}/cjy because a non-file entry already exists there"
   fi
 
-  staged_lib_dir="${install_parent}/.jy-install.$$"
+  staged_lib_dir="${install_parent}/.cjy-install.$$"
 
-  info "Downloading jy ${version} for ${os}-${arch}..."
+  info "Downloading cjy ${version} for ${os}-${arch}..."
   download "$download_url" "$tarball"
 
   # Verify the download produced a non-empty file
@@ -234,13 +234,13 @@ install() {
   tar xzf "$tarball" -C "$staged_lib_dir" --strip-components=1
 
   # Verify the extracted binary exists and is executable
-  if [ ! -x "${staged_lib_dir}/bin/jy" ]; then
-    err "Extraction failed — binary not found at ${staged_lib_dir}/bin/jy"
+  if [ ! -x "${staged_lib_dir}/bin/cjy" ]; then
+    err "Extraction failed — binary not found at ${staged_lib_dir}/bin/cjy"
   fi
 
   info "Installing to ${LIB_DIR}..."
   if [ -d "$LIB_DIR" ]; then
-    backup_lib_dir="${install_parent}/.jy-backup.$$"
+    backup_lib_dir="${install_parent}/.cjy-backup.$$"
     rm -rf "$backup_lib_dir"
     mv "$LIB_DIR" "$backup_lib_dir"
     restore_backup_on_fail="1"
@@ -249,9 +249,9 @@ install() {
   mv "$staged_lib_dir" "$LIB_DIR"
   staged_lib_dir=""
 
-  info "Creating symlink ${BIN_DIR}/jy -> ${LIB_DIR}/bin/jy..."
+  info "Creating symlink ${BIN_DIR}/cjy -> ${LIB_DIR}/bin/cjy..."
   mkdir -p "$BIN_DIR"
-  ln -sf "${LIB_DIR}/bin/jy" "${BIN_DIR}/jy"
+  ln -sf "${LIB_DIR}/bin/cjy" "${BIN_DIR}/cjy"
 
   restore_backup_on_fail="0"
   if [ -n "$backup_lib_dir" ] && [ -d "$backup_lib_dir" ]; then
@@ -263,7 +263,7 @@ install() {
 # ── Post-install verification ────────────────────────────────────────────────
 
 verify() {
-  if [ -x "${BIN_DIR}/jy" ] && "${BIN_DIR}/jy" --help > /dev/null 2>&1; then
+  if [ -x "${BIN_DIR}/cjy" ] && "${BIN_DIR}/cjy" --help > /dev/null 2>&1; then
     return 0
   fi
   return 1
@@ -272,7 +272,7 @@ verify() {
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
-  echo "jy installer"
+  echo "cjy installer"
   echo ""
 
   detect_platform
@@ -282,16 +282,16 @@ main() {
 
   echo ""
   if verify; then
-    echo "✓ jy ${version} installed successfully!"
-    info "Binary:  ${BIN_DIR}/jy"
+    echo "✓ cjy ${version} installed successfully!"
+    info "Binary:  ${BIN_DIR}/cjy"
     info "Library: ${LIB_DIR}"
     case ":$PATH:" in
       *":${BIN_DIR}:"*) ;;
       *) echo ""; info "Note: ${BIN_DIR} is not in your PATH. Add it with:"; info "  export PATH=\"${BIN_DIR}:\$PATH\"" ;;
     esac
   else
-    echo "⚠ jy was installed but verification failed." >&2
-    info "The binary is at ${BIN_DIR}/jy but 'jy --help' did not succeed." >&2
+    echo "⚠ cjy was installed but verification failed." >&2
+    info "The binary is at ${BIN_DIR}/cjy but 'jy --help' did not succeed." >&2
     info "You may need to add ${BIN_DIR} to your PATH." >&2
     exit 1
   fi

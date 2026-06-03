@@ -6,7 +6,7 @@ Status: done
 
 As a **developer**,
 I want **standalone binaries built for all 5 target platforms and automatically published via a tag-triggered release workflow**,
-so that **users can download and run jy without needing Node.js installed**.
+so that **users can download and run cjy without needing Node.js installed**.
 
 ## Acceptance Criteria
 
@@ -16,9 +16,9 @@ so that **users can download and run jy without needing Node.js installed**.
 
 3. **Given** the tarballs are built successfully, **when** the release step executes, **then** a GitHub Release is created for the tag with all 5 tarballs attached as release assets
 
-4. **Given** the GitHub Release is created, **when** the npm publish step executes, **then** the package is published to the npm registry, making `npm install -g jy` pull the latest version
+4. **Given** the GitHub Release is created, **when** the npm publish step executes, **then** the package is published to the npm registry, making `npm install -g cjy` pull the latest version
 
-5. **Given** a standalone binary downloaded for a supported platform, **when** a user runs the binary on a machine without Node.js, **then** the `jy` command works identically to the npm-installed version (Node.js is bundled in the binary)
+5. **Given** a standalone binary downloaded for a supported platform, **when** a user runs the binary on a machine without Node.js, **then** the `cjy` command works identically to the npm-installed version (Node.js is bundled in the binary)
 
 6. **Given** the release workflow, **when** reviewing runner configuration, **then** it uses ubuntu-latest for linux tarballs and the release process (macOS and Windows cross-compilation handled by oclif pack, or runners adjusted when the repo is public)
 
@@ -51,7 +51,7 @@ so that **users can download and run jy without needing Node.js installed**.
 
 - [x] [Review][Patch] Enforce tag/package version alignment before npm publish [package.json:4]
 - [x] [Review][Patch] npm publish can run before packaging and GitHub release succeed [.github/workflows/release.yml:84]
-- [x] [Review][Patch] Published package drops the `jy` executable because the npm `bin` path is invalid [package.json:7]
+- [x] [Review][Patch] Published package drops the `cjy` executable because the npm `bin` path is invalid [package.json:7]
 - [x] [Review][Patch] CI does not gate on `oclif manifest`, so AC #7 is not enforced by automation [.github/workflows/release.yml:32]
 - [x] [Review][Patch] `apt-get install` runs without refreshing package indexes in the release-critical pack job [.github/workflows/release.yml:48]
 
@@ -155,10 +155,10 @@ The publish step uses the `NODE_AUTH_TOKEN` secret (must be configured in the re
 
 `oclif pack tarballs` produces files named like:
 ```
-jy-v0.0.0-<sha>-<platform>-<arch>.tar.gz
+cjy-v0.0.0-<sha>-<platform>-<arch>.tar.gz
 ```
 
-For example: `jy-v1.0.0-abc1234-linux-x64.tar.gz`
+For example: `cjy-v1.0.0-abc1234-linux-x64.tar.gz`
 
 The `dist/` directory will contain these after packing.
 
