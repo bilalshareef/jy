@@ -138,15 +138,17 @@ npx oclif generate cjy
 2. **Format Detection** — Determine input format from extension or content inspection
 3. **Parsing** — Parse input content to in-memory data structure
 4. **Serialization** — Serialize data structure to target format
-5. **Output Formatting** — Apply EOL and indentation settings post-serialization
-6. **Output Writing** — Route to stdout or `--out-dir` file
+5. **Output Formatting** — Apply EOL settings post-serialization
+6. **Output Writing** — Route to stdout or `--out` file
 
 **Modules:**
-- `src/detector.ts` — Format detection logic (extension-based + content inspection)
-- `src/converter.ts` — Parse + serialize orchestration
-- `src/formatter.ts` — EOL and indentation post-processing
-- `src/io.ts` — File reading, glob resolution, output writing
 - `src/errors.ts` — Error types mapped to exit codes 0–4
+- `src/format-detector.ts` — Format detection logic (extension-based + content inspection)
+- `src/converter.ts` — Parse + serialize orchestration
+- `src/serialize-options.ts` — Maps CLI indent flags to serializer-specific options (indentation handled at serialization time, not post-processing)
+- `src/output-formatter.ts` — EOL post-processing
+- `src/io.ts` — File reading, glob resolution, output writing
+- `src/commands/helpers.ts` — Stdin validation helper (re-maps parse errors to validation exit code)
 - `src/commands/index.ts` — oclif command (single root command wiring the pipeline)
 
 ### Dependencies & Versions
@@ -167,18 +169,18 @@ npx oclif generate cjy
 **Unit Tests:**
 - Format detection logic (extension mapping, stdin content inspection, mixed-format rejection)
 - Converter round-trip fidelity (JSON→YAML→JSON identity)
-- Output formatter (EOL conversion, indentation application)
+- Output formatter (EOL conversion)
 - Error classification (correct exit codes for each failure type)
 
 **CLI Integration Tests:**
 - Full command execution via `@oclif/test`
 - Single file conversion (stdout output verification)
 - Multi-file and glob handling
-- `--out-dir` file writing
+- `--out` directory writing
 - `--validate` mode
 - Exit code verification for all 5 codes
 - stdin workflows
-- Flag combinations (`--to`, `--eol`, `--indent-style`, `--indent-size`, `--quiet`)
+- Flag combinations (`--eol`, `--indent-style`, `--indent-size`)
 
 **Framework:** Mocha + `@oclif/test` (provided by starter)
 
@@ -391,9 +393,7 @@ cjy/
 ├── install.sh                          # Curl installer script
 ├── package.json                        # oclif config, scripts, dependencies
 ├── tsconfig.json                       # TypeScript config (from oclif starter)
-├── .eslintrc.json                      # ESLint config (from oclif starter)
-├── .prettierrc.json                    # Prettier config (from oclif starter)
-├── .mocharc.json                       # Mocha config (from oclif starter)
+├── eslint.config.mjs                   # ESLint flat config
 ├── .gitignore
 ├── .github/
 │   └── workflows/
@@ -406,29 +406,33 @@ cjy/
 │   └── run.cmd                         # Windows production entry point
 ├── src/
 │   ├── commands/
+│   │   ├── helpers.ts                  # Stdin validation helper
 │   │   └── index.ts                    # Root command — single entry point, wires pipeline
 │   ├── errors.ts                       # CjyError class, exit code constants
 │   ├── format-detector.ts              # Format detection (extension + content inspection)
 │   ├── converter.ts                    # Parse + serialize orchestration
-│   ├── output-formatter.ts             # EOL and indentation post-processing
-│   └── io.ts                           # File reading, glob resolution, output writing
+│   ├── serialize-options.ts            # Maps indent CLI flags to serializer options
+│   ├── output-formatter.ts             # EOL post-processing
+│   ├── io.ts                           # File reading, glob resolution, output writing
+│   └── index.ts                        # Re-exports @oclif/core run
 ├── test/
 │   ├── commands/
+│   │   ├── helpers.test.ts            # Stdin validation helper tests
 │   │   └── index.test.ts              # CLI integration tests (full command execution)
 │   ├── errors.test.ts                  # Exit code and CjyError tests
 │   ├── format-detector.test.ts         # Format detection unit tests
 │   ├── converter.test.ts               # Round-trip fidelity, parse/serialize tests
-│   ├── output-formatter.test.ts        # EOL/indentation formatting tests
+│   ├── output-formatter.test.ts        # EOL formatting tests
 │   ├── io.test.ts                      # File I/O and glob tests
 │   └── fixtures/                       # Test fixture files
 │       ├── simple.json
 │       ├── simple.yaml
+│       ├── simple.yml
 │       ├── nested.json
 │       ├── nested.yaml
-│       ├── multi-doc.yaml
 │       ├── malformed.json
 │       └── malformed.yaml
-├── dist/                               # Compiled JS output (gitignored)
+├── lib/                                # Compiled JS output (gitignored)
 └── oclif.manifest.json                 # Generated oclif command manifest
 ```
 
@@ -439,18 +443,22 @@ The root command (`src/commands/index.ts`) is the sole orchestrator. It calls mo
 
 ```
 Root Command (index.ts)
-  ├── io.ts          → reads files, resolves globs, writes output
-  ├── format-detector.ts → determines input format
-  ├── converter.ts   → parses input, serializes to target format
-  └── output-formatter.ts → applies EOL + indentation
+  ├── io.ts               → reads files, resolves globs, writes output
+  ├── format-detector.ts  → determines input format
+  ├── serialize-options.ts → maps indent flags to serializer options
+  ├── converter.ts        → parses input, serializes to target format
+  ├── output-formatter.ts → applies EOL conversion
+  └── commands/helpers.ts → stdin validation helper
 ```
 
 **Module Independence:**
 - `errors.ts` — zero dependencies, consumed by all modules
 - `format-detector.ts` — depends only on `errors.ts`
-- `converter.ts` — depends on `yaml` package + `errors.ts`
-- `output-formatter.ts` — depends only on `errors.ts`
+- `converter.ts` — depends on `yaml` package + `errors.ts` + `format-detector.ts`
+- `serialize-options.ts` — depends on `converter.ts` (type) + `format-detector.ts` (type)
+- `output-formatter.ts` — zero dependencies
 - `io.ts` — depends on `node:fs`, `node:path`, `errors.ts`
+- `commands/helpers.ts` — depends on `errors.ts` + `io.ts`
 - `commands/index.ts` — depends on `@oclif/core` + all internal modules
 
 ### Requirements to Structure Mapping
@@ -459,13 +467,13 @@ Root Command (index.ts)
 
 | FR Category | Primary File | Related Files |
 |---|---|---|
-| Format Conversion (FR1–FR4) | `src/converter.ts` | `src/commands/index.ts` |
+| Format Conversion (FR1–FR3) | `src/converter.ts` | `src/commands/index.ts` |
 | Format Detection (FR5–FR7) | `src/format-detector.ts` | `src/commands/index.ts` |
 | Multi-File Processing (FR8–FR11) | `src/io.ts` | `src/commands/index.ts` |
 | Input Validation (FR12–FR14) | `src/converter.ts` | `src/commands/index.ts` |
-| Output Formatting (FR15–FR18) | `src/output-formatter.ts` | `src/commands/index.ts` |
+| Output Formatting (FR15–FR18) | `src/output-formatter.ts`, `src/serialize-options.ts` | `src/commands/index.ts` |
 | Error Handling (FR19–FR21) | `src/errors.ts` | All modules |
-| Output Control (FR22–FR23) | `src/commands/index.ts` | `src/io.ts` |
+| Output Control (FR23) | `src/commands/index.ts` | `src/io.ts` |
 | Distribution (FR24–FR28) | `install.sh`, `.github/workflows/release.yml` | `package.json` |
 
 ### Data Flow
@@ -483,10 +491,10 @@ format-detector.ts: determine input format (json|yaml)
 converter.ts: parse(content, format) → data → serialize(data, targetFormat)
   │
   ▼
-output-formatter.ts: apply EOL + indentation settings
+output-formatter.ts: apply EOL settings
   │
   ▼
-io.ts: write to stdout or --out-dir files
+io.ts: write to stdout or --out files
 ```
 
 ### Development Workflow

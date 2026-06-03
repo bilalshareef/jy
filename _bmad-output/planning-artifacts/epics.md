@@ -16,26 +16,24 @@ This document provides the complete epic and story breakdown for cjy, decomposin
 - FR1: User can convert a JSON file to YAML output
 - FR2: User can convert a YAML file to JSON output
 - FR3: User can convert stdin input to the opposite format via stdout
-- FR4: User can explicitly specify the output format using `--to json` or `--to yaml`, overriding auto-detection
 - FR5: System can detect input format from file extension (`.json` → JSON, `.yaml`/`.yml` → YAML)
 - FR6: System can detect stdin format by inspecting content (leading `{` or `[` → JSON, otherwise YAML)
 - FR7: System can reject ambiguous or mixed input formats across multiple files with exit code 4
 - FR8: User can convert multiple files specified as individual paths in a single invocation
 - FR9: User can convert multiple files matched by glob patterns in a single invocation
 - FR10: System can output multi-file results to stdout with separators between each file's output
-- FR11: User can write multi-file conversion results to a specified output directory using `--out-dir`, with filenames preserving the original name and swapping the extension
+- FR11: User can write multi-file conversion results to a specified output directory using `--out`, with filenames preserving the original name and swapping the extension
 - FR12: User can validate input files for parse-ability without producing converted output using `--validate`
 - FR13: System can report validation failures with the file path and error description to stderr
 - FR14: System can exit with code 1 on validation failure
 - FR15: User can control line endings in output using `--eol` (lf or crlf)
-- FR16: User can control indentation style using `--indent-style` (spaces or tabs)
+- FR16: User can control indentation style using `--indent-style` (spaces or tabs; JSON output only — YAML always uses spaces)
 - FR17: User can control indentation width using `--indent-size` (any positive integer)
-- FR18: System can ignore `--indent-size` when `--indent-style` is set to tabs
+- FR18: System can ignore `--indent-size` when `--indent-style` is set to tabs (JSON output only)
 - FR19: System can report errors to stderr with file path and actionable description
 - FR20: System can exit with distinct codes for different failure types (0 success, 1 validation, 2 parse, 3 IO, 4 ambiguous format)
 - FR21: System can stop processing on first error (fail-fast behavior)
-- FR22: User can suppress informational logs using `--quiet`, retaining only converted output and errors
-- FR23: System can write converted content to stdout by default when no `--out-dir` is specified
+- FR23: System can write converted content to stdout by default when no `--out` is specified
 - FR24: User can install `cjy` as an npm global package
 - FR25: User can install `cjy` as a standalone binary via a curl-based installer script
 - FR26: Installer script can detect the user's operating system and architecture and download the correct binary
@@ -61,7 +59,7 @@ This document provides the complete epic and story breakdown for cjy, decomposin
 
 - Starter template: `oclif generate` specified for project initialization — `npx oclif generate cjy` with ESM module type
 - Conversion pipeline: 6 discrete stages — input resolution → format detection → parsing → serialization → output formatting → output writing
-- Module structure: 6 source modules — `errors.ts`, `format-detector.ts`, `converter.ts`, `output-formatter.ts`, `io.ts`, `commands/index.ts`
+- Module structure: 8 source modules — `errors.ts`, `format-detector.ts`, `converter.ts`, `serialize-options.ts`, `output-formatter.ts`, `io.ts`, `commands/helpers.ts`, `commands/index.ts`
 - Error handling: Single `CjyError` class with `code` property; only root command catches and calls `this.exit()`
 - Testing strategy: Mocha + `@oclif/test` for unit + CLI integration tests; test fixtures in `test/fixtures/`
 - CI/CD: GitHub Actions — CI workflow on push/PR (lint, build, test across 3 OS), release workflow on tag `v*` (pack tarballs, GitHub Release, npm publish)
@@ -80,25 +78,23 @@ N/A — CLI tool, no UX design document applicable.
 - FR1: Epic 1 — JSON → YAML conversion
 - FR2: Epic 1 — YAML → JSON conversion
 - FR3: Epic 1 — stdin conversion
-- FR4: Epic 1 — `--to` output format override
 - FR5: Epic 1 — Format detection from extension
 - FR6: Epic 1 — stdin format detection via content inspection
 - FR7: Epic 2 — Mixed/ambiguous format rejection
 - FR8: Epic 2 — Multi-file individual paths
 - FR9: Epic 2 — Multi-file glob patterns
 - FR10: Epic 2 — Multi-file stdout with separators
-- FR11: Epic 2 — `--out-dir` output writing
+- FR11: Epic 2 — `--out` output writing
 - FR12: Epic 2 — `--validate` mode
 - FR13: Epic 2 — Validation failure reporting
 - FR14: Epic 2 — Exit code 1 on validation failure
 - FR15: Epic 2 — `--eol` line ending control
 - FR16: Epic 2 — `--indent-style` control
 - FR17: Epic 2 — `--indent-size` control
-- FR18: Epic 2 — `--indent-size` ignored with tabs
+- FR18: Epic 2 — `--indent-size` ignored with tabs (JSON only)
 - FR19: Epic 1 — stderr error reporting
 - FR20: Epic 1 — Distinct exit codes
 - FR21: Epic 1 — Fail-fast behavior
-- FR22: Epic 1 — `--quiet` flag
 - FR23: Epic 1 — stdout default output
 - FR24: Epic 3 — npm global package install
 - FR25: Epic 3 — curl-based binary installer
@@ -110,7 +106,7 @@ N/A — CLI tool, no UX design document applicable.
 
 ### Epic 1: Core CLI & Single-File Conversion
 A developer can install cjy from source, convert single JSON↔YAML files (from files or stdin), and get clear, actionable error messages with correct exit codes.
-**FRs covered:** FR1, FR2, FR3, FR4, FR5, FR6, FR19, FR20, FR21, FR22, FR23
+**FRs covered:** FR1, FR2, FR3, FR5, FR6, FR19, FR20, FR21, FR23
 
 ### Epic 2: Multi-File Processing, Output Formatting & Validation
 A developer can batch-convert multiple files using globs, write results to an output directory, customize formatting (indentation, line endings), and validate files.
@@ -228,45 +224,14 @@ So that **I can convert data from other commands or scripts without saving to a 
 **When** `npm test` is run
 **Then** unit tests for stdin content-based format detection in `format-detector.ts` and CLI integration tests for stdin workflows pass
 
-### Story 1.4: Output Format Override & Quiet Mode
+### Story 1.4: ~~Output Format Override & Quiet Mode~~ (Scope Reduced)
 
-As a **developer**,
-I want **to use `--to json|yaml` to force the output format and `--quiet` to suppress informational logs**,
-So that **I have explicit control over conversion behavior when auto-detection isn't what I need**.
-
-**Acceptance Criteria:**
-
-**Given** a JSON file `data.json`
-**When** the user runs `cjy data.json --to json`
-**Then** the file is parsed as JSON and re-serialized as JSON (reformatted JSON output), overriding the default behavior of converting to the opposite format
-
-**Given** a YAML file `data.yaml`
-**When** the user runs `cjy data.yaml --to yaml`
-**Then** the file is parsed as YAML and re-serialized as YAML (reformatted YAML output)
-
-**Given** stdin content detected as JSON
-**When** the user runs `echo '{"a":1}' | cjy - --to json`
-**Then** the output is JSON (not YAML), respecting the `--to` override
-
-**Given** an invalid value for `--to` (e.g., `--to xml`)
-**When** the user runs `cjy data.json --to xml`
-**Then** oclif reports the invalid flag value and the process exits with a non-zero code
-
-**Given** a successful conversion
-**When** the user runs `cjy data.json --quiet`
-**Then** only the converted content appears on stdout and no informational messages appear on stderr
-
-**Given** a failed conversion
-**When** the user runs `cjy malformed.json --quiet`
-**Then** the error message still appears on stderr (errors are never suppressed) and the process exits with the appropriate non-zero code
-
-**Given** both flags used together
-**When** the user runs `cjy data.json --to yaml --quiet`
-**Then** YAML output is written to stdout with no informational messages on stderr
-
-**Given** the project test suite
-**When** `npm test` is run
-**Then** CLI integration tests for `--to` flag (both valid and invalid values) and `--quiet` flag (suppression of informational output, preservation of error output) pass
+> **Note:** `--to json|yaml` (FR4) and `--quiet` (FR22) were removed from this story's scope during implementation. See `deferred-work.md` for rationale. Both moved to Post-MVP (Phase 2) in the PRD.
+>
+> - `--to`: With only two formats, output is fully determined by input format, making `--to` redundant.
+> - `--quiet`: The CLI produces zero informational messages, making the flag a no-op.
+>
+> This story was completed with no deliverables — all originally planned features were deferred.
 
 ## Epic 2: Multi-File Processing, Output Formatting & Validation
 
@@ -311,34 +276,34 @@ So that **I can batch-convert files efficiently without running cjy repeatedly**
 ### Story 2.2: Output Directory Writing
 
 As a **developer**,
-I want **to write converted files to a specified output directory using `--out-dir`**,
+I want **to write converted files to a specified output directory using `--out`**,
 So that **I can batch-convert files into a target directory without manual file redirection**.
 
 **Acceptance Criteria:**
 
 **Given** a JSON file `src/config.json` and an output directory `dist/`
-**When** the user runs `cjy src/config.json --out-dir dist`
+**When** the user runs `cjy src/config.json --out dist`
 **Then** the converted YAML is written to `dist/config.yaml` (original filename with swapped extension) and nothing is written to stdout
 
 **Given** multiple JSON files `a.json` and `b.json`
-**When** the user runs `cjy a.json b.json --out-dir output`
+**When** the user runs `cjy a.json b.json --out output`
 **Then** `output/a.yaml` and `output/b.yaml` are created with the converted content
 
 **Given** a glob pattern matching YAML files
-**When** the user runs `cjy src/**/*.yaml --out-dir dist`
+**When** the user runs `cjy src/**/*.yaml --out dist`
 **Then** each matched file is converted to JSON and written to `dist/` with the `.json` extension, preserving the original filename
 
-**Given** the specified `--out-dir` does not exist
-**When** the user runs `cjy data.json --out-dir nonexistent/path`
+**Given** the specified `--out` does not exist
+**When** the user runs `cjy data.json --out nonexistent/path`
 **Then** the directory is created (including intermediate directories) and the converted file is written successfully
 
-**Given** the `--out-dir` target has a permission issue
-**When** the user runs `cjy data.json --out-dir /readonly-dir`
+**Given** the `--out` target has a permission issue
+**When** the user runs `cjy data.json --out /readonly-dir`
 **Then** an error message is written to stderr and the process exits with code 3 (IO error)
 
 **Given** the project test suite
 **When** `npm test` is run
-**Then** CLI integration tests for `--out-dir` (file creation with swapped extensions, directory creation, multi-file output, IO error handling) pass
+**Then** CLI integration tests for `--out` (file creation with swapped extensions, directory creation, multi-file output, IO error handling) pass
 
 ### Story 2.3: Output Formatting Options
 
@@ -362,14 +327,14 @@ So that **the output matches my project's formatting standards without post-proc
 
 **Given** a YAML file
 **When** the user runs `cjy data.yaml --indent-style tabs`
-**Then** the JSON output uses tab characters for indentation
+**Then** the JSON output uses tab characters for indentation (note: `--indent-style` is ignored for YAML output due to library limitation)
 
 **Given** `--indent-style tabs` is specified
 **When** the user also passes `--indent-size 4`
-**Then** `--indent-size` is ignored (tabs have no configurable width) and tab indentation is used
+**Then** `--indent-size` is ignored (tabs have no configurable width in JSON output) and tab indentation is used
 
-**Given** formatting flags combined with `--out-dir`
-**When** the user runs `cjy data.json --out-dir dist --eol crlf --indent-size 4`
+**Given** formatting flags combined with `--out`
+**When** the user runs `cjy data.json --out dist --eol crlf --indent-size 4`
 **Then** the written file uses CRLF line endings and 4-space indentation
 
 **Given** formatting flags combined with multi-file conversion
@@ -416,13 +381,13 @@ So that **I can catch malformed files in CI pipelines or pre-commit checks witho
 **When** the user runs `echo '{"a":1}' | cjy - --validate`
 **Then** the stdin content is validated for parse-ability without producing output, and the process exits with code 0
 
-**Given** `--validate` combined with `--out-dir`
-**When** the user runs `cjy data.json --validate --out-dir dist`
+**Given** `--validate` combined with `--out`
+**When** the user runs `cjy data.json --validate --out dist`
 **Then** no files are written to the output directory (validate mode suppresses all output)
 
 **Given** the project test suite
 **When** `npm test` is run
-**Then** CLI integration tests for `--validate` (valid files, malformed files, multi-file validation, stdin validation, interaction with `--out-dir`) pass
+**Then** CLI integration tests for `--validate` (valid files, malformed files, multi-file validation, stdin validation, interaction with `--out`) pass
 
 ## Epic 3: CI/CD & Distribution
 

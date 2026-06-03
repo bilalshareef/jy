@@ -88,7 +88,7 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 **Opening Scene:** Amara's pipeline produces 40+ JSON spec files per build. She needs them all converted to YAML in a `dist/` directory.
 
-**Rising Action:** She adds one line to her CI script: `cjy src/**/*.json --out-dir dist`. The glob resolves, all files convert, and the exit code is 0.
+**Rising Action:** She adds one line to her CI script: `cjy src/**/*.json --out dist`. The glob resolves, all files convert, and the exit code is 0.
 
 **Climax:** A new spec file is malformed. `cjy` exits with code 2 and a clear error message pointing to the file and line. The CI build fails visibly — no silent corruption.
 
@@ -123,8 +123,8 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 | Journey | Key Capabilities Revealed |
 |---|---|
 | Quick Conversion | Auto-detection, stdout default, minimal flags, instant response |
-| Batch Pipeline | Glob support, `--out-dir`, correct exit codes, clear error messages |
-| Error Recovery | Actionable parse errors, `--to` override, safe defaults (never overwrites) |
+| Batch Pipeline | Glob support, `--out`, correct exit codes, clear error messages |
+| Error Recovery | Actionable parse errors, safe defaults (never overwrites) |
 | First-Time Install | curl installer, cross-platform binaries, stdin support, zero dependencies |
 
 ## CLI-Specific Requirements
@@ -146,12 +146,11 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 | Glob patterns | Shell-expanded, each file detected by extension |
 
 - Mixed input formats in a single invocation exit with code 4 (ambiguous format)
-- `--to` flag overrides auto-detection for output format
 
 ### Output Behavior
 
-- **Default:** Converted content to stdout (single file) or stdout with separators (multi-file without `--out-dir`)
-- **`--out-dir`:** Writes each converted file to the specified directory, preserving filename with swapped extension
+- **Default:** Converted content to stdout (single file) or stdout with separators (multi-file without `--out`)
+- **`--out`:** Writes each converted file to the specified directory, preserving filename with swapped extension
 - **No structured machine output:** Plain text errors to stderr, converted content to stdout, exit codes for programmatic status
 - **No interactive confirmation:** All operations execute immediately based on flags
 
@@ -163,8 +162,9 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 | `--indent-style` | `spaces`, `tabs` | `spaces` |
 | `--indent-size` | any positive integer | `2` |
 
-- `--indent-size` ignored when `--indent-style=tabs`
-- Formatting applied post-serialization to both JSON and YAML output
+- `--indent-size` ignored when `--indent-style=tabs` (JSON output only)
+- `--indent-style` applies to JSON output only; YAML output always uses spaces (library limitation)
+- Formatting applied post-serialization
 
 ### Error Handling & Exit Codes
 
@@ -184,7 +184,6 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - All output to stdout (pipeable)
 - All errors to stderr (separable)
 - Deterministic exit codes for programmatic checks
-- `--quiet` suppresses informational logs; only errors and converted output remain
 - No color output by default (script-safe)
 
 ### Implementation Considerations
@@ -218,12 +217,10 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - Multi-file stdout output with separator between files
 - stdin/stdout workflows (`-` for stdin)
 - `--validate` — parse-ability check only (no structural validation)
-- `--to json|yaml` — explicit output format override
-- `--out-dir <dir>` — write converted files to directory with swapped extension
+- `--out <dir>` — write converted files to directory with swapped extension
 - `--eol lf|crlf` — line ending control (default: `lf`)
-- `--indent-style spaces|tabs` — indentation style (default: `spaces`)
-- `--indent-size <n>` — indentation width (default: `2`, ignored with tabs)
-- `--quiet` — suppress informational logs
+- `--indent-style spaces|tabs` — indentation style (default: `spaces`; JSON output only)
+- `--indent-size <n>` — indentation width (default: `2`, ignored with tabs for JSON output)
 - Exit codes 0–4 with clear error messages to stderr
 - Stop on first error (fail-fast)
 - npm global package installation (`npm install -g cjy`)
@@ -232,6 +229,8 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 ### Post-MVP Features (Phase 2)
 
+- `--to json|yaml` — explicit output format override (originally FR4; deferred because with only two formats, output is fully determined by input format)
+- `--quiet` — suppress informational logs (originally FR22; deferred because the CLI currently produces zero informational messages)
 - `--in-place` — overwrite original files with converted content
 - `--continue-on-error` — continue processing when a file fails
 - Structural validation in `--validate` (e.g., duplicate YAML keys)
@@ -262,7 +261,6 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - **FR1:** User can convert a JSON file to YAML output
 - **FR2:** User can convert a YAML file to JSON output
 - **FR3:** User can convert stdin input to the opposite format via stdout
-- **FR4:** User can explicitly specify the output format using `--to json` or `--to yaml`, overriding auto-detection
 
 ### Format Detection
 
@@ -275,7 +273,7 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 - **FR8:** User can convert multiple files specified as individual paths in a single invocation
 - **FR9:** User can convert multiple files matched by glob patterns in a single invocation
 - **FR10:** System can output multi-file results to stdout with separators between each file's output
-- **FR11:** User can write multi-file conversion results to a specified output directory using `--out-dir`, with filenames preserving the original name and swapping the extension
+- **FR11:** User can write multi-file conversion results to a specified output directory using `--out`, with filenames preserving the original name and swapping the extension
 
 ### Input Validation
 
@@ -286,9 +284,9 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 ### Output Formatting
 
 - **FR15:** User can control line endings in output using `--eol` (lf or crlf)
-- **FR16:** User can control indentation style using `--indent-style` (spaces or tabs)
+- **FR16:** User can control indentation style using `--indent-style` (spaces or tabs; JSON output only — YAML always uses spaces)
 - **FR17:** User can control indentation width using `--indent-size` (any positive integer)
-- **FR18:** System can ignore `--indent-size` when `--indent-style` is set to tabs
+- **FR18:** System can ignore `--indent-size` when `--indent-style` is set to tabs (JSON output only)
 
 ### Error Handling
 
@@ -298,8 +296,7 @@ Zero-friction distribution reinforces this: a single binary, no runtime dependen
 
 ### Output Control
 
-- **FR22:** User can suppress informational logs using `--quiet`, retaining only converted output and errors
-- **FR23:** System can write converted content to stdout by default when no `--out-dir` is specified
+- **FR23:** System can write converted content to stdout by default when no `--out` is specified
 
 ### Distribution & Installation
 
