@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { CjyError, EXIT_AMBIGUOUS } from './errors.js'
+import { EXIT_AMBIGUOUS, JyError } from './errors.js'
 
 export type Format = 'json' | 'yaml'
 
@@ -17,7 +17,7 @@ export function detectFormatFromExtension(filePath: string): Format {
     }
 
     default: {
-      throw new CjyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
+      throw new JyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
     }
   }
 }
@@ -40,7 +40,7 @@ export function detectFormatFromPaths(filePaths: string[]): Format {
   const first = formats[0]
   for (const f of formats) {
     if (f !== first) {
-      throw new CjyError(
+      throw new JyError(
         'Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions',
         EXIT_AMBIGUOUS,
       )

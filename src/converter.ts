@@ -2,7 +2,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import type { Format } from './format-detector.js'
 
-import { CjyError, EXIT_PARSE, EXIT_VALIDATION } from './errors.js'
+import { EXIT_PARSE, EXIT_VALIDATION, JyError } from './errors.js'
 import { getTargetFormat } from './format-detector.js'
 
 export interface SerializeOptions {
@@ -24,8 +24,8 @@ export function validate(content: string, sourceFormat: Format, filePath: string
   try {
     parseContent(content, sourceFormat, filePath)
   } catch (error) {
-    if (error instanceof CjyError) {
-      throw new CjyError(error.message, EXIT_VALIDATION)
+    if (error instanceof JyError) {
+      throw new JyError(error.message, EXIT_VALIDATION)
     }
 
     throw error
@@ -40,18 +40,15 @@ function parseContent(content: string, format: Format, filePath: string): unknow
 
     const parsed = parseYaml(content)
     if (parsed === null) {
-      throw new CjyError(`Parse error: ${filePath} is an empty document`, EXIT_PARSE)
+      throw new JyError(`Parse error: ${filePath} is an empty document`, EXIT_PARSE)
     }
 
     return parsed
   } catch (error) {
-    if (error instanceof CjyError) throw error
+    if (error instanceof JyError) throw error
     const formatLabel = format === 'json' ? 'JSON' : 'YAML'
     const detail = error instanceof Error ? error.message : String(error)
-    throw new CjyError(
-      `Parse error: ${filePath} is not valid ${formatLabel}: ${detail}`,
-      EXIT_PARSE,
-    )
+    throw new JyError(`Parse error: ${filePath} is not valid ${formatLabel}: ${detail}`, EXIT_PARSE)
   }
 }
 

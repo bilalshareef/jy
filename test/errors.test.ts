@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 
 import {
-  CjyError,
   EXIT_AMBIGUOUS,
   EXIT_IO,
   EXIT_PARSE,
   EXIT_SUCCESS,
   EXIT_VALIDATION,
+  JyError,
 } from '../src/errors.js'
 
 describe('errors module', () => {
@@ -32,29 +32,29 @@ describe('errors module', () => {
     })
   })
 
-  describe('CjyError', () => {
+  describe('JyError', () => {
     it('extends Error', () => {
-      const error = new CjyError('test message', EXIT_VALIDATION)
+      const error = new JyError('test message', EXIT_VALIDATION)
       expect(error).to.be.instanceOf(Error)
     })
 
-    it('has name set to CjyError', () => {
-      const error = new CjyError('test message', EXIT_PARSE)
-      expect(error.name).to.equal('CjyError')
+    it('has name set to JyError', () => {
+      const error = new JyError('test message', EXIT_PARSE)
+      expect(error.name).to.equal('JyError')
     })
 
     it('stores the message', () => {
-      const error = new CjyError('something went wrong', EXIT_IO)
+      const error = new JyError('something went wrong', EXIT_IO)
       expect(error.message).to.equal('something went wrong')
     })
 
     it('stores the exit code', () => {
-      const error = new CjyError('ambiguous format', EXIT_AMBIGUOUS)
+      const error = new JyError('ambiguous format', EXIT_AMBIGUOUS)
       expect(error.code).to.equal(EXIT_AMBIGUOUS)
     })
 
     it('code property exists and holds the assigned value', () => {
-      const error = new CjyError('test', EXIT_VALIDATION)
+      const error = new JyError('test', EXIT_VALIDATION)
       expect(error.code).to.equal(EXIT_VALIDATION)
     })
   })

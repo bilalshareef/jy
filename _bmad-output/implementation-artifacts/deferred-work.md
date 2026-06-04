@@ -3,8 +3,8 @@
 ## Deferred from: code review of 1-1-project-initialization-error-foundation (2026-05-19)
 
 - `@oclif/plugin-plugins` included in dependencies — unnecessary for a format-conversion CLI, adds plugin-installation attack surface [package.json]
-- `bugs`, `homepage`, and `repository` fields contain oclif scaffold placeholder values (`cjy/cjy`) [package.json]
-- `repository` field uses shorthand string `"cjy/cjy"` instead of npm object form `{"type":"git","url":"..."}` [package.json]
+- `bugs`, `homepage`, and `repository` fields contain oclif scaffold placeholder values (`jy/jy`) [package.json]
+- `repository` field uses shorthand string `"jy/jy"` instead of npm object form `{"type":"git","url":"..."}` [package.json]
 - No `sourceMap` or `declarationMap` in `tsconfig.json` — runtime stack traces point to compiled JS in `dist/` [tsconfig.json]
 - `"runs with no args without crashing"` test asserts only `error` is undefined — near-tautology, provides minimal signal [test/commands/index.test.ts:10]
 
@@ -28,7 +28,7 @@
 
 ## Course correction during story 2.2 code review (2026-05-25)
 
-- `--out-dir` renamed to `--out` — shorter flag name, same directory-only semantics. The user considered expanding `--out` to support both directory and file targets (auto-detecting based on extension), but after analysis this was dropped: shell redirection (`cjy foo.json > bar.yaml`) already covers the custom-filename use case, and file-vs-directory disambiguation introduces ambiguity (directories can have dots in names). The flag remains strictly a directory target. [src/commands/index.ts, test/commands/index.test.ts]
+- `--out-dir` renamed to `--out` — shorter flag name, same directory-only semantics. The user considered expanding `--out` to support both directory and file targets (auto-detecting based on extension), but after analysis this was dropped: shell redirection (`jy foo.json > bar.yaml`) already covers the custom-filename use case, and file-vs-directory disambiguation introduces ambiguity (directories can have dots in names). The flag remains strictly a directory target. [src/commands/index.ts, test/commands/index.test.ts]
 - Custom output filename via `--out` — not implemented. Considered allowing `--out path/file.json` to write to a specific filename, but deferred: (1) shell redirection handles single-file output naming, (2) multi-file + single filename is undefined, (3) detecting file vs directory from the path is inherently ambiguous. If demand arises, could be revisited as a separate `--out-file` flag for single-file mode only.
 
 ## Deferred from: code review of 2-2-output-directory-writing (2026-05-26)
@@ -37,4 +37,4 @@
 
 ## Deferred from: code review of 3-3-curl-installer-script.md (2026-06-02)
 
-- Standalone release entrypoints currently require `bash` on minimal Linux images, so the installer can succeed while the packaged `cjy` command still fails on Alpine-style environments. This is a pre-existing packaging constraint from the release artifact, not a defect introduced by `install.sh`. [tmp/linux-x64/cjy/bin/cjy:1]
+- Standalone release entrypoints currently require `bash` on minimal Linux images, so the installer can succeed while the packaged `jy` command still fails on Alpine-style environments. This is a pre-existing packaging constraint from the release artifact, not a defect introduced by `install.sh`. [tmp/linux-x64/jy/bin/jy:1]

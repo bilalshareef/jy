@@ -10,19 +10,19 @@ so that **I can catch malformed files in CI pipelines or pre-commit checks witho
 
 ## Acceptance Criteria
 
-1. **Given** a valid JSON file, **when** the user runs `cjy data.json --validate`, **then** no converted output is written to stdout and the process exits with code 0
+1. **Given** a valid JSON file, **when** the user runs `jy data.json --validate`, **then** no converted output is written to stdout and the process exits with code 0
 
-2. **Given** a valid YAML file, **when** the user runs `cjy data.yaml --validate`, **then** no converted output is written to stdout and the process exits with code 0
+2. **Given** a valid YAML file, **when** the user runs `jy data.yaml --validate`, **then** no converted output is written to stdout and the process exits with code 0
 
-3. **Given** a malformed JSON file, **when** the user runs `cjy malformed.json --validate`, **then** an error message with the file path and parse failure description is written to stderr and the process exits with code 1 (validation error)
+3. **Given** a malformed JSON file, **when** the user runs `jy malformed.json --validate`, **then** an error message with the file path and parse failure description is written to stderr and the process exits with code 1 (validation error)
 
-4. **Given** multiple files where some are valid and one is malformed, **when** the user runs `cjy good.json malformed.json --validate`, **then** processing stops at the first invalid file (fail-fast), an error is written to stderr, and the process exits with code 1
+4. **Given** multiple files where some are valid and one is malformed, **when** the user runs `jy good.json malformed.json --validate`, **then** processing stops at the first invalid file (fail-fast), an error is written to stderr, and the process exits with code 1
 
-5. **Given** valid files matched by a glob pattern, **when** the user runs `cjy src/**/*.json --validate`, **then** all matched files are validated and the process exits with code 0 if all pass
+5. **Given** valid files matched by a glob pattern, **when** the user runs `jy src/**/*.json --validate`, **then** all matched files are validated and the process exits with code 0 if all pass
 
-6. **Given** stdin input, **when** the user runs `echo '{"a":1}' | cjy - --validate`, **then** the stdin content is validated for parse-ability without producing output, and the process exits with code 0
+6. **Given** stdin input, **when** the user runs `echo '{"a":1}' | jy - --validate`, **then** the stdin content is validated for parse-ability without producing output, and the process exits with code 0
 
-7. **Given** `--validate` combined with `--out`, **when** the user runs `cjy data.json --validate --out dist`, **then** no files are written to the output directory (validate mode suppresses all output)
+7. **Given** `--validate` combined with `--out`, **when** the user runs `jy data.json --validate --out dist`, **then** no files are written to the output directory (validate mode suppresses all output)
 
 8. **Given** the project test suite, **when** `npm test` is run, **then** CLI integration tests for `--validate` (valid files, malformed files, multi-file validation, stdin validation, interaction with `--out`) pass
 
@@ -30,8 +30,8 @@ so that **I can catch malformed files in CI pipelines or pre-commit checks witho
 
 - [x] Task 1: Add `validate` function to `src/converter.ts` (AC: #1, #2, #3)
   - [x] 1.1 Export `validate(content: string, sourceFormat: Format, filePath: string): void` — parses the content, returns silently on success
-  - [x] 1.2 On parse failure, throw `CjyError` with `EXIT_VALIDATION` (code 1), NOT `EXIT_PARSE` (code 2) — validation mode uses its own exit code
-  - [x] 1.3 Reuse the existing `parseContent` internal function — catch any `CjyError` it throws and re-throw with `EXIT_VALIDATION` code and preserve the original message
+  - [x] 1.2 On parse failure, throw `JyError` with `EXIT_VALIDATION` (code 1), NOT `EXIT_PARSE` (code 2) — validation mode uses its own exit code
+  - [x] 1.3 Reuse the existing `parseContent` internal function — catch any `JyError` it throws and re-throw with `EXIT_VALIDATION` code and preserve the original message
 
 - [x] Task 2: Add `--validate` flag and validate-mode branch to `src/commands/index.ts` (AC: #1, #2, #3, #4, #5, #6, #7)
   - [x] 2.1 Add `validate: Flags.boolean({description: 'Validate input files without producing output'})` to `static override flags`
@@ -43,9 +43,9 @@ so that **I can catch malformed files in CI pipelines or pre-commit checks witho
 - [x] Task 3: Add unit tests for `validate` function in `test/converter.test.ts` (AC: #3, #8)
   - [x] 3.1 Test `validate` with valid JSON content returns without throwing
   - [x] 3.2 Test `validate` with valid YAML content returns without throwing
-  - [x] 3.3 Test `validate` with malformed JSON throws `CjyError` with `EXIT_VALIDATION` (code 1)
-  - [x] 3.4 Test `validate` with malformed YAML throws `CjyError` with `EXIT_VALIDATION` (code 1)
-  - [x] 3.5 Test `validate` with empty YAML document throws `CjyError` with `EXIT_VALIDATION` (code 1)
+  - [x] 3.3 Test `validate` with malformed JSON throws `JyError` with `EXIT_VALIDATION` (code 1)
+  - [x] 3.4 Test `validate` with malformed YAML throws `JyError` with `EXIT_VALIDATION` (code 1)
+  - [x] 3.5 Test `validate` with empty YAML document throws `JyError` with `EXIT_VALIDATION` (code 1)
 
 - [x] Task 4: Add CLI integration tests for `--validate` in `test/commands/index.test.ts` (AC: #1–#8)
   - [x] 4.1 Test valid JSON file with `--validate` → stdout is empty, no exit error
@@ -99,8 +99,8 @@ export function validate(content: string, sourceFormat: Format, filePath: string
   try {
     parseContent(content, sourceFormat, filePath)
   } catch (error) {
-    if (error instanceof CjyError) {
-      throw new CjyError(error.message, EXIT_VALIDATION)
+    if (error instanceof JyError) {
+      throw new JyError(error.message, EXIT_VALIDATION)
     }
     throw error
   }
@@ -175,7 +175,7 @@ None — no new files for this story.
 **`src/converter.ts`** — Currently exports:
 - `SerializeOptions` interface (`jsonIndent`, `yamlIndent`)
 - `convert(content, sourceFormat, filePath, options)` — public, orchestrates parse+serialize
-- `parseContent(content, format, filePath)` — private, parses JSON/YAML, throws `CjyError(EXIT_PARSE)` on failure
+- `parseContent(content, format, filePath)` — private, parses JSON/YAML, throws `JyError(EXIT_PARSE)` on failure
 - `serialize(data, format, options)` — private, serializes to JSON/YAML
 
 The `validate()` function will call `parseContent` (already available in module scope) and re-throw with `EXIT_VALIDATION`.
@@ -229,7 +229,7 @@ From previous code reviews (do NOT fix these, just don't make them worse):
 **Unit tests (`test/converter.test.ts`):**
 - Add a new `describe('validate', () => {...})` block
 - Test valid content returns without error (JSON and YAML)
-- Test malformed content throws `CjyError` with code `EXIT_VALIDATION` (1), not `EXIT_PARSE` (2) — this is the critical assertion
+- Test malformed content throws `JyError` with code `EXIT_VALIDATION` (1), not `EXIT_PARSE` (2) — this is the critical assertion
 - Test empty YAML document also throws `EXIT_VALIDATION`
 - Use existing fixture content patterns or inline strings
 
@@ -249,7 +249,7 @@ src/
 ├── commands/
 │   └── index.ts              # Root command — now with --validate flag
 ├── converter.ts               # Parse + serialize + validate
-├── errors.ts                  # CjyError class (UNCHANGED)
+├── errors.ts                  # JyError class (UNCHANGED)
 ├── format-detector.ts         # Format detection (UNCHANGED)
 ├── io.ts                      # File I/O (UNCHANGED)
 ├── output-formatter.ts        # EOL conversion (UNCHANGED)
@@ -292,7 +292,7 @@ Claude Opus 4.6 (GitHub Copilot)
 ### Completion Notes List
 - Added `validate()` function to `src/converter.ts` that reuses `parseContent`, catches `EXIT_PARSE` errors and re-throws with `EXIT_VALIDATION` (code 1)
 - Added `--validate` boolean flag to `src/commands/index.ts` with validate-mode branch before all existing branches
-- Validate mode handles stdin (`cjy - --validate`), file paths, globs, and silently ignores `--out`
+- Validate mode handles stdin (`jy - --validate`), file paths, globs, and silently ignores `--out`
 - Fail-fast behavior: first invalid file stops processing and exits with code 1
 - 5 unit tests for `validate()` in `test/converter.test.ts`
 - 11 CLI integration tests for `--validate` in `test/commands/index.test.ts` (valid files, malformed files, multi-file, glob, stdin, --out interaction)

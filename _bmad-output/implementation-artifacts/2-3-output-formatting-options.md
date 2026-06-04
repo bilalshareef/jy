@@ -10,21 +10,21 @@ so that **the output matches my project's formatting standards without post-proc
 
 ## Acceptance Criteria
 
-1. **Given** a JSON file, **when** the user runs `cjy data.json --eol crlf`, **then** the YAML output uses `\r\n` line endings instead of the default `\n`
+1. **Given** a JSON file, **when** the user runs `jy data.json --eol crlf`, **then** the YAML output uses `\r\n` line endings instead of the default `\n`
 
-2. **Given** a YAML file, **when** the user runs `cjy data.yaml --eol lf`, **then** the JSON output uses `\n` line endings (the default, explicitly specified)
+2. **Given** a YAML file, **when** the user runs `jy data.yaml --eol lf`, **then** the JSON output uses `\n` line endings (the default, explicitly specified)
 
-3. **Given** a JSON file, **when** the user runs `cjy data.json --indent-size 4`, **then** the YAML output uses 4-space indentation instead of the default 2
+3. **Given** a JSON file, **when** the user runs `jy data.json --indent-size 4`, **then** the YAML output uses 4-space indentation instead of the default 2
 
-4. **Given** a YAML file, **when** the user runs `cjy data.yaml --indent-style tabs`, **then** the JSON output uses tab characters for indentation
+4. **Given** a YAML file, **when** the user runs `jy data.yaml --indent-style tabs`, **then** the JSON output uses tab characters for indentation
 
-5. **Given** a YAML file, **when** the user runs `cjy data.yaml --indent-style tabs --indent-size 4`, **then** the JSON output uses tab indentation and `--indent-size` is ignored
+5. **Given** a YAML file, **when** the user runs `jy data.yaml --indent-style tabs --indent-size 4`, **then** the JSON output uses tab indentation and `--indent-size` is ignored
 
-6. **Given** a JSON file, **when** the user runs `cjy data.json --indent-style tabs --indent-size 4`, **then** the YAML output ignores `--indent-style` and uses 4-space indentation
+6. **Given** a JSON file, **when** the user runs `jy data.json --indent-style tabs --indent-size 4`, **then** the YAML output ignores `--indent-style` and uses 4-space indentation
 
-7. **Given** formatting flags combined with `--out`, **when** the user runs `cjy data.json --out dist --eol crlf --indent-size 4`, **then** the written file uses CRLF line endings and 4-space indentation
+7. **Given** formatting flags combined with `--out`, **when** the user runs `jy data.json --out dist --eol crlf --indent-size 4`, **then** the written file uses CRLF line endings and 4-space indentation
 
-8. **Given** formatting flags combined with multi-file conversion, **when** the user runs `cjy a.json b.json --indent-size 4`, **then** all output files use 4-space indentation consistently
+8. **Given** formatting flags combined with multi-file conversion, **when** the user runs `jy a.json b.json --indent-size 4`, **then** all output files use 4-space indentation consistently
 
 9. **Given** the serialization layer, **when** indentation options are provided, **then** JSON indentation is applied with `JSON.stringify` and YAML indentation is applied with `stringifyYaml`, while `output-formatter.ts` only applies EOL conversion post-serialization
 
@@ -71,7 +71,7 @@ so that **the output matches my project's formatting standards without post-proc
   - [x] 6.5 Test `--indent-style tabs --indent-size 4` — indentSize is ignored, output uses tabs
   - [x] 6.6 Test `--indent-style tabs` is ignored for JSON→YAML while `--indent-size` still applies
   - [x] 6.7 Test formatting flags with `--out`: verify written file has correct formatting
-  - [x] 6.8 Test formatting flags with stdin: `echo '...' | cjy - --indent-size 4`
+  - [x] 6.8 Test formatting flags with stdin: `echo '...' | jy - --indent-size 4`
   - [x] 6.9 Test multi-file CRLF conversion also updates YAML separators
   - [x] 6.10 Regression: verify existing tests still pass (single-file, multi-file, stdin, --out modes)
 
@@ -80,7 +80,7 @@ so that **the output matches my project's formatting standards without post-proc
 ### Critical Architecture Patterns
 
 - **Pipeline flow (updated):** input resolution → format detection → parsing → serialization with target-specific indentation → EOL formatting → output writing
-- **Error handling:** All errors throw `CjyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
+- **Error handling:** All errors throw `JyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
 - **stdout output:** Use `process.stdout.write()` — NOT `this.log()` (double-newline issue)
 - **stderr output:** Use `this.logToStderr()` — NOT `this.error()` (oclif intercepts it)
 - **Import ordering:** Node built-ins → external packages → internal modules (blank lines between groups, `.js` extensions)
@@ -115,10 +115,10 @@ so that **the output matches my project's formatting standards without post-proc
 ### Current State of Files Being Modified
 
 **`src/commands/index.ts`** — Root command currently:
-- Imports: `{Args, Command, Flags}` from `@oclif/core`, `convert`, `CjyError/EXIT_IO`, format-detector functions, io functions
+- Imports: `{Args, Command, Flags}` from `@oclif/core`, `convert`, `JyError/EXIT_IO`, format-detector functions, io functions
 - Flags: `eol`, `indent-size`, `indent-style`, `out`
 - Three branches: stdin (`-`), `--out` file write, stdout
-- Error handling: single try/catch wrapping entire `run()`, catches `CjyError`, logs to stderr, exits with code
+- Error handling: single try/catch wrapping entire `run()`, catches `JyError`, logs to stderr, exits with code
 - Stdin branch: reads stdin → detects format → derives serializer options → converts → applies EOL formatting → `process.stdout.write(output)`
 - `--out` branch: loops files → reads → derives serializer options → converts → applies EOL formatting → `writeOutput(outDir, filePath, converted, targetFormat)`
 - stdout branch: loops files → reads → derives serializer options → converts → collects → joins with separator → applies EOL formatting → `process.stdout.write(outputs.join(separator))`
@@ -286,7 +286,7 @@ src/
 ├── commands/
 │   └── index.ts              # Root command — now with --eol, --indent-style, --indent-size flags
 ├── converter.ts               # Parse + serialize with serializer-backed indentation
-├── errors.ts                  # CjyError class (UNCHANGED)
+├── errors.ts                  # JyError class (UNCHANGED)
 ├── format-detector.ts         # Format detection (UNCHANGED)
 ├── io.ts                      # File I/O (UNCHANGED)
 ├── output-formatter.ts        # EOL conversion only

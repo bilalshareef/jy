@@ -1,12 +1,12 @@
 {
-  "name": "cjy",
+  "name": "@bilalshareef/jy",
   "description": "Convert between JSON and YAML formats",
   "version": "1.0.0",
   "author": "Mohammed Bilal Shareef",
   "bin": {
-    "cjy": "bin/run.js"
+    "jy": "bin/run.js"
   },
-  "bugs": "https://github.com/bilalshareef/cjy/issues",
+  "bugs": "https://github.com/bilalshareef/jy/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
@@ -38,7 +38,7 @@
     "./lib",
     "./oclif.manifest.json"
   ],
-  "homepage": "https://github.com/bilalshareef/cjy",
+  "homepage": "https://bilalshareef.github.io/jy/",
   "keywords": [
     "json",
     "yaml",
@@ -50,8 +50,8 @@
   "main": "lib/index.js",
   "type": "module",
   "oclif": {
-    "bin": "cjy",
-    "dirname": "cjy",
+    "bin": "jy",
+    "dirname": "jy",
     "commands": {
       "strategy": "single",
       "target": "./lib/commands/index.js"
@@ -75,7 +75,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bilalshareef/cjy.git"
+    "url": "https://github.com/bilalshareef/jy.git"
   },
   "scripts": {
     "build": "tsc -b",

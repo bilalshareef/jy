@@ -5,21 +5,21 @@ Status: done
 ## Story
 
 As a **developer**,
-I want **to convert a single JSON file to YAML or a single YAML file to JSON by running `cjy <file>`**,
+I want **to convert a single JSON file to YAML or a single YAML file to JSON by running `jy <file>`**,
 so that **I can instantly convert between formats without remembering flags or syntax**.
 
 ## Acceptance Criteria
 
 1. **Given** a valid JSON file `config.json`
-   **When** the user runs `cjy config.json`
+   **When** the user runs `jy config.json`
    **Then** the file is parsed as JSON (detected from `.json` extension), converted to YAML, and the YAML output is written to stdout
 
 2. **Given** a valid YAML file `config.yaml`
-   **When** the user runs `cjy config.yaml`
+   **When** the user runs `jy config.yaml`
    **Then** the file is parsed as YAML (detected from `.yaml` extension), converted to JSON, and the JSON output is written to stdout
 
 3. **Given** a valid YAML file `config.yml`
-   **When** the user runs `cjy config.yml`
+   **When** the user runs `jy config.yml`
    **Then** the file is detected as YAML from the `.yml` extension and converted to JSON on stdout
 
 4. **Given** a JSON file containing all JSON data types (strings, numbers, booleans, null, arrays, nested objects)
@@ -27,15 +27,15 @@ so that **I can instantly convert between formats without remembering flags or s
    **Then** the resulting data structure is semantically identical to the original — zero data loss (NFR5, NFR6)
 
 5. **Given** a file path that does not exist
-   **When** the user runs `cjy nonexistent.json`
+   **When** the user runs `jy nonexistent.json`
    **Then** an error message including the file path is written to stderr and the process exits with code 3 (IO error)
 
 6. **Given** a file with a `.json` extension but invalid JSON content
-   **When** the user runs `cjy malformed.json`
+   **When** the user runs `jy malformed.json`
    **Then** an error message including the file path and parse failure description is written to stderr and the process exits with code 2 (parse error)
 
 7. **Given** a file with an unrecognized extension (e.g., `.txt`, `.xml`)
-   **When** the user runs `cjy data.txt`
+   **When** the user runs `jy data.txt`
    **Then** an error message is written to stderr and the process exits with code 4 (ambiguous format)
 
 8. **Given** the conversion completes successfully
@@ -55,7 +55,7 @@ so that **I can instantly convert between formats without remembering flags or s
 
 - [x] Task 2: Create `src/format-detector.ts` (AC: #1, #2, #3, #7)
   - [x] 2.1: Define `Format` type as `'json' | 'yaml'`
-  - [x] 2.2: Implement `detectFormatFromExtension(filePath: string): Format` — extracts extension via `node:path`, maps `.json` → `'json'`, `.yaml`/`.yml` → `'yaml'`, throws `CjyError` with `EXIT_AMBIGUOUS` for anything else
+  - [x] 2.2: Implement `detectFormatFromExtension(filePath: string): Format` — extracts extension via `node:path`, maps `.json` → `'json'`, `.yaml`/`.yml` → `'yaml'`, throws `JyError` with `EXIT_AMBIGUOUS` for anything else
   - [x] 2.3: Implement `getTargetFormat(sourceFormat: Format): Format` — returns the opposite format (`'json'` → `'yaml'`, `'yaml'` → `'json'`)
   - [x] 2.4: Use `.js` extensions in all imports, follow import ordering convention
 
@@ -63,24 +63,24 @@ so that **I can instantly convert between formats without remembering flags or s
   - [x] 3.1: Implement `convert(content: string, sourceFormat: Format): string` — parses content in source format and serializes to the opposite format
   - [x] 3.2: JSON→YAML: use `JSON.parse()` then `yaml.stringify(data, {lineWidth: 0})` (disable line folding for clean output)
   - [x] 3.3: YAML→JSON: use `yaml.parse()` then `JSON.stringify(data, null, 2)` with trailing newline
-  - [x] 3.4: Wrap parse errors in `CjyError` with `EXIT_PARSE` — include file path context in error message where available
+  - [x] 3.4: Wrap parse errors in `JyError` with `EXIT_PARSE` — include file path context in error message where available
   - [x] 3.5: Ensure round-trip fidelity for all JSON data types (strings, numbers, booleans, null, arrays, nested objects)
 
 - [x] Task 4: Create `src/io.ts` (AC: #5, #8)
   - [x] 4.1: Implement `readInput(filePath: string): Promise<string>` — reads file using `node:fs/promises` `readFile` with `'utf8'` encoding
-  - [x] 4.2: Wrap file-not-found errors (`ENOENT`) in `CjyError` with `EXIT_IO` including the file path in the message
-  - [x] 4.3: Wrap other file read errors (permissions, etc.) in `CjyError` with `EXIT_IO`
+  - [x] 4.2: Wrap file-not-found errors (`ENOENT`) in `JyError` with `EXIT_IO` including the file path in the message
+  - [x] 4.3: Wrap other file read errors (permissions, etc.) in `JyError` with `EXIT_IO`
 
 - [x] Task 5: Update `src/commands/index.ts` — wire the pipeline (AC: #1, #2, #3, #5, #6, #7, #8)
   - [x] 5.1: Add variadic `args` definition accepting a single file path (use oclif `Args` with `{file: Args.string({required: true, description: 'File to convert'})}`)  
   - [x] 5.2: Wire the pipeline inside `run()` try/catch: detect format → read file → convert → write stdout
   - [x] 5.3: Use `process.stdout.write()` to write converted output to stdout (avoids `this.log()` double-newline)
-  - [x] 5.4: Keep the existing CjyError catch pattern — `this.logToStderr(error.message)` + `this.exit(error.code)`
-  - [x] 5.5: Ensure non-CjyError exceptions re-throw for oclif's default handler
+  - [x] 5.4: Keep the existing JyError catch pattern — `this.logToStderr(error.message)` + `this.exit(error.code)`
+  - [x] 5.5: Ensure non-JyError exceptions re-throw for oclif's default handler
 
 - [x] Task 6: Create test fixtures (AC: #9)
   - [x] 6.1: Create `test/fixtures/` directory
-  - [x] 6.2: Create `test/fixtures/simple.json` — `{"name": "cjy", "version": 1}`
+  - [x] 6.2: Create `test/fixtures/simple.json` — `{"name": "jy", "version": 1}`
   - [x] 6.3: Create `test/fixtures/simple.yaml` — equivalent YAML content
   - [x] 6.4: Create `test/fixtures/nested.json` — contains all JSON types (string, number, boolean, null, array, nested objects)
   - [x] 6.5: Create `test/fixtures/nested.yaml` — equivalent YAML content
@@ -88,9 +88,9 @@ so that **I can instantly convert between formats without remembering flags or s
   - [x] 6.7: Create `test/fixtures/malformed.yaml` — invalid YAML content (e.g. `key: [broken: yaml`)
 
 - [x] Task 7: Write unit tests (AC: #9)
-  - [x] 7.1: Create `test/format-detector.test.ts` — test `.json`→JSON, `.yaml`→YAML, `.yml`→YAML, unrecognized extension throws `CjyError`/`EXIT_AMBIGUOUS`, case sensitivity, paths with directories
-  - [x] 7.2: Create `test/converter.test.ts` — test JSON→YAML conversion, YAML→JSON conversion, round-trip fidelity (JSON→YAML→JSON identity), all JSON data types survive conversion, malformed JSON throws `CjyError`/`EXIT_PARSE`, malformed YAML throws `CjyError`/`EXIT_PARSE`
-  - [x] 7.3: Create `test/io.test.ts` — test successful file read, file-not-found throws `CjyError`/`EXIT_IO`, returns string content
+  - [x] 7.1: Create `test/format-detector.test.ts` — test `.json`→JSON, `.yaml`→YAML, `.yml`→YAML, unrecognized extension throws `JyError`/`EXIT_AMBIGUOUS`, case sensitivity, paths with directories
+  - [x] 7.2: Create `test/converter.test.ts` — test JSON→YAML conversion, YAML→JSON conversion, round-trip fidelity (JSON→YAML→JSON identity), all JSON data types survive conversion, malformed JSON throws `JyError`/`EXIT_PARSE`, malformed YAML throws `JyError`/`EXIT_PARSE`
+  - [x] 7.3: Create `test/io.test.ts` — test successful file read, file-not-found throws `JyError`/`EXIT_IO`, returns string content
   - [x] 7.4: Update `test/commands/index.test.ts` — add CLI integration tests: convert JSON file to YAML stdout, convert YAML file to JSON stdout, `.yml` extension works, nonexistent file returns exit code 3, malformed file returns exit code 2, unrecognized extension returns exit code 4
 
 - [x] Task 8: Verify all conventions (AC: #8, #9)
@@ -141,7 +141,7 @@ src/commands/index.ts (root command)
 import {parse as parseYaml} from 'yaml'
 const data = parseYaml(content)  // returns native JS value
 ```
-- Throws `YAMLParseError` on invalid input — catch and wrap in `CjyError(message, EXIT_PARSE)`
+- Throws `YAMLParseError` on invalid input — catch and wrap in `JyError(message, EXIT_PARSE)`
 - Uses YAML 1.2 core schema by default (correct for this project)
 
 **Stringify (JS → YAML):**
@@ -166,19 +166,19 @@ Error messages MUST include the file path for user clarity:
 
 ```typescript
 // Format detection error
-throw new CjyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
+throw new JyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
 
 // Parse error (JSON)
-throw new CjyError(`Parse error: ${filePath} is not valid JSON`, EXIT_PARSE)
+throw new JyError(`Parse error: ${filePath} is not valid JSON`, EXIT_PARSE)
 
 // Parse error (YAML)
-throw new CjyError(`Parse error: ${filePath} is not valid YAML`, EXIT_PARSE)
+throw new JyError(`Parse error: ${filePath} is not valid YAML`, EXIT_PARSE)
 
 // IO error (file not found)
-throw new CjyError(`File not found: ${filePath}`, EXIT_IO)
+throw new JyError(`File not found: ${filePath}`, EXIT_IO)
 
 // IO error (generic)
-throw new CjyError(`Cannot read file: ${filePath}`, EXIT_IO)
+throw new JyError(`Cannot read file: ${filePath}`, EXIT_IO)
 ```
 
 **Design decision for converter.ts:** The `convert()` function does parsing + serialization. For error messages that need the file path, there are two approaches:
@@ -193,7 +193,7 @@ throw new CjyError(`Cannot read file: ${filePath}`, EXIT_IO)
 // src/format-detector.ts
 import path from 'node:path'
 
-import {EXIT_AMBIGUOUS, CjyError} from './errors.js'
+import {EXIT_AMBIGUOUS, JyError} from './errors.js'
 
 export type Format = 'json' | 'yaml'
 
@@ -206,7 +206,7 @@ export function detectFormatFromExtension(filePath: string): Format {
     case '.yml':
       return 'yaml'
     default:
-      throw new CjyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
+      throw new JyError(`Unsupported file extension: ${filePath}`, EXIT_AMBIGUOUS)
   }
 }
 
@@ -227,17 +227,17 @@ export function getTargetFormat(sourceFormat: Format): Format {
 // src/io.ts
 import {readFile} from 'node:fs/promises'
 
-import {EXIT_IO, CjyError} from './errors.js'
+import {EXIT_IO, JyError} from './errors.js'
 
 export async function readInput(filePath: string): Promise<string> {
   try {
     return await readFile(filePath, 'utf8')
   } catch (error: unknown) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-      throw new CjyError(`File not found: ${filePath}`, EXIT_IO)
+      throw new JyError(`File not found: ${filePath}`, EXIT_IO)
     }
 
-    throw new CjyError(`Cannot read file: ${filePath}`, EXIT_IO)
+    throw new JyError(`Cannot read file: ${filePath}`, EXIT_IO)
   }
 }
 ```
@@ -254,7 +254,7 @@ export async function readInput(filePath: string): Promise<string> {
 // src/converter.ts
 import {parse as parseYaml, stringify as stringifyYaml} from 'yaml'
 
-import {EXIT_PARSE, CjyError} from './errors.js'
+import {EXIT_PARSE, JyError} from './errors.js'
 import type {Format} from './format-detector.js'
 
 export function convert(content: string, sourceFormat: Format, filePath: string): string {
@@ -272,7 +272,7 @@ function parseContent(content: string, format: Format, filePath: string): unknow
     return parseYaml(content)
   } catch {
     const formatLabel = format === 'json' ? 'JSON' : 'YAML'
-    throw new CjyError(`Parse error: ${filePath} is not valid ${formatLabel}`, EXIT_PARSE)
+    throw new JyError(`Parse error: ${filePath} is not valid ${formatLabel}`, EXIT_PARSE)
   }
 }
 
@@ -299,7 +299,7 @@ function serialize(data: unknown, format: Format): string {
 import {Args, Command} from '@oclif/core'
 
 import {convert} from '../converter.js'
-import {CjyError} from '../errors.js'
+import {JyError} from '../errors.js'
 import {detectFormatFromExtension} from '../format-detector.js'
 import {readInput} from '../io.js'
 
@@ -318,7 +318,7 @@ export default class Index extends Command {
       const output = convert(content, sourceFormat, args.file)
       this.log(output)
     } catch (error) {
-      if (error instanceof CjyError) {
+      if (error instanceof JyError) {
         this.logToStderr(error.message)
         this.exit(error.code)
       }
@@ -334,7 +334,7 @@ export default class Index extends Command {
 - `this.logToStderr()` writes to stderr — NOT `this.error()` which throws internally
 - `this.exit(code)` throws `ExitError` — code after it is unreachable
 - `this.log()` writes to stdout — correct for converted output
-- Non-CjyError exceptions re-throw for oclif's default handler
+- Non-JyError exceptions re-throw for oclif's default handler
 
 **Note on `this.log()` trailing newline:** `this.log()` appends `\n` automatically. Since both JSON and YAML serialization already include a trailing newline, check output for double newlines. If `this.log()` adds an extra `\n`, use `process.stdout.write(output)` instead to avoid the double newline issue.
 
@@ -345,14 +345,14 @@ Create `test/fixtures/` with these files:
 **`simple.json`:**
 ```json
 {
-  "name": "cjy",
+  "name": "jy",
   "version": 1
 }
 ```
 
 **`simple.yaml`:**
 ```yaml
-name: cjy
+name: jy
 version: 1
 ```
 
@@ -409,9 +409,9 @@ key: [broken: yaml
    - `.yml` → `'yaml'`
    - `.JSON` / `.YAML` → correct format (case insensitive)
    - `path/to/file.json` → works with directory paths
-   - `.txt` → throws CjyError with EXIT_AMBIGUOUS
-   - `.xml` → throws CjyError with EXIT_AMBIGUOUS
-   - no extension → throws CjyError with EXIT_AMBIGUOUS
+   - `.txt` → throws JyError with EXIT_AMBIGUOUS
+   - `.xml` → throws JyError with EXIT_AMBIGUOUS
+   - no extension → throws JyError with EXIT_AMBIGUOUS
    - `getTargetFormat('json')` → `'yaml'`
    - `getTargetFormat('yaml')` → `'json'`
 
@@ -420,25 +420,25 @@ key: [broken: yaml
    - YAML→JSON: simple YAML produces valid JSON
    - Round-trip: JSON→YAML→JSON produces identical structure (`deep.equal`)
    - All JSON types survive conversion (string, number, boolean, null, array, object)
-   - Malformed JSON throws CjyError with EXIT_PARSE
-   - Malformed YAML throws CjyError with EXIT_PARSE
+   - Malformed JSON throws JyError with EXIT_PARSE
+   - Malformed YAML throws JyError with EXIT_PARSE
    - Error message includes file path
    - Output always ends with `\n`
 
 3. **`test/io.test.ts`:**
    - Reads existing file successfully
    - Returns string content
-   - File not found throws CjyError with EXIT_IO
+   - File not found throws JyError with EXIT_IO
    - Error message includes file path
 
 **CLI integration tests (`test/commands/index.test.ts`):**
-- `cjy simple.json` → stdout contains valid YAML
-- `cjy simple.yaml` → stdout contains valid JSON
-- `cjy simple.yml` → stdout contains valid JSON (needs `.yml` fixture or symlink)
-- `cjy nonexistent.json` → exit code 3
-- `cjy malformed.json` → exit code 2
-- `cjy data.txt` → exit code 4
-- Keep existing tests (--help, no-args, CjyError catch boundary)
+- `jy simple.json` → stdout contains valid YAML
+- `jy simple.yaml` → stdout contains valid JSON
+- `jy simple.yml` → stdout contains valid JSON (needs `.yml` fixture or symlink)
+- `jy nonexistent.json` → exit code 3
+- `jy malformed.json` → exit code 2
+- `jy data.txt` → exit code 4
+- Keep existing tests (--help, no-args, JyError catch boundary)
 
 **Note on testing exit codes with @oclif/test:** The `runCommand` function from `@oclif/test` catches errors. To verify exit codes, check `error.oclif?.exit` on the returned error object.
 
@@ -452,7 +452,7 @@ key: [broken: yaml
 - zsh glob behavior doesn't match dotfiles — not relevant for this story but noted
 
 **Patterns established in Story 1.1:**
-- Error handling: `CjyError` throw → root command catch → `logToStderr` + `exit`
+- Error handling: `JyError` throw → root command catch → `logToStderr` + `exit`
 - Test structure: `describe('module-name', () => { it('does X', ...) })`
 - Import ordering: Node built-ins → external → internal
 - ESM `.js` extensions on all imports
@@ -482,12 +482,12 @@ Recent commits (single commit for Story 1.1):
 ### Project Structure After This Story
 
 ```
-cjy/
+jy/
 ├── src/
 │   ├── commands/
 │   │   └── index.ts                   # Root command — wires pipeline (UPDATED)
 │   ├── converter.ts                   # JSON↔YAML conversion (NEW)
-│   ├── errors.ts                      # CjyError, exit codes (unchanged)
+│   ├── errors.ts                      # JyError, exit codes (unchanged)
 │   ├── format-detector.ts             # Extension-based format detection (NEW)
 │   └── io.ts                          # File reading (NEW)
 ├── test/
@@ -510,7 +510,7 @@ cjy/
 ### References
 
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Conversion Pipeline Architecture" for module structure and pipeline stages]
-- [Source: _bmad-output/planning-artifacts/architecture.md — "Error Handling Pattern" for CjyError pattern and exit codes]
+- [Source: _bmad-output/planning-artifacts/architecture.md — "Error Handling Pattern" for JyError pattern and exit codes]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Dependencies & Versions" for yaml ^2.9.0]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Implementation Patterns & Consistency Rules" for naming/import conventions]
 - [Source: _bmad-output/planning-artifacts/architecture.md — "Complete Project Directory Structure" for file layout]
@@ -541,7 +541,7 @@ Claude Opus 4.6 (GitHub Copilot)
 - Used `process.stdout.write()` instead of `this.log()` to avoid double trailing newline (both serializers already append `\n`)
 - Fixed pre-existing circular tsconfig reference (`tsconfig.json` ↔ `test/tsconfig.json`) — removed `references` from root tsconfig
 - Used `fileURLToPath(import.meta.url)` instead of `import.meta.dirname` to stay within the configured Node.js >=22.0.0 engine range (lint rule `n/no-unsupported-features/node-builtins` requires >=22.16.0 for `import.meta.dirname`)
-- 44 tests passing (8 CLI integration, 10 converter, 9 errors, 12 format-detector, 4 IO, 1 CjyError boundary)
+- 44 tests passing (8 CLI integration, 10 converter, 9 errors, 12 format-detector, 4 IO, 1 JyError boundary)
 - All acceptance criteria satisfied, zero lint errors
 
 ### File List
@@ -570,7 +570,7 @@ Claude Opus 4.6 (GitHub Copilot)
 ### Review Findings
 
 - [x] [Review][Decision] converter.ts imports from format-detector.ts — deviation accepted; dev note updated to reflect actual dependencies. [src/converter.ts:3-6]
-- [x] [Review][Patch] Empty `catches CjyError` integration test body passes vacuously — replaced with `malformed.yaml` exit-code + stderr integration test [test/commands/index.test.ts]
+- [x] [Review][Patch] Empty `catches JyError` integration test body passes vacuously — replaced with `malformed.yaml` exit-code + stderr integration test [test/commands/index.test.ts]
 - [x] [Review][Patch] `.yml` extension integration test never exercises `.yml` detection — added `test/fixtures/simple.yml`; test now uses it [test/commands/index.test.ts]
 - [x] [Review][Patch] YAML empty/null document produces invalid output — added `undefined` guard in `parseContent`; throws `EXIT_PARSE` for empty documents [src/converter.ts:19]
 - [x] [Review][Patch] Error-case integration tests assert only exit code, not stderr content — added `stderr` assertions for file path in all three error-path tests [test/commands/index.test.ts]

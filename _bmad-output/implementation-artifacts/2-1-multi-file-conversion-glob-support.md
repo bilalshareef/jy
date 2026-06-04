@@ -6,21 +6,21 @@ Status: done
 
 As a **developer**,
 I want **to convert multiple files in a single invocation using file paths or glob patterns**,
-so that **I can batch-convert files efficiently without running cjy repeatedly**.
+so that **I can batch-convert files efficiently without running jy repeatedly**.
 
 ## Acceptance Criteria
 
-1. **Given** two JSON files `a.json` and `b.json`, **when** the user runs `cjy a.json b.json`, **then** both files are converted to YAML and output to stdout separated by `---\n` (YAML document separator)
+1. **Given** two JSON files `a.json` and `b.json`, **when** the user runs `jy a.json b.json`, **then** both files are converted to YAML and output to stdout separated by `---\n` (YAML document separator)
 
-2. **Given** two YAML files `a.yaml` and `b.yaml`, **when** the user runs `cjy a.yaml b.yaml`, **then** both files are converted to JSON and output to stdout separated by a blank line (`\n`)
+2. **Given** two YAML files `a.yaml` and `b.yaml`, **when** the user runs `jy a.yaml b.yaml`, **then** both files are converted to JSON and output to stdout separated by a blank line (`\n`)
 
-3. **Given** a directory containing `*.json` files, **when** the user runs `cjy 'src/**/*.json'`, **then** all matched files are converted to YAML and output to stdout with `---\n` separators between each file's output
+3. **Given** a directory containing `*.json` files, **when** the user runs `jy 'src/**/*.json'`, **then** all matched files are converted to YAML and output to stdout with `---\n` separators between each file's output
 
-4. **Given** a mix of `.json` and `.yaml` files as arguments, **when** the user runs `cjy data.json config.yaml`, **then** an error message is written to stderr and the process exits with code 4 (mixed/ambiguous format)
+4. **Given** a mix of `.json` and `.yaml` files as arguments, **when** the user runs `jy data.json config.yaml`, **then** an error message is written to stderr and the process exits with code 4 (mixed/ambiguous format)
 
-5. **Given** a glob pattern that matches no files, **when** the user runs `cjy 'nonexistent/*.json'`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
+5. **Given** a glob pattern that matches no files, **when** the user runs `jy 'nonexistent/*.json'`, **then** an error message is written to stderr and the process exits with code 3 (IO error)
 
-6. **Given** multiple files where the second file is malformed, **when** the user runs `cjy good.json malformed.json`, **then** processing stops at the first error (fail-fast), an error message is written to stderr, and the process exits with code 2 (parse error)
+6. **Given** multiple files where the second file is malformed, **when** the user runs `jy good.json malformed.json`, **then** processing stops at the first error (fail-fast), an error message is written to stderr, and the process exits with code 2 (parse error)
 
 7. **Given** the project test suite, **when** `npm test` is run, **then** unit tests for glob resolution in `io.ts`, mixed-format detection in `format-detector.ts`, and CLI integration tests for multi-file conversion (stdout separators, mixed-format rejection, fail-fast behavior) pass
 
@@ -33,11 +33,11 @@ so that **I can batch-convert files efficiently without running cjy repeatedly**
 - [x] Task 2: Add glob resolution to `src/io.ts` (AC: #3, #5)
   - [x] 2.1 Add `resolveFilePaths(args: string[]): Promise<string[]>` function — for each arg, detect if it's a glob pattern (contains `*`, `?`, `[`), expand via `fsPromises.glob()`, or treat as a literal path
   - [x] 2.2 Collect results into a flat array preserving order (globs sorted alphabetically within their expansion)
-  - [x] 2.3 Throw `CjyError('No files matched: <pattern>', EXIT_IO)` when a glob pattern matches zero files
+  - [x] 2.3 Throw `JyError('No files matched: <pattern>', EXIT_IO)` when a glob pattern matches zero files
   - [x] 2.4 Use Node.js 22 built-in `glob` from `node:fs/promises` — do NOT add any external glob dependency
 
 - [x] Task 3: Add mixed-format detection to `src/format-detector.ts` (AC: #4)
-  - [x] 3.1 Add `detectFormatFromPaths(filePaths: string[]): Format` function — calls `detectFormatFromExtension()` on each path, throws `CjyError('Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions', EXIT_AMBIGUOUS)` if formats differ
+  - [x] 3.1 Add `detectFormatFromPaths(filePaths: string[]): Format` function — calls `detectFormatFromExtension()` on each path, throws `JyError('Mixed input formats: cannot convert files with both .json and .yaml/.yml extensions', EXIT_AMBIGUOUS)` if formats differ
 
 - [x] Task 4: Update root command to orchestrate multi-file pipeline (AC: #1, #2, #3, #4, #5, #6)
   - [x] 4.1 Resolve args → file paths via `resolveFilePaths()`
@@ -45,7 +45,7 @@ so that **I can batch-convert files efficiently without running cjy repeatedly**
   - [x] 4.3 Loop through files: read → convert → collect output
   - [x] 4.4 Join outputs with correct separator (`---\n` for YAML output, `\n` for JSON output)
   - [x] 4.5 Write joined result to stdout via `process.stdout.write()`
-  - [x] 4.6 Fail-fast: let CjyError propagate on first failure (existing try/catch handles it)
+  - [x] 4.6 Fail-fast: let JyError propagate on first failure (existing try/catch handles it)
   - [x] 4.7 Preserve stdin branch (`-` argument) — must still work for single stdin input
 
 - [x] Task 5: Add unit tests for `io.ts` glob resolution (AC: #7)
@@ -79,7 +79,7 @@ so that **I can batch-convert files efficiently without running cjy repeatedly**
 ### Critical Architecture Patterns
 
 - **Pipeline flow (unchanged):** input resolution → format detection → parsing → serialization → output writing
-- **Error handling:** All errors throw `CjyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
+- **Error handling:** All errors throw `JyError` — root command catches and calls `this.exit(code)`. Do NOT add new error handling patterns.
 - **stdout output:** Use `process.stdout.write()` — NOT `this.log()` (double-newline issue)
 - **stderr output:** Use `this.logToStderr()` — NOT `this.error()` (oclif intercepts it)
 - **Import ordering:** Node built-ins → external packages → internal modules (blank lines between groups, `.js` extensions)
@@ -114,7 +114,7 @@ async run(): Promise<void> {
     // file branch: detectFormatFromExtension → readInput → convert
     // output: process.stdout.write(output)
   } catch (error) {
-    // CjyError → this.logToStderr + this.exit
+    // JyError → this.logToStderr + this.exit
     // other → re-throw
   }
 }
@@ -196,7 +196,7 @@ async run(): Promise<void> {
 
 ### Stdin Compatibility
 
-The stdin branch (`-` argument) MUST still work. When `fileArgs` contains only `['-']`, use the existing stdin path. Stdin is only valid as the sole argument — `cjy - somefile.json` should be treated as an error or the `-` should be treated as a literal filename (which will fail with file-not-found).
+The stdin branch (`-` argument) MUST still work. When `fileArgs` contains only `['-']`, use the existing stdin path. Stdin is only valid as the sole argument — `jy - somefile.json` should be treated as an error or the `-` should be treated as a literal filename (which will fail with file-not-found).
 
 ### Previous Story Learnings (from Story 1.3)
 
@@ -222,7 +222,7 @@ From previous code reviews (do NOT fix these, just don't make them worse):
 - **Integration tests:** Use existing test fixtures (`test/fixtures/simple.json`, `simple.yaml`, `nested.json`, etc.)
 - **Glob tests:** Create a temporary directory with test files for glob matching, or use existing `test/fixtures/` directory with glob patterns like `test/fixtures/*.json`
 - **Test patterns:** Follow existing `describe`/`it` style, chai `expect` assertions
-- **Error assertions:** `.to.have.property('code', EXIT_AMBIGUOUS)` pattern for CjyError checks
+- **Error assertions:** `.to.have.property('code', EXIT_AMBIGUOUS)` pattern for JyError checks
 - **CLI tests:** `runCommand(['file1', 'file2'])` for multi-file, verify `stdout` contains separators
 
 ### Project Structure Notes
@@ -263,7 +263,7 @@ Claude Opus 4.6 (GitHub Copilot)
 - Added `detectFormatFromPaths()` for mixed-format validation across multiple files
 - Multi-file pipeline: resolve → detect format → loop (read → convert) → join with separator → stdout
 - Separator: `---\n` for YAML output, `\n` (blank line) for JSON output
-- Fail-fast: sequential file processing lets CjyError propagate on first failure
+- Fail-fast: sequential file processing lets JyError propagate on first failure
 - Lint: added targeted ESLint disables for intentional `no-await-in-loop` (sequential fail-fast) and experimental `glob` API
 - 77 tests passing (18 new), 0 regressions, lint clean
 

@@ -28,11 +28,11 @@ describe('commands helpers', () => {
     }
 
     it('returns stdin content when input is present', async () => {
-      mockStdinWith('{"name":"cjy"}')
+      mockStdinWith('{"name":"jy"}')
 
       const content = await readValidateStdin()
 
-      expect(content).to.equal('{"name":"cjy"}')
+      expect(content).to.equal('{"name":"jy"}')
     })
 
     it('remaps empty stdin from EXIT_PARSE to EXIT_VALIDATION', async () => {

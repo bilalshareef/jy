@@ -1,7 +1,7 @@
 # Implementation Readiness Assessment Report
 
 **Date:** 2026-05-15
-**Project:** cjy
+**Project:** jy
 
 ## PRD Analysis
 
@@ -30,8 +30,8 @@
 - **FR21:** System can stop processing on first error (fail-fast behavior)
 - **FR22:** User can suppress informational logs using `--quiet`, retaining only converted output and errors
 - **FR23:** System can write converted content to stdout by default when no `--out-dir` is specified
-- **FR24:** User can install `cjy` as an npm global package
-- **FR25:** User can install `cjy` as a standalone binary via a curl-based installer script
+- **FR24:** User can install `jy` as an npm global package
+- **FR25:** User can install `jy` as a standalone binary via a curl-based installer script
 - **FR26:** Installer script can detect the user's operating system and architecture and download the correct binary
 - **FR27:** System can run as a standalone binary without requiring Node.js on the target machine
 - **FR28:** System can support Linux x64, Linux arm64, macOS Intel, macOS Apple Silicon, and Windows x64
@@ -132,9 +132,9 @@ None. UX documentation is not required for this project type.
 
 | Epic | Title | User-Centric? | Verdict |
 |------|-------|---------------|---------|
-| Epic 1 | Core CLI & Single-File Conversion | ✓ "A developer can install cjy from source, convert single JSON↔YAML files…" | ✅ Pass |
+| Epic 1 | Core CLI & Single-File Conversion | ✓ "A developer can install jy from source, convert single JSON↔YAML files…" | ✅ Pass |
 | Epic 2 | Multi-File Processing, Output Formatting & Validation | ✓ "A developer can batch-convert multiple files…" | ✅ Pass |
-| Epic 3 | CI/CD & Distribution | ⚠️ Title sounds technical, but description is user-facing: "A developer can install cjy as a standalone binary…" | ✅ Pass (minor title concern) |
+| Epic 3 | CI/CD & Distribution | ⚠️ Title sounds technical, but description is user-facing: "A developer can install jy as a standalone binary…" | ✅ Pass (minor title concern) |
 
 All three epics describe what a user can do after the epic is complete. No technical-milestone epics found.
 
@@ -192,7 +192,7 @@ N/A — CLI tool with no database.
 
 ### Starter Template Check
 
-Architecture specifies `oclif generate` as the starter template. Story 1.1 correctly opens with "the project is initialized with `npx oclif generate cjy`" as its first acceptance criterion. ✅
+Architecture specifies `oclif generate` as the starter template. Story 1.1 correctly opens with "the project is initialized with `npx oclif generate jy`" as its first acceptance criterion. ✅
 
 ### Best Practices Compliance
 

@@ -34,19 +34,19 @@ describe('format-detector', () => {
       expect(detectFormatFromExtension('path/to/file.json')).to.equal('json')
     })
 
-    it('throws CjyError with EXIT_AMBIGUOUS for .txt', () => {
+    it('throws JyError with EXIT_AMBIGUOUS for .txt', () => {
       expect(() => detectFormatFromExtension('data.txt'))
         .to.throw()
         .with.property('code', EXIT_AMBIGUOUS)
     })
 
-    it('throws CjyError with EXIT_AMBIGUOUS for .xml', () => {
+    it('throws JyError with EXIT_AMBIGUOUS for .xml', () => {
       expect(() => detectFormatFromExtension('data.xml'))
         .to.throw()
         .with.property('code', EXIT_AMBIGUOUS)
     })
 
-    it('throws CjyError with EXIT_AMBIGUOUS for no extension', () => {
+    it('throws JyError with EXIT_AMBIGUOUS for no extension', () => {
       expect(() => detectFormatFromExtension('Makefile'))
         .to.throw()
         .with.property('code', EXIT_AMBIGUOUS)

@@ -4,9 +4,9 @@ Status: done
 
 ## Story
 
-As a **developer contributing to cjy**,
+As a **developer contributing to jy**,
 I want **automated CI that runs lint, build, and tests on PRs and merges to main, and a properly configured npm package**,
-so that **code quality is enforced automatically and users can install cjy via `npm install -g cjy`**.
+so that **code quality is enforced automatically and users can install jy via `npm install -g jy`**.
 
 ## Acceptance Criteria
 
@@ -22,7 +22,7 @@ so that **code quality is enforced automatically and users can install cjy via `
 
 6. **Given** any lint, build, or test failure, **when** the CI workflow completes, **then** the workflow fails with a clear indication of which step failed
 
-7. **Given** the `package.json` configuration, **when** a user runs `npm install -g cjy`, **then** the `cjy` command is available globally, resolving to `bin/run.js`, and `cjy --help` displays usage information
+7. **Given** the `package.json` configuration, **when** a user runs `npm install -g jy`, **then** the `jy` command is available globally, resolving to `bin/run.js`, and `jy --help` displays usage information
 
 8. **Given** the `package.json` metadata, **when** reviewed for npm publishing readiness, **then** it includes correct `name`, `version`, `description`, `license`, `bin`, `files`, and `engines` fields
 
@@ -38,7 +38,7 @@ so that **code quality is enforced automatically and users can install cjy via `
   - [x] 1.5 Add concurrency group to cancel in-progress runs on same PR: `group: ${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true`
 
 - [x] Task 2: Fix `package.json` metadata for npm publishing readiness (AC: #7, #8)
-  - [x] 2.1 Update `repository` from `"cjy/cjy"` to proper object form `{"type": "git", "url": "https://github.com/bilalsheriff/cjy.git"}` (or leave as placeholder with TODO comment until actual GitHub repo URL is finalized)
+  - [x] 2.1 Update `repository` from `"jy/jy"` to proper object form `{"type": "git", "url": "https://github.com/bilalsheriff/jy.git"}` (or leave as placeholder with TODO comment until actual GitHub repo URL is finalized)
   - [x] 2.2 Update `bugs` and `homepage` URLs to match the actual repository (or add TODO comment)
   - [x] 2.3 Update `keywords` from `["oclif"]` to `["json", "yaml", "converter", "cli", "oclif"]`
   - [x] 2.4 Verify `bin`, `files`, `engines`, `name`, `version`, `description`, `license` are correct (they already are — just confirm, no changes needed)
@@ -97,11 +97,11 @@ steps:
 
 | Field | Current Value | Status |
 |-------|--------------|--------|
-| `name` | `"cjy"` | Correct |
+| `name` | `"jy"` | Correct |
 | `version` | `"0.0.0"` | Correct for pre-release |
 | `description` | `"Convert between JSON and YAML formats"` | Correct |
 | `license` | `"MIT"` | Correct |
-| `bin` | `{"cjy": "./bin/run.js"}` | Correct |
+| `bin` | `{"jy": "./bin/run.js"}` | Correct |
 | `files` | `["./bin", "./dist", "./oclif.manifest.json"]` | Correct |
 | `engines` | `{"node": ">=22.0.0"}` | Correct |
 | `type` | `"module"` | Correct (ESM) |
@@ -110,9 +110,9 @@ steps:
 
 | Field | Current Value | Issue |
 |-------|--------------|-------|
-| `repository` | `"cjy/cjy"` | Scaffold placeholder — should be proper object form |
-| `bugs` | `"https://github.com/cjy/cjy/issues"` | Placeholder URL |
-| `homepage` | `"https://github.com/cjy/cjy"` | Placeholder URL |
+| `repository` | `"jy/jy"` | Scaffold placeholder — should be proper object form |
+| `bugs` | `"https://github.com/jy/jy/issues"` | Placeholder URL |
+| `homepage` | `"https://github.com/jy/jy"` | Placeholder URL |
 | `keywords` | `["oclif"]` | Too narrow — add json, yaml, converter, cli |
 
 ### Known Deferred Items NOT in Scope
@@ -234,7 +234,7 @@ None
 ### Completion Notes List
 - Created `.github/workflows/ci.yml` with push-to-main + pull_request triggers, ubuntu-latest, Node 22, npm ci, build, test steps, and concurrency cancellation
 - Fork PR approval documented as GitHub Settings comment in workflow file (AC #5)
-- Updated `package.json` metadata: `repository` to object form with bilalsheriff/cjy URL, `bugs`/`homepage` to matching URLs, `keywords` expanded to [json, yaml, converter, cli, oclif]
+- Updated `package.json` metadata: `repository` to object form with bilalsheriff/jy URL, `bugs`/`homepage` to matching URLs, `keywords` expanded to [json, yaml, converter, cli, oclif]
 - Verified existing fields (`name`, `version`, `description`, `license`, `bin`, `files`, `engines`) are already correct — no changes needed
 - Full local verification: `npm run build` clean, `npm test` passes 134 tests, lint clean, format clean
 - No source code or test changes — this story is purely infrastructure
