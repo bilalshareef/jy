@@ -8,6 +8,7 @@
 <p align="center">
   <a href="https://github.com/bilalshareef/jy/actions"><img src="https://github.com/bilalshareef/jy/workflows/CI/badge.svg" alt="Build Status"></a>
   <a href="https://www.npmjs.com/package/@bilalshareef/jy"><img src="https://img.shields.io/npm/v/@bilalshareef/jy.svg" alt="npm version"></a>
+  <a href="https://github.com/bilalshareef/jy/releases"><img src="https://img.shields.io/github/v/release/bilalshareef/jy" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/@bilalshareef/jy"><img src="https://img.shields.io/npm/dm/@bilalshareef/jy.svg" alt="npm downloads"></a>
   <a href="https://github.com/bilalshareef/jy/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@bilalshareef/jy.svg" alt="license"></a>
   <img src="https://img.shields.io/node/v/@bilalshareef/jy.svg" alt="node version">
