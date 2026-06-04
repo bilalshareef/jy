@@ -1,7 +1,7 @@
 {
   "name": "cjy",
   "description": "Convert between JSON and YAML formats",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "Mohammed Bilal Shareef",
   "bin": {
     "cjy": "bin/run.js"
