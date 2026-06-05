@@ -81,6 +81,22 @@ Download the latest `.tar.gz` for `win32-x64` from the [Releases](https://github
 | macOS | Intel (x64), Apple Silicon (arm64) |
 | Windows | x64 |
 
+### Updating
+
+**npm:**
+
+```bash
+npm update -g @bilalshareef/jy
+```
+
+**Standalone binary:**
+
+Re-run the install command — it safely replaces the existing installation:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh
+```
+
 ## Usage
 
 ### Basic conversion
