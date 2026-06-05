@@ -57,16 +57,16 @@ Prebuilt binaries are available for common platforms — no Node.js required.
 curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh
 ```
 
-You can customize the install location:
+Installs to `$HOME/.local` by default (`/usr/local` when run as root). You can customize the install location:
 
 ```bash
-JY_INSTALL_DIR=$HOME/.local curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | JY_INSTALL_DIR=/opt/jy sh
 ```
 
 Or install a specific version:
 
 ```bash
-JY_VERSION=v1.0.0 curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | JY_VERSION=v1.0.0 sh
 ```
 
 **Windows:**
@@ -223,6 +223,35 @@ All output goes to stdout (pipeable), all errors to stderr (separable), and exit
 | `--eol` | `lf`, `crlf` | `lf` | Line ending style |
 | `--indent-style` | `spaces`, `tabs` | `spaces` | Indentation style (JSON output only) |
 | `--indent-size` | positive integer | `2` | Indentation width (ignored with `--indent-style=tabs`) |
+
+## Uninstalling
+
+**npm:**
+
+```bash
+npm uninstall -g @bilalshareef/jy
+```
+
+**Standalone binary (default install):**
+
+```bash
+rm -rf ~/.local/lib/jy
+rm -f ~/.local/bin/jy
+```
+
+**Standalone binary (root/sudo install):**
+
+```bash
+sudo rm -rf /usr/local/lib/jy
+sudo rm -f /usr/local/bin/jy
+```
+
+**Standalone binary (custom `JY_INSTALL_DIR`):**
+
+```bash
+rm -rf <JY_INSTALL_DIR>/lib/jy
+rm -f <JY_INSTALL_DIR>/bin/jy
+```
 
 ## Requirements
 

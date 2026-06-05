@@ -6,13 +6,20 @@ set -eu
 #
 # Environment variables:
 #   JY_VERSION      — install a specific version (e.g. "v1.0.0"); defaults to latest
-#   JY_INSTALL_DIR  — override install root (default: /usr/local); sets both lib and bin dirs
+#   JY_INSTALL_DIR  — override install root (default: $HOME/.local, or /usr/local for root); sets both lib and bin dirs
 
 REPO="bilalshareef/jy"
 GITHUB_API="https://api.github.com/repos/${REPO}"
 
 # Defaults (overridable via JY_INSTALL_DIR)
-INSTALL_DIR="${JY_INSTALL_DIR:-/usr/local}"
+# Non-root users default to $HOME/.local; root defaults to /usr/local.
+if [ -n "${JY_INSTALL_DIR:-}" ]; then
+  INSTALL_DIR="$JY_INSTALL_DIR"
+elif [ "$(id -u)" = "0" ]; then
+  INSTALL_DIR="/usr/local"
+else
+  INSTALL_DIR="$HOME/.local"
+fi
 LIB_DIR="${INSTALL_DIR}/lib/jy"
 BIN_DIR="${INSTALL_DIR}/bin"
 
@@ -55,8 +62,8 @@ ensure_writable_dir() {
     return 0
   fi
 
-  if [ -z "${JY_INSTALL_DIR:-}" ] && [ "$INSTALL_DIR" = "/usr/local" ]; then
-    err "Cannot write to ${target_dir}. Re-run with sudo or set JY_INSTALL_DIR=\$HOME/.local"
+  if [ -z "${JY_INSTALL_DIR:-}" ]; then
+    err "Cannot write to ${target_dir}. Re-run with sudo or use: curl ... | JY_INSTALL_DIR=<path> sh"
   fi
 
   err "Cannot write to ${target_dir}. Check permissions or set JY_INSTALL_DIR to a writable location"
