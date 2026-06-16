@@ -4,11 +4,12 @@ interface FeatureCardProps {
   title: string
   description: string
   icon: string
+  accent: string
 }
 
-function FeatureCard({ title, description, icon }: FeatureCardProps) {
+function FeatureCard({ title, description, icon, accent }: FeatureCardProps) {
   return (
-    <div className={styles.card}>
+    <div className={styles.card} style={{ borderTopColor: accent }}>
       <span className={styles.icon} aria-hidden="true">
         {icon}
       </span>
@@ -23,22 +24,26 @@ const FEATURES: FeatureCardProps[] = [
     title: 'Zero Friction',
     description: 'Install and convert your first file in under 60 seconds.',
     icon: '⚡',
+    accent: '#f59e0b',
   },
   {
     title: 'Zero Config',
     description: 'No .jyrc, no environment variables, no config files.',
     icon: '🎯',
+    accent: '#6366f1',
   },
   {
     title: 'Zero Dependencies',
     description: 'Standalone binary, no runtime required.',
     icon: '📦',
+    accent: '#10b981',
   },
   {
     title: 'CI-Ready',
     description:
       'Deterministic exit codes, stdout/stderr separation, script-safe defaults.',
     icon: '🔧',
+    accent: '#ec4899',
   },
 ]
 

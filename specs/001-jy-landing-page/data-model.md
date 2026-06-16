@@ -2,6 +2,7 @@
 
 **Feature**: specs/001-jy-landing-page
 **Date**: 2026-06-08
+**Updated**: 2026-06-16
 **Purpose**: Define component entities, their props, relationships, and state
 
 ## Component Entity Map
@@ -11,27 +12,31 @@ This project has no backend data model. The "entities" are React components and 
 ### 1. App (Root)
 
 - **Role**: Composes all page sections in order
-- **Children**: Navbar, Hero, WhyJy, Features, Usage, Footer
-- **State**: Receives `theme` and `toggleTheme` from `useTheme` hook, passes to Navbar
+- **Children**: Navbar, Hero (with InstallTabs + PlatformIcons as children), WhyJy, Features, Usage, Footer
+- **State**: None — no theme management, no global state
+- **File**: `src/App.tsx`
 
 ### 2. Navbar
 
-- **Role**: Sticky navigation bar with branding, links, and theme toggle
-- **Props**: `theme: 'light' | 'dark'`, `onToggleTheme: () => void`
-- **Children**: ThemeToggle (inline)
-- **Elements**: "jy" brand text (left), "Docs" link, ThemeToggle, GitHub icon (right)
+- **Role**: Sticky navigation bar with branding and links
+- **Props**: None
+- **Elements**: "jy" brand text (left), "Docs" link and GitHub icon (right)
 - **Links**:
   - Docs → `https://github.com/bilalshareef/jy/blob/main/README.md` (new tab)
   - GitHub → `https://github.com/bilalshareef/jy` (new tab)
 - **Accessibility**: All links have `aria-label`. Sticky via CSS `position: fixed`
+- **Visual**: Glass-effect via `rgba(15,23,42,0.85)` background with `backdrop-filter: blur()`
+- **File**: `src/components/Navbar/Navbar.tsx`
 
 ### 3. Hero
 
-- **Role**: Above-the-fold section with tagline, description, install tabs, Windows note, platform icons
-- **Children**: InstallTabs, PlatformIcons
+- **Role**: Above-the-fold section with tagline, description, and child components
+- **Props**: `children: React.ReactNode` (receives InstallTabs and PlatformIcons)
 - **Content**:
   - Tagline: "Convert between JSON and YAML — fast, correct, zero config."
   - Description: Brief one-liner about jy
+- **Visual**: Dark gradient background (#0f172a → #1e1b4b → #312e81) with radial color glows
+- **File**: `src/components/Hero/Hero.tsx`
 
 ### 4. InstallTabs
 
@@ -42,7 +47,9 @@ This project has no backend data model. The "entities" are React components and 
   - npm: `npm install -g @bilalshareef/jy`
   - Script: `curl -fsSL https://raw.githubusercontent.com/bilalshareef/jy/main/install.sh | sh`
 - **Windows note**: Text below tabs with link to `https://github.com/bilalshareef/jy/releases`
+- **Visual**: Pill-style tabs with gradient active state (#6366f1 → #8b5cf6) and glowing box-shadow
 - **Accessibility**: Uses `role="tablist"`, `role="tab"`, `role="tabpanel"`, `aria-selected`
+- **File**: `src/components/InstallTabs/InstallTabs.tsx`
 
 ### 5. PlatformIcons
 
@@ -54,39 +61,39 @@ This project has no backend data model. The "entities" are React components and 
   - Windows: x64
   - Note: "npm works on any platform with Node.js >= 22"
 - **Responsiveness**: Wraps on narrow viewports
+- **File**: `src/components/PlatformIcons/PlatformIcons.tsx`
 
 ### 6. CodeBlock
 
 - **Role**: Reusable styled code block with copy-to-clipboard button
 - **Props**: `code: string`, `label?: string`
 - **State**: Uses `useCopyToClipboard` hook
-- **Elements**: `<pre><code>` with monospace font, copy button with icon/text toggle
+- **Layout**: Flex with `.inner` wrapper; `pre` takes `flex:1`, copy button is `flex-shrink:0`
 - **Accessibility**: Copy button has `aria-label="Copy code"`
+- **File**: `src/components/CodeBlock/CodeBlock.tsx`
 
 ### 7. WhyJy
 
 - **Role**: Value proposition section explaining Unix philosophy positioning
 - **Props**: None (static content)
 - **Content**: Contrasts jy with yq/jq, highlights what jy omits
+- **Visual**: White cards on #fafafa background with indigo accent bars
+- **File**: `src/components/WhyJy/WhyJy.tsx`
 
 ### 8. Features
 
-- **Role**: Grid of four feature cards
-- **Children**: FeatureCard (×4)
+- **Role**: Grid of four feature cards (rendered inline, no separate FeatureCard component)
+- **Props**: None (static content)
 - **Content**:
   - Zero Friction: "Install and convert your first file in under 60 seconds"
   - Zero Config: "No .jyrc, no environment variables, no config files"
   - Zero Dependencies: "Standalone binary, no runtime required"
   - CI-Ready: "Deterministic exit codes, stdout/stderr separation, script-safe defaults"
-- **Responsiveness**: 2×2 grid on desktop, single column on mobile
+- **Visual**: Each card has a unique accent top-border color (amber, indigo, emerald, pink)
+- **Responsiveness**: 4 columns on desktop (>900px), 2 columns on tablet (641–900px), 1 column on mobile (≤640px). Container widened to 1100px
+- **File**: `src/components/Features/Features.tsx`
 
-### 9. FeatureCard
-
-- **Role**: Individual feature card with title and description
-- **Props**: `title: string`, `description: string`, `icon?: string`
-- **Elements**: Card container with title, description, optional icon/emoji
-
-### 10. Usage
+### 9. Usage
 
 - **Role**: Categorized CLI usage examples with copy buttons
 - **Children**: CodeBlock (multiple)
@@ -97,6 +104,30 @@ This project has no backend data model. The "entities" are React components and 
   - Output directory (`--out`)
   - Validation (`--validate`)
   - Formatting options (`--indent-size`, `--indent-style`, `--eol`)
+- **File**: `src/components/Usage/Usage.tsx`
+
+### 10. Footer
+
+- **Role**: Page footer with author credit
+- **Props**: None (static content)
+- **Content**: "Made with ❤️ by Mohammed Bilal Shareef" with link to `https://bilalshareef.github.io/`
+- **Visual**: Dark gradient background matching hero
+- **File**: `src/components/Footer/Footer.tsx`
+
+## Custom Hooks
+
+### useCopyToClipboard
+
+- **File**: `src/hooks/useCopyToClipboard.ts`
+- **Returns**: `{ copied: boolean, copyToClipboard: (text: string) => Promise<boolean> }`
+- **Behavior**: Uses native Clipboard API. `copied` state auto-resets after a configurable timeout
+- **Used by**: CodeBlock component
+
+### Removed from Original Plan
+
+- **useTheme**: Not implemented — no theme switching per FR-025
+- **ThemeToggle**: Not implemented — no theme toggle UI
+- **FeatureCard**: Merged into Features component
 
 ### 11. Footer
 

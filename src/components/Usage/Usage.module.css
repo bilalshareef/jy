@@ -1,6 +1,6 @@
 .section {
-  padding: 64px 24px;
-  background: var(--color-bg-secondary);
+  padding: 80px 24px;
+  background: #f8fafc;
 }
 
 .container {
@@ -9,41 +9,41 @@
 }
 
 .heading {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 40px;
+  color: #1e293b;
+  margin-bottom: 48px;
   text-align: center;
 }
 
 .categories {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 36px;
 }
 
 .category {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .categoryTitle {
   font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: #6366f1;
 }
 
 .categoryDescription {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: #64748b;
   line-height: 1.5;
   margin-bottom: 4px;
 }
 
 @media (max-width: 640px) {
   .section {
-    padding: 48px 16px;
+    padding: 56px 16px;
   }
 
   .heading {

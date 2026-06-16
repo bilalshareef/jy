@@ -1,4 +1,3 @@
-import { useTheme } from './hooks/useTheme'
 import { Navbar } from './components/Navbar/Navbar'
 import { Hero } from './components/Hero/Hero'
 import { InstallTabs } from './components/InstallTabs/InstallTabs'
@@ -10,11 +9,9 @@ import { Footer } from './components/Footer/Footer'
 import styles from './App.module.css'
 
 function App() {
-  const { theme, toggleTheme } = useTheme()
-
   return (
     <div className={styles.app}>
-      <Navbar theme={theme} onToggleTheme={toggleTheme} />
+      <Navbar />
       <main className={styles.main}>
         <Hero>
           <InstallTabs />

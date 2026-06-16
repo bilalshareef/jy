@@ -1,12 +1,6 @@
-import { ThemeToggle } from '../ThemeToggle/ThemeToggle'
 import styles from './Navbar.module.css'
 
-interface NavbarProps {
-  theme: 'light' | 'dark'
-  onToggleTheme: () => void
-}
-
-export function Navbar({ theme, onToggleTheme }: NavbarProps) {
+export function Navbar() {
   return (
     <nav className={styles.nav} aria-label="Main navigation">
       <div className={styles.inner}>
@@ -24,8 +18,6 @@ export function Navbar({ theme, onToggleTheme }: NavbarProps) {
           >
             Docs
           </a>
-
-          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
 
           <a
             href="https://github.com/bilalshareef/jy"

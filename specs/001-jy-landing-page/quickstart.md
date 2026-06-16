@@ -2,6 +2,7 @@
 
 **Feature**: specs/001-jy-landing-page
 **Date**: 2026-06-08
+**Updated**: 2026-06-16
 **Purpose**: Runnable validation scenarios to prove the feature works end-to-end
 
 ## Prerequisites
@@ -49,54 +50,51 @@ Open the URL shown in the terminal (typically `http://localhost:5173/jy/`).
 
 **Steps**:
 1. Verify the navigation bar shows "jy" on the left
-2. Verify the right side contains: "Docs" button, theme toggle, GitHub icon
-3. Scroll down the page — verify the navbar stays fixed at the top
-4. Click "Docs" — should open `https://github.com/bilalshareef/jy/blob/main/README.md` in a new tab
-5. Click the GitHub icon — should open `https://github.com/bilalshareef/jy` in a new tab
-6. Tab through all nav elements with keyboard — all should be focusable and actionable
+2. Verify the right side contains: "Docs" button and GitHub icon (no theme toggle)
+3. Verify the navbar has a glass-effect appearance (translucent background with blur)
+4. Scroll down the page — verify the navbar stays fixed at the top
+5. Click "Docs" — should open `https://github.com/bilalshareef/jy/blob/main/README.md` in a new tab
+6. Click the GitHub icon — should open `https://github.com/bilalshareef/jy` in a new tab
+7. Tab through all nav elements with keyboard — all should be focusable and actionable
 
-**Expected**: Sticky navigation. All links open correct URLs in new tabs. Keyboard navigable.
+**Expected**: Sticky navigation with glass effect. All links open correct URLs in new tabs. Keyboard navigable.
 
-### Scenario 3: Theme Toggle (US6)
-
-**Steps**:
-1. Note the current theme (should match your OS preference on first visit)
-2. Click the theme toggle — page should switch to the opposite theme
-3. Verify all text remains readable (contrast is maintained)
-4. Reload the page — the manually chosen theme should persist
-5. Open browser DevTools → Application → Local Storage — verify a `theme` key exists with value `'light'` or `'dark'`
-6. Delete the `theme` key from localStorage and reload — should fall back to OS preference
-7. Change your OS dark/light mode setting — page should follow (only if no manual override in localStorage)
-
-**Expected**: Theme toggles smoothly. Persists across reloads. Falls back to OS on cleared storage.
-
-### Scenario 4: Theme Flash Prevention
+### Scenario 3: Visual Design (Single Color Scheme)
 
 **Steps**:
-1. Set theme to dark mode via the toggle
-2. Hard reload the page (Ctrl/Cmd + Shift + R)
-3. Watch carefully — the page should NOT flash white before rendering dark
+1. Verify the hero section has a dark gradient background with light text
+2. Verify the navbar has a dark translucent glass-effect background
+3. Verify content sections (Why jy?, Features, Usage) have light backgrounds with dark text
+4. Verify the footer has a dark gradient background matching the hero
+5. Verify the accent color (#6366f1 indigo) is used for interactive elements and focus rings
+6. Verify install tabs use pill-style design with gradient active state
+7. Verify there is NO theme toggle button anywhere on the page
 
-**Expected**: No flash of wrong theme on page load.
+**Expected**: Consistent single color scheme throughout. No theme switching UI.
 
-### Scenario 5: Why jy? Section (US4)
+### Scenario 4: Why jy? Section (US4)
 
 **Steps**:
 1. Scroll past the hero section
 2. Verify the "Why jy?" section is visible
 3. Verify it mentions the Unix philosophy and contrasts with yq/jq
 4. Verify it explains what jy intentionally omits
+5. Verify cards are white on light (#fafafa) background with indigo accent bars
 
-**Expected**: Clear value proposition content visible.
+**Expected**: Clear value proposition content visible with correct visual styling.
 
-### Scenario 6: Features at a Glance (US5)
+### Scenario 5: Features at a Glance (US5)
 
 **Steps**:
 1. Scroll to the features section
 2. Verify four feature cards are visible: Zero Friction, Zero Config, Zero Dependencies, CI-Ready
 3. Each card should have a title and brief description
+4. Verify each card has a unique accent color on the top border (amber, indigo, emerald, pink)
+5. On desktop (>900px): verify 4-column grid layout
+6. Resize to tablet (641–900px): verify 2-column grid
+7. Resize to mobile (≤640px): verify single-column stack
 
-**Expected**: 4 cards with correct content. 2×2 grid on desktop.
+**Expected**: 4 cards with correct content and accent colors. Responsive grid layout.
 
 ### Scenario 7: Usage Section (US2)
 
@@ -116,8 +114,9 @@ Open the URL shown in the terminal (typically `http://localhost:5173/jy/`).
 2. Verify "Made with ❤️ by Mohammed Bilal Shareef" is centered
 3. Click "Mohammed Bilal Shareef" — should open `https://bilalshareef.github.io/` in a new tab
 4. Verify the footer is visually separated from the content above
+5. Verify the footer has a dark gradient background
 
-**Expected**: Centered footer with working link.
+**Expected**: Centered footer with working link and dark styling.
 
 ### Scenario 9: Mobile Responsiveness
 
@@ -125,22 +124,24 @@ Open the URL shown in the terminal (typically `http://localhost:5173/jy/`).
 1. Open browser DevTools and toggle device toolbar (Ctrl/Cmd + Shift + M)
 2. Set viewport to 375×667 (iPhone SE)
 3. Verify: no horizontal scrolling, all content readable
-4. Verify: feature cards stack vertically
+4. Verify: feature cards stack vertically (single column at ≤640px)
 5. Verify: code blocks are horizontally scrollable within their container
 6. Verify: platform icons row wraps gracefully
 7. Verify: install tabs and copy buttons are tappable (>= 44px targets)
 8. Set viewport to 320px width — verify no layout breakage
+9. Set viewport to 800px width — verify feature cards show 2-column grid
 
-**Expected**: Fully functional at 375px and 320px widths.
+**Expected**: Fully functional at 375px and 320px widths. 2-column grid at tablet widths.
 
 ### Scenario 10: Accessibility
 
 **Steps**:
 1. Navigate the entire page using only the keyboard (Tab, Shift+Tab, Enter, Arrow keys)
-2. Verify all interactive elements (tabs, copy buttons, links, theme toggle) are reachable
+2. Verify all interactive elements (tabs, copy buttons, links) are reachable
 3. Verify install tabs can be switched with arrow keys
-4. Open browser DevTools → Lighthouse → run Accessibility audit
-5. Verify score >= 95
+4. Verify focus rings use indigo (#6366f1) accent color
+5. Open browser DevTools → Lighthouse → run Accessibility audit
+6. Verify score >= 95
 
 **Expected**: Full keyboard navigation. Lighthouse Accessibility >= 95.
 
@@ -164,7 +165,7 @@ du -sh dist/
 ls -la dist/assets/*.js | awk '{print $5, $9}'
 ```
 
-**Expected**: Total JS (gzipped) < 200KB.
+**Expected**: Total JS (gzipped) ~64KB (well under 200KB constitution limit).
 
 ### Lighthouse Full Audit
 

@@ -18,9 +18,8 @@ body {
     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
     'Helvetica Neue', sans-serif;
   line-height: 1.6;
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  transition: color 0.2s ease, background-color 0.2s ease;
+  color: #1e293b;
+  background-color: #ffffff;
 }
 
 code,
@@ -32,11 +31,12 @@ samp {
 }
 
 a {
-  color: var(--color-link);
+  color: #6366f1;
   text-decoration: none;
 }
 
 a:hover {
+  color: #4f46e5;
   text-decoration: underline;
 }
 
@@ -54,7 +54,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 

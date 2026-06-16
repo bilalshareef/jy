@@ -4,10 +4,10 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--color-nav-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-nav-border);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .inner {
@@ -17,13 +17,16 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
-  height: 56px;
+  height: 60px;
 }
 
 .brand {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: var(--color-text);
+  background: linear-gradient(135deg, #a78bfa, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-decoration: none;
   letter-spacing: -0.02em;
 }
@@ -41,19 +44,19 @@
 .link {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: #c4b5fd;
   text-decoration: none;
   border-radius: 8px;
   min-height: 44px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .link:hover {
-  color: var(--color-text);
-  background: var(--color-btn-bg);
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.15);
   text-decoration: none;
 }
 
@@ -64,14 +67,14 @@
   min-width: 44px;
   min-height: 44px;
   padding: 8px;
-  color: var(--color-text-secondary);
+  color: #c4b5fd;
   border-radius: 8px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .iconLink:hover {
-  color: var(--color-text);
-  background: var(--color-btn-bg);
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.15);
 }
 
 @media (max-width: 640px) {

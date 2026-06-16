@@ -54,21 +54,22 @@
 
 **Pattern**: Custom hook returns `{ copied: boolean, copyToClipboard: (text: string) => Promise<boolean> }` with a configurable timeout for the "Copied!" state.
 
-## 5. Theme Toggle (Dark/Light)
+## 5. Single Design (No Theme Toggle)
 
-**Decision**: CSS custom properties with `data-theme` attribute on `<html>`, localStorage persistence, inline script to prevent FOUC (Flash of Unstyled Content)
+**Decision**: Single dark-on-light design with no theme switching capability
 
-**Rationale**: This is the industry-standard approach for theme switching in static sites. CSS custom properties allow instant re-theming without re-rendering React. The inline `<script>` in `index.html` runs before React hydrates, preventing a flash of the wrong theme.
+**Rationale**: The spec (FR-025) explicitly requires no dark mode, no theme toggle, no `useTheme` hook, and no theme persistence. The site uses a fixed color scheme: dark gradient backgrounds for hero/navbar/footer and light backgrounds for content sections. This eliminates the FOUC problem entirely and removes complexity.
 
-**Implementation pattern**:
-1. Inline script in `<head>` of `index.html` reads localStorage → sets `data-theme` on `<html>` before paint
-2. `useTheme()` hook manages React state, syncs with localStorage, listens for OS preference changes
-3. CSS defines all colors as custom properties under `:root` (light) and `[data-theme='dark']`
+**Implementation**:
+- Hero, Navbar, Footer: Deep indigo/purple gradients (#0f172a → #1e1b4b → #312e81) with light text (#e2e8f0)
+- WhyJy, Features, Usage: Light/white backgrounds with dark text (#1e293b)
+- Primary accent: #6366f1 (indigo)
+- All colors hardcoded in CSS Modules — no CSS custom properties used (FR-045)
+- No `data-theme` attribute, no localStorage, no inline FOUC-prevention script
 
 **Alternatives considered**:
-- React context only: Would cause FOUC on first load since React hasn't rendered yet
-- CSS-only with `prefers-color-scheme`: No manual toggle capability
-- Third-party theme libraries: Unnecessary dependency for this simple use case
+- Dark/light theme with CSS custom properties and `useTheme` hook: Explicitly rejected by spec
+- CSS-only with `prefers-color-scheme`: Not needed since there is no theme switching
 
 ## 6. Testing Strategy
 

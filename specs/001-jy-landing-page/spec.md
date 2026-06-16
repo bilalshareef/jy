@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Build a single-page website for the jy CLI tool. Hero/install fold with npm and curl install methods, usage fold, GitHub icon link, footer with author credit. Additional sections: Why jy?, Features at a Glance, Supported Platforms. Auto dark/light theme."
+**Input**: User description: "Build a single-page website for the jy CLI tool. Hero/install fold with npm and curl install methods, usage fold, GitHub icon link, footer with author credit. Additional sections: Why jy?, Features at a Glance, Supported Platforms. Dark-on-light design with indigo/purple gradient accents."
 
 **Page Section Order**: Navigation → Hero/Install (Fold 1) → Why jy? → Features at a Glance → Usage → Footer
 
@@ -51,19 +51,18 @@ A developer has installed jy and wants to learn how to use it. They scroll to th
 
 ### User Story 3 - Navigate to GitHub and Docs (Priority: P3)
 
-A developer wants to view the source code, file an issue, read full documentation, or contribute to jy. The sticky navigation bar contains a GitHub icon that opens the repository and a "Docs" button that opens the README — both in new tabs. A theme toggle button allows switching between light and dark modes.
+A developer wants to view the source code, file an issue, read full documentation, or contribute to jy. The sticky navigation bar contains a GitHub icon that opens the repository and a "Docs" button that opens the README — both in new tabs.
 
-**Why this priority**: Providing direct access to the source code and documentation builds trust and enables community engagement. The theme toggle and sticky nav improve usability across a longer page.
+**Why this priority**: Providing direct access to the source code and documentation builds trust and enables community engagement. The sticky nav improves usability across a longer page.
 
-**Independent Test**: Can be tested by verifying the GitHub icon, Docs button, and theme toggle are visible in the sticky navigation at all scroll positions, and that clicking GitHub/Docs opens the correct URLs in new tabs.
+**Independent Test**: Can be tested by verifying the GitHub icon and Docs button are visible in the sticky navigation at all scroll positions, and that clicking them opens the correct URLs in new tabs.
 
 **Acceptance Scenarios**:
 
-1. **Given** a visitor is on any part of the page, **When** they look at the navigation area, **Then** the navigation bar is sticky (fixed at the top of the viewport) and contains the tool name "jy", a "Docs" button, a theme toggle, and a GitHub icon
+1. **Given** a visitor is on any part of the page, **When** they look at the navigation area, **Then** the navigation bar is sticky (fixed at the top of the viewport) with a glass-effect translucent background and contains the tool name "jy", a "Docs" button, and a GitHub icon
 2. **Given** a visitor clicks the GitHub icon, **When** the browser processes the click, **Then** the jy repository (`https://github.com/bilalshareef/jy`) opens in a new tab
 3. **Given** a visitor clicks the "Docs" button, **When** the browser processes the click, **Then** the jy README (`https://github.com/bilalshareef/jy/blob/main/README.md`) opens in a new tab
-4. **Given** a visitor clicks the theme toggle, **When** the theme switches, **Then** the page immediately re-renders in the opposite color scheme and the choice is persisted in localStorage
-5. **Given** a visitor uses keyboard navigation, **When** they tab to any navigation element and press Enter, **Then** the corresponding action (link opens in new tab, or theme toggles) executes
+4. **Given** a visitor uses keyboard navigation, **When** they tab to any navigation element and press Enter, **Then** the corresponding action (link opens in new tab) executes
 
 ---
 
@@ -97,39 +96,19 @@ A developer wants a quick summary of jy's key qualities without reading paragrap
 
 ---
 
-### User Story 6 - View Page with Preferred Color Scheme (Priority: P6)
-
-A developer visits the website and the page automatically matches their operating system's light or dark mode preference. They can also manually toggle the theme via a button in the navigation bar. Their manual choice is persisted in localStorage so it is remembered on subsequent visits. The site is readable and visually consistent in both modes.
-
-**Why this priority**: Respecting user preferences is a quality-of-life detail. Developers frequently work in dark mode and a bright page can be jarring. Manual override gives users full control.
-
-**Independent Test**: Can be tested by toggling the OS color scheme preference and verifying the website updates accordingly. Then testing the manual toggle and verifying persistence across page reloads.
-
-**Acceptance Scenarios**:
-
-1. **Given** a first-time visitor's OS is set to dark mode, **When** they load the website, **Then** the page renders with a dark color scheme
-2. **Given** a first-time visitor's OS is set to light mode, **When** they load the website, **Then** the page renders with a light color scheme
-3. **Given** a visitor clicks the theme toggle in the navigation, **When** the theme switches, **Then** the page re-renders in the opposite scheme and the choice is saved to localStorage
-4. **Given** a visitor previously toggled the theme manually, **When** they revisit the website, **Then** the page renders with their previously chosen theme (overriding OS preference)
-5. **Given** a visitor clears their browser storage, **When** they revisit the website, **Then** the page falls back to the OS color scheme preference
-
----
-
 ### Edge Cases
 
-- What happens when a visitor has JavaScript disabled? The page should still display all static content (text, install commands, platform icons) since it is statically generated. The theme toggle and copy buttons will not function, but content remains readable in the OS-default color scheme.
+- What happens when a visitor has JavaScript disabled? The page should still display all static content (text, install commands, platform icons) since it is statically generated. Copy buttons will not function, but content remains readable.
 - How does the copy-to-clipboard button behave on browsers that don't support the Clipboard API? A graceful fallback should be provided (e.g., selecting the text for manual copying).
 - What happens on extremely narrow viewports (< 320px)? Content should remain readable with no layout breakage. Platform icons row should wrap.
-- What happens if a visitor uses a screen reader? All content, including install command tabs, code blocks, theme toggle, and navigation links, must be accessible with proper ARIA labels.
+- What happens if a visitor uses a screen reader? All content, including install command tabs, code blocks, and navigation links, must be accessible with proper ARIA labels.
 - How does the page handle the `prefers-reduced-motion` media query? Animations (if any) should be suppressed.
-- What happens if a visitor's localStorage is full or blocked (e.g., private browsing)? Theme toggle should still function for the current session but gracefully degrade without persistence.
 
 ## Clarifications
 
 ### Session 2026-06-08
 
 - Q: How should the three install paths (npm, curl, Windows download) be structured? → A: Two primary tabs (npm / Script) + a note below for Windows standalone binary with a link to the Releases page
-- Q: Should the user's manual theme choice persist across page visits? → A: Yes, persist in localStorage; defaults to OS preference on first visit
 - Q: How should supported platforms be displayed in the hero? → A: OS icons (Linux, macOS, Windows) with architecture labels in a compact horizontal row beneath the install area
 - Q: Should usage section code examples also have copy-to-clipboard buttons? → A: Yes, every code block has a copy-to-clipboard button
 - Q: Should the navigation bar be sticky or static? → A: Sticky — fixed at the top of the viewport while scrolling
@@ -140,11 +119,10 @@ A developer visits the website and the page automatically matches their operatin
 
 #### Navigation
 
-- **FR-001**: The page MUST display a sticky navigation bar fixed at the top of the viewport. The left side MUST show the tool name "jy". The right side MUST contain (in order): a "Docs" button, a theme toggle button, and a GitHub icon
+- **FR-001**: The page MUST display a sticky navigation bar fixed at the top of the viewport with a glass-effect translucent background (backdrop-filter blur). The left side MUST show the tool name "jy". The right side MUST contain (in order): a "Docs" button and a GitHub icon
 - **FR-002**: The GitHub icon MUST link to `https://github.com/bilalshareef/jy` and MUST open in a new tab (`target="_blank"` with `rel="noopener noreferrer"`)
 - **FR-003**: The "Docs" button MUST link to `https://github.com/bilalshareef/jy/blob/main/README.md` and MUST open in a new tab
-- **FR-004**: The theme toggle button MUST switch between light and dark color schemes. It MUST persist the user's choice in localStorage. On first visit, the default theme MUST match the user's OS preference (`prefers-color-scheme`)
-- **FR-005**: The navigation bar MUST remain sticky (fixed at top) on all viewports and MUST not overlap or obscure page content
+- **FR-004**: The navigation bar MUST remain sticky (fixed at top) on all viewports and MUST not overlap or obscure page content
 
 #### Hero / Install Section (Fold 1)
 
@@ -184,32 +162,42 @@ A developer visits the website and the page automatically matches their operatin
 - **FR-023**: The page MUST display a footer with the text "Made with ❤️ by Mohammed Bilal Shareef" horizontally centered. The name "Mohammed Bilal Shareef" MUST be a link to `https://bilalshareef.github.io/` that opens in a new tab (`target="_blank"` with `rel="noopener noreferrer"`)
 - **FR-024**: The footer MUST be visually separated from the content above it
 
-#### Theme / Visual
+#### Visual Design
 
-- **FR-025**: The website MUST default to the user's OS color scheme preference (`prefers-color-scheme` media query) on first visit
-- **FR-026**: A theme toggle button in the navigation MUST allow manual switching between light and dark modes
-- **FR-027**: The user's manual theme choice MUST be persisted in localStorage and take precedence over OS preference on subsequent visits
-- **FR-028**: Both light and dark themes MUST maintain WCAG 2.1 AA contrast ratios
-- **FR-029**: The website MUST suppress or reduce animations when the user has `prefers-reduced-motion` enabled
+- **FR-025**: The website MUST use a single dark-on-light design with no theme switching capability. There is no dark mode, no theme toggle, no useTheme hook, and no theme persistence
+- **FR-026**: The hero, navbar, and footer MUST use deep indigo/purple gradient backgrounds (#0f172a → #1e1b4b → #312e81) with light text (#e2e8f0). Content sections (Why jy?, Features, Usage) MUST use light backgrounds with dark text (#1e293b)
+- **FR-027**: The primary accent color MUST be indigo (#6366f1), used for interactive elements, active states, and highlights
+- **FR-028**: The hero section MUST include radial color glows (purple, blue, pink) for visual depth
+- **FR-029**: The navbar MUST have a glass-effect appearance using a translucent background (rgba(15,23,42,0.85)) with backdrop-filter blur
+- **FR-030**: The tagline and brand name MUST use gradient text effects
+- **FR-031**: The website MUST suppress or reduce animations when the user has `prefers-reduced-motion` enabled
+- **FR-032**: All text MUST maintain WCAG 2.1 AA contrast ratios against its respective background
 
 #### Visual Polish
 
-- **FR-030**: The overall UI MUST appear polished and professional with consistent spacing, typography hierarchy, and visual rhythm across all sections
-- **FR-031**: Section transitions MUST feel cohesive — each fold should visually connect to the next through consistent use of color, spacing, or subtle separators
-- **FR-032**: Code blocks, feature cards, and the install area MUST have a visually distinct, refined appearance (e.g., subtle borders, rounded corners, appropriate shadows for depth)
+- **FR-033**: The overall UI MUST appear polished and professional with consistent spacing, typography hierarchy, and visual rhythm across all sections
+- **FR-034**: Section transitions MUST feel cohesive — each fold should visually connect to the next through consistent use of color, spacing, or subtle separators
+- **FR-035**: Code blocks MUST use a flex layout with an `.inner` wrapper where the `pre` element takes `flex:1` and the copy button is a `flex-shrink:0` sibling, preventing overlap with long commands
+- **FR-036**: Feature cards MUST have unique accent colors (amber, indigo, emerald, pink) for their top border. WhyJy cards MUST be white on a light (#fafafa) background with indigo accent bars
+- **FR-037**: Install tabs MUST use a pill-style design with a gradient active state (#6366f1 → #8b5cf6) and glowing box-shadow
 
 #### Responsiveness
 
-- **FR-033**: The website MUST be fully functional and visually coherent across viewport widths from 320px to 2560px
-- **FR-034**: On narrow viewports, feature cards MUST stack vertically, code blocks MUST be horizontally scrollable within their container, and the platform icons row MUST wrap gracefully
+- **FR-038**: The website MUST be fully functional and visually coherent across viewport widths from 320px to 2560px
+- **FR-039**: The features grid MUST display 4 columns on desktop (>900px), 2 columns on tablet (641–900px), and 1 column on mobile (≤640px). The features container MUST be widened to 1100px
+- **FR-040**: On narrow viewports, code blocks MUST be horizontally scrollable within their container, and the platform icons row MUST wrap gracefully
 
 #### Accessibility
 
-- **FR-035**: All interactive elements (tabs, copy buttons, links, theme toggle) MUST be keyboard navigable
-- **FR-036**: Install method tabs MUST use appropriate ARIA roles (`tablist`, `tab`, `tabpanel`) for screen reader compatibility
-- **FR-037**: The GitHub icon link MUST have an accessible label (e.g., `aria-label="View jy on GitHub"`)
-- **FR-038**: The Docs button MUST have an accessible label (e.g., `aria-label="View documentation"`)
-- **FR-039**: The theme toggle MUST have an accessible label indicating the current state (e.g., `aria-label="Switch to dark mode"`)
+- **FR-041**: All interactive elements (tabs, copy buttons, links) MUST be keyboard navigable
+- **FR-042**: Install method tabs MUST use appropriate ARIA roles (`tablist`, `tab`, `tabpanel`) for screen reader compatibility
+- **FR-043**: The GitHub icon link MUST have an accessible label (e.g., `aria-label="View jy on GitHub"`)
+- **FR-044**: The Docs button MUST have an accessible label (e.g., `aria-label="View documentation"`)
+
+#### CSS Approach
+
+- **FR-045**: All styling MUST use CSS Modules with hardcoded values. No CSS custom properties (CSS variables) are used
+- **FR-046**: System fonts MUST be used throughout — no custom web fonts are loaded
 
 ## Success Criteria *(mandatory)*
 
@@ -221,7 +209,7 @@ A developer visits the website and the page automatically matches their operatin
 - **SC-004**: Total JavaScript bundle size is under 200 KB (gzipped) for initial page load
 - **SC-005**: All code examples on the page match the install commands and usage patterns documented in the canonical jy repository README
 - **SC-006**: The page is fully readable and navigable with JavaScript disabled (static content renders)
-- **SC-007**: Both light and dark themes pass WCAG 2.1 AA contrast checks for all text and interactive elements
+- **SC-007**: Text and interactive elements pass WCAG 2.1 AA contrast checks against their respective backgrounds (light text on dark gradient sections, dark text on light content sections)
 - **SC-008**: The page renders without horizontal scrolling on viewports as narrow as 320px
 
 ## Assumptions
