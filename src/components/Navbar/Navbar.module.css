@@ -1,0 +1,81 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--color-nav-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-nav-border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  min-height: 44px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.link:hover {
+  color: var(--color-text);
+  background: var(--color-btn-bg);
+  text-decoration: none;
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  color: var(--color-text-secondary);
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.iconLink:hover {
+  color: var(--color-text);
+  background: var(--color-btn-bg);
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: 0 16px;
+  }
+}

@@ -1,0 +1,58 @@
+.wrapper {
+  position: relative;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.label {
+  display: block;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pre {
+  margin: 0;
+  padding: 16px;
+  padding-right: 48px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-code-text);
+  white-space: pre;
+}
+
+.copyBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  color: var(--color-text-muted);
+  background: var(--color-btn-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.copyBtn:hover {
+  color: var(--color-text);
+  background: var(--color-btn-hover);
+}
+
+.copied {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-copied);
+  white-space: nowrap;
+}

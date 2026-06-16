@@ -1,0 +1,72 @@
+.wrapper {
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.tabList {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 0;
+}
+
+.tab {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  min-height: 44px;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.panel {
+  margin-top: 0;
+}
+
+.windowsNote {
+  margin-top: 16px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.windowsNote code {
+  font-size: 0.8rem;
+  padding: 2px 5px;
+  background: var(--color-code-bg);
+  border-radius: 4px;
+}
+
+.windowsNote a {
+  color: var(--color-link);
+  font-weight: 600;
+}
+
+.windowsNote a:hover {
+  color: var(--color-link-hover);
+}
+
+@media (max-width: 640px) {
+  .tab {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+}

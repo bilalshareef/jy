@@ -27,18 +27,18 @@
 
 **Purpose**: Project initialization, tooling configuration, and base structure
 
-- [ ] T001 Scaffold Vite + React + TypeScript project using `npm create vite@latest . -- --template react-ts` and verify it builds
-- [ ] T002 Configure vite.config.ts with `base: '/jy/'`, `@vitejs/plugin-react`, and `build.target: 'ES2020'` in vite.config.ts
-- [ ] T003 Configure TypeScript strict mode with `"strict": true`, `"jsx": "react-jsx"`, target `ES2020` in tsconfig.json
-- [ ] T004 [P] Configure ESLint flat config with React, TypeScript, and jsx-a11y rules in eslint.config.mjs
-- [ ] T005 [P] Configure Prettier with consistent formatting rules in .prettierrc.json
-- [ ] T006 [P] Add npm scripts for `dev`, `build`, `preview`, `lint`, and `typecheck` in package.json
-- [ ] T007 Remove Vite template boilerplate (default App.tsx content, App.css, assets/) and create clean empty App.tsx in src/App.tsx
-- [ ] T008 Create CSS reset, system font stacks (sans-serif + monospace), and base CSS custom properties in src/styles/global.css
-- [ ] T009 Create light/dark theme CSS custom properties (colors, backgrounds, borders, shadows) using `:root` and `[data-theme='dark']` selectors in src/styles/theme.css
-- [ ] T010 Add inline theme detection script in `<head>` to prevent FOUC (read localStorage → set `data-theme` before paint) in index.html
-- [ ] T011 [P] Add SEO meta tags (title, description, Open Graph, favicon link) in index.html
-- [ ] T012 [P] Create favicon as a simple "jy" text SVG in public/favicon.svg
+- [x] T001 Scaffold Vite + React + TypeScript project using `npm create vite@latest . -- --template react-ts` and verify it builds
+- [x] T002 Configure vite.config.ts with `base: '/jy/'`, `@vitejs/plugin-react`, and `build.target: 'ES2020'` in vite.config.ts
+- [x] T003 Configure TypeScript strict mode with `"strict": true`, `"jsx": "react-jsx"`, target `ES2020` in tsconfig.json
+- [x] T004 [P] Configure ESLint flat config with React, TypeScript, and jsx-a11y rules in eslint.config.mjs
+- [x] T005 [P] Configure Prettier with consistent formatting rules in .prettierrc.json
+- [x] T006 [P] Add npm scripts for `dev`, `build`, `preview`, `lint`, and `typecheck` in package.json
+- [x] T007 Remove Vite template boilerplate (default App.tsx content, App.css, assets/) and create clean empty App.tsx in src/App.tsx
+- [x] T008 Create CSS reset, system font stacks (sans-serif + monospace), and base CSS custom properties in src/styles/global.css
+- [x] T009 Create light/dark theme CSS custom properties (colors, backgrounds, borders, shadows) using `:root` and `[data-theme='dark']` selectors in src/styles/theme.css
+- [x] T010 Add inline theme detection script in `<head>` to prevent FOUC (read localStorage → set `data-theme` before paint) in index.html
+- [x] T011 [P] Add SEO meta tags (title, description, Open Graph, favicon link) in index.html
+- [x] T012 [P] Create favicon as a simple "jy" text SVG in public/favicon.svg
 
 ---
 
@@ -48,9 +48,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T013 Implement `useCopyToClipboard` custom hook with Clipboard API, `copied` state, and configurable timeout in src/hooks/useCopyToClipboard.ts
-- [ ] T014 Implement `useTheme` custom hook with localStorage persistence, OS preference fallback, and `prefers-color-scheme` change listener in src/hooks/useTheme.ts
-- [ ] T015 Implement reusable CodeBlock component with `<pre><code>`, monospace styling, copy-to-clipboard button, and "Copied!" feedback in src/components/CodeBlock/CodeBlock.tsx and src/components/CodeBlock/CodeBlock.module.css
+- [x] T013 Implement `useCopyToClipboard` custom hook with Clipboard API, `copied` state, and configurable timeout in src/hooks/useCopyToClipboard.ts
+- [x] T014 Implement `useTheme` custom hook with localStorage persistence, OS preference fallback, and `prefers-color-scheme` change listener in src/hooks/useTheme.ts
+- [x] T015 Implement reusable CodeBlock component with `<pre><code>`, monospace styling, copy-to-clipboard button, and "Copied!" feedback in src/components/CodeBlock/CodeBlock.tsx and src/components/CodeBlock/CodeBlock.module.css
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel
 
@@ -64,11 +64,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement Hero component with tagline, description text, and layout container in src/components/Hero/Hero.tsx and src/components/Hero/Hero.module.css
-- [ ] T017 [US1] Implement InstallTabs component with npm/Script tab switching, ARIA tablist/tab/tabpanel roles, CodeBlock integration, and Windows note with Releases link in src/components/InstallTabs/InstallTabs.tsx and src/components/InstallTabs/InstallTabs.module.css
-- [ ] T018 [US1] Implement PlatformIcons component with OS icons (Linux, macOS, Windows), architecture labels (x64, arm64), and npm note in src/components/PlatformIcons/PlatformIcons.tsx and src/components/PlatformIcons/PlatformIcons.module.css
-- [ ] T019 [US1] Compose Hero section in App.tsx: Hero → InstallTabs → PlatformIcons, verify above-the-fold layout on 1920×1080 in src/App.tsx and src/App.module.css
-- [ ] T020 [US1] Add responsive styles for Hero, InstallTabs, and PlatformIcons: mobile-first layout, tappable copy buttons (≥44px), wrapping platform icons row in src/components/Hero/Hero.module.css, src/components/InstallTabs/InstallTabs.module.css, and src/components/PlatformIcons/PlatformIcons.module.css
+- [x] T016 [US1] Implement Hero component with tagline, description text, and layout container in src/components/Hero/Hero.tsx and src/components/Hero/Hero.module.css
+- [x] T017 [US1] Implement InstallTabs component with npm/Script tab switching, ARIA tablist/tab/tabpanel roles, CodeBlock integration, and Windows note with Releases link in src/components/InstallTabs/InstallTabs.tsx and src/components/InstallTabs/InstallTabs.module.css
+- [x] T018 [US1] Implement PlatformIcons component with OS icons (Linux, macOS, Windows), architecture labels (x64, arm64), and npm note in src/components/PlatformIcons/PlatformIcons.tsx and src/components/PlatformIcons/PlatformIcons.module.css
+- [x] T019 [US1] Compose Hero section in App.tsx: Hero → InstallTabs → PlatformIcons, verify above-the-fold layout on 1920×1080 in src/App.tsx and src/App.module.css
+- [x] T020 [US1] Add responsive styles for Hero, InstallTabs, and PlatformIcons: mobile-first layout, tappable copy buttons (≥44px), wrapping platform icons row in src/components/Hero/Hero.module.css, src/components/InstallTabs/InstallTabs.module.css, and src/components/PlatformIcons/PlatformIcons.module.css
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,10 +84,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Implement ThemeToggle component with sun/moon icon button, aria-label for current state, and onToggle callback in src/components/ThemeToggle/ThemeToggle.tsx and src/components/ThemeToggle/ThemeToggle.module.css
-- [ ] T022 [US3] Implement Navbar component with "jy" brand, Docs link (README URL, new tab), ThemeToggle, GitHub icon (repo URL, new tab), sticky positioning, and aria-labels in src/components/Navbar/Navbar.tsx and src/components/Navbar/Navbar.module.css
-- [ ] T023 [US3] Integrate Navbar and useTheme hook in App.tsx: pass theme and toggleTheme to Navbar, ensure sticky nav doesn't obscure content (add top padding to main content) in src/App.tsx
-- [ ] T024 [US3] Add responsive styles for Navbar: compact layout on mobile, touch-friendly targets (≥44px), ensure all elements remain accessible on 320px viewport in src/components/Navbar/Navbar.module.css
+- [x] T021 [P] [US3] Implement ThemeToggle component with sun/moon icon button, aria-label for current state, and onToggle callback in src/components/ThemeToggle/ThemeToggle.tsx and src/components/ThemeToggle/ThemeToggle.module.css
+- [x] T022 [US3] Implement Navbar component with "jy" brand, Docs link (README URL, new tab), ThemeToggle, GitHub icon (repo URL, new tab), sticky positioning, and aria-labels in src/components/Navbar/Navbar.tsx and src/components/Navbar/Navbar.module.css
+- [x] T023 [US3] Integrate Navbar and useTheme hook in App.tsx: pass theme and toggleTheme to Navbar, ensure sticky nav doesn't obscure content (add top padding to main content) in src/App.tsx
+- [x] T024 [US3] Add responsive styles for Navbar: compact layout on mobile, touch-friendly targets (≥44px), ensure all elements remain accessible on 320px viewport in src/components/Navbar/Navbar.module.css
 
 **Checkpoint**: At this point, User Stories 1 AND 3 should both work independently
 
@@ -101,8 +101,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T025 [US4] Implement WhyJy component with section heading, value proposition content (Unix philosophy, yq/jq contrast, intentional omissions), and semantic HTML in src/components/WhyJy/WhyJy.tsx and src/components/WhyJy/WhyJy.module.css
-- [ ] T026 [US4] Add WhyJy to App.tsx section composition after Hero in src/App.tsx
+- [x] T025 [US4] Implement WhyJy component with section heading, value proposition content (Unix philosophy, yq/jq contrast, intentional omissions), and semantic HTML in src/components/WhyJy/WhyJy.tsx and src/components/WhyJy/WhyJy.module.css
+- [x] T026 [US4] Add WhyJy to App.tsx section composition after Hero in src/App.tsx
 
 **Checkpoint**: User Stories 1, 3, AND 4 should all work independently
 
@@ -116,9 +116,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T027 [P] [US5] Implement FeatureCard component with title, description, optional icon/emoji, and card styling (borders, rounded corners, shadows) in src/components/Features/FeatureCard.tsx (styled via Features.module.css)
-- [ ] T028 [US5] Implement Features component composing 4 FeatureCard instances with correct content, 2×2 grid layout on desktop, single column on mobile in src/components/Features/Features.tsx and src/components/Features/Features.module.css
-- [ ] T029 [US5] Add Features to App.tsx section composition after WhyJy in src/App.tsx
+- [x] T027 [P] [US5] Implement FeatureCard component with title, description, optional icon/emoji, and card styling (borders, rounded corners, shadows) in src/components/Features/FeatureCard.tsx (styled via Features.module.css)
+- [x] T028 [US5] Implement Features component composing 4 FeatureCard instances with correct content, 2×2 grid layout on desktop, single column on mobile in src/components/Features/Features.tsx and src/components/Features/Features.module.css
+- [x] T029 [US5] Add Features to App.tsx section composition after WhyJy in src/App.tsx
 
 **Checkpoint**: User Stories 1, 3, 4, AND 5 should all work independently
 
@@ -132,9 +132,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement Usage component with categorized code examples (basic conversion, stdin/stdout, multiple files, --out, --validate, formatting), each using CodeBlock with copy button, and short descriptions in src/components/Usage/Usage.tsx and src/components/Usage/Usage.module.css
-- [ ] T031 [US2] Add Usage to App.tsx section composition after Features in src/App.tsx
-- [ ] T032 [US2] Add responsive styles for Usage: horizontally scrollable code blocks on mobile, readable text at 320px in src/components/Usage/Usage.module.css
+- [x] T030 [US2] Implement Usage component with categorized code examples (basic conversion, stdin/stdout, multiple files, --out, --validate, formatting), each using CodeBlock with copy button, and short descriptions in src/components/Usage/Usage.tsx and src/components/Usage/Usage.module.css
+- [x] T031 [US2] Add Usage to App.tsx section composition after Features in src/App.tsx
+- [x] T032 [US2] Add responsive styles for Usage: horizontally scrollable code blocks on mobile, readable text at 320px in src/components/Usage/Usage.module.css
 
 **Checkpoint**: User Stories 1, 2, 3, 4, AND 5 should all work independently
 
@@ -148,10 +148,10 @@
 
 ### Implementation
 
-- [ ] T033 Implement Footer component with "Made with ❤️ by Mohammed Bilal Shareef" centered text, author name as link to personal website (new tab), and visual separator in src/components/Footer/Footer.tsx and src/components/Footer/Footer.module.css
-- [ ] T034 Add Footer to App.tsx as the final section in src/App.tsx
-- [ ] T035 [US6] Review and polish both light and dark theme CSS variables: verify WCAG 2.1 AA contrast ratios for all text, interactive elements, code blocks, and feature cards in src/styles/theme.css
-- [ ] T036 [US6] Add `prefers-reduced-motion` media query to suppress/reduce any CSS transitions in src/styles/global.css
+- [x] T033 Implement Footer component with "Made with ❤️ by Mohammed Bilal Shareef" centered text, author name as link to personal website (new tab), and visual separator in src/components/Footer/Footer.tsx and src/components/Footer/Footer.module.css
+- [x] T034 Add Footer to App.tsx as the final section in src/App.tsx
+- [x] T035 [US6] Review and polish both light and dark theme CSS variables: verify WCAG 2.1 AA contrast ratios for all text, interactive elements, code blocks, and feature cards in src/styles/theme.css
+- [x] T036 [US6] Add `prefers-reduced-motion` media query to suppress/reduce any CSS transitions in src/styles/global.css
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -161,11 +161,11 @@
 
 **Purpose**: Visual refinement, deployment, and final validation
 
-- [ ] T037 [P] Review and refine visual polish: consistent spacing, typography hierarchy, section separators, and visual rhythm across all sections in src/App.module.css and individual component CSS files
-- [ ] T038 [P] Create GitHub Actions workflow for build + deploy to GitHub Pages on push to `gh-pages` branch (Node.js 22, npm ci, npm run build, upload-pages-artifact, deploy-pages) in .github/workflows/deploy.yml
-- [ ] T039 [P] Add .gitignore entries for node_modules/, dist/, and other build artifacts in .gitignore
-- [ ] T040 Verify production build: run `npm run build && npm run preview`, check bundle size < 200KB gzipped, test all sections in built output
-- [ ] T041 Run quickstart.md validation scenarios 1–10 against the production build to confirm all acceptance criteria pass
+- [x] T037 [P] Review and refine visual polish: consistent spacing, typography hierarchy, section separators, and visual rhythm across all sections in src/App.module.css and individual component CSS files
+- [x] T038 [P] Create GitHub Actions workflow for build + deploy to GitHub Pages on push to `gh-pages` branch (Node.js 22, npm ci, npm run build, upload-pages-artifact, deploy-pages) in .github/workflows/deploy.yml
+- [x] T039 [P] Add .gitignore entries for node_modules/, dist/, and other build artifacts in .gitignore
+- [x] T040 Verify production build: run `npm run build && npm run preview`, check bundle size < 200KB gzipped, test all sections in built output
+- [x] T041 Run quickstart.md validation scenarios 1–10 against the production build to confirm all acceptance criteria pass
 
 ---
 
